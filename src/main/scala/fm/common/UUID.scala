@@ -1,6 +1,5 @@
 package fm.common
 
-import com.google.common.io.BaseEncoding
 import java.lang.StringBuilder
 import java.math.BigInteger
 import java.nio.ByteBuffer
@@ -19,10 +18,10 @@ object UUID {
   
   private[this] val SignedShortMax: Int = 32768
   
-  private val Base16: BaseEncoding = BaseEncoding.base16().lowerCase()
-  private val Base32: BaseEncoding = BaseEncoding.base32().lowerCase()
-  private val Base64: BaseEncoding = BaseEncoding.base64()
-  private val Base64URL: BaseEncoding = BaseEncoding.base64Url()
+  private val Base16: BaseEncoding = BaseEncoding.Base16LowerCase
+  private val Base32: BaseEncoding = BaseEncoding.Base32LowerCase
+  private val Base64: BaseEncoding = BaseEncoding.Base64
+  private val Base64URL: BaseEncoding = BaseEncoding.Base64Url
   
   private[this] val counter = new java.util.concurrent.atomic.AtomicInteger(ThreadLocalRandom.current().nextInt)
   
