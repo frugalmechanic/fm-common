@@ -22,6 +22,7 @@ import java.math.{BigDecimal, BigInteger}
 import java.text.{DecimalFormat, NumberFormat, ParseException}
 import java.util.Locale
 import org.apache.commons.lang3.text.WordUtils
+import scala.annotation.tailrec
 import scala.util.{Success, Try}
 import scala.util.matching.Regex
 
@@ -201,6 +202,18 @@ final class RichString(val s: String) extends AnyVal {
   def replaceFirst(regex: Regex, replacement: String): String = regex.replaceFirstIn(s, replacement)
   
   def stripAccents: String = Normalize.stripAccents(s)
+  
+  // http://stackoverflow.com/questions/24874611/return-all-the-indexes-of-a-particular-substring
+  //  "aaaaaaaa".indexesOf("aa") => List[Int] of List(0, 2, 4, 6)
+  //  "aaaaaaaa".indexesOf(target = "aa", withinOverlaps = true) => List(0, 1, 2, 3, 4, 5, 6)
+  def indexesOf(target: String, index: Int = 0, withinOverlaps: Boolean = false): Seq[Int] = {
+    @tailrec def recursive(indexTarget: Int, accumulator: List[Int]): Seq[Int] = {
+      val position = s.indexOf(target, indexTarget)
+      if (position == -1) accumulator
+      else recursive(position + (if (withinOverlaps) 1 else target.size), position :: accumulator)
+    }
+    recursive(index, Nil).reverse
+  }
   
 //  /**
 //   * The plural form of the string
