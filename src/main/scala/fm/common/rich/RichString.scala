@@ -47,6 +47,10 @@ object RichString {
     
     booleanLookupMap.get(lower)
   }
+
+  private[this] val halfWidth: String = """ 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&()*+,-./:;<=>?@[]^_`{|}~"""
+  private[this] val fullWidth: String = """　０１２３４５６７８９ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ！゛＃＄％＆（）＊＋、ー。／：；〈＝〉？＠［］＾＿‘｛｜｝～"""
+  private val halfToFullMap: Map[Char, Char] = halfWidth.zipWithIndex.map{ case (half: Char, pos: Int) => half -> fullWidth(pos) }.toMap
 }
 
 final class RichString(val s: String) extends AnyVal {
@@ -201,7 +205,12 @@ final class RichString(val s: String) extends AnyVal {
   def replaceFirst(regex: Regex, replacement: String): String = regex.replaceFirstIn(s, replacement)
   
   def stripAccents: String = Normalize.stripAccents(s)
-  
+
+  // Convert "half-width" latin characters into "full-width" unicode equivalents
+  def toFullWidth: String = {
+    s.map { case c: Char => RichString.halfToFullMap.get(c).getOrElse(c) }
+  }
+
 //  /**
 //   * The plural form of the string
 //   */
