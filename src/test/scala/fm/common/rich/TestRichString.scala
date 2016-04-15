@@ -67,4 +67,10 @@ final class TestRichString extends FunSuite with Matchers {
     
     "foo_bar".capitalizeFully('_') should equal ("Foo_Bar")
   }
+  
+  test("indexesOf") {
+    "aaaaaaaa".indexesOf("aa") should equal (List(0, 2, 4, 6))
+    "aaaaaaaa".indexesOf(target = "aa", withinOverlaps = true) should equal (List(0, 1, 2, 3, 4, 5, 6))
+    "aaaaaaaa".indexesOf("b") should equal (Nil)
+  }
 }

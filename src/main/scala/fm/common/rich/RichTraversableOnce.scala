@@ -156,6 +156,9 @@ final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal 
   /**
    * A combination of map + find that returns the first Some that is found
    * after applying the map operation.
+   *
+   * TODO: Research @inline causes a compiler problem with 2.11.7 in some specific use cases...
+   * [warn] Could not inline required method findMapped$extension because fm.common.rich.RichTraversableOnce.findMapped$extension bytecode contains exception handlers / finally clause.
    */
   @inline def findMapped[B](f: A => Option[B]): Option[B] = {
     self.foreach{ a: A =>
