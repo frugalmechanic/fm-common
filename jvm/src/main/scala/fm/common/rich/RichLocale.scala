@@ -50,10 +50,11 @@ final class RichLocale(val self: Locale) extends AnyVal {
   
   def languageTag: String = self.toLanguageTag()
   
-  def isValidLanguage: Boolean = Try{ self.getISO3Language }.isSuccess
-  def isValidCountry: Boolean = Try{ self.getISO3Country }.isSuccess
+  def isValidLanguage: Boolean = Try{ self.getISO3Language }.filter(_.nonEmpty).toOption.isDefined
+  def isValidCountry: Boolean = Try{ self.getISO3Country }.filter(_.nonEmpty).toOption.isDefined
+  def hasCountry: Boolean = isValidCountry
   
-  def isValid: Boolean = isValidLanguage && isValidCountry
+  def isValid: Boolean = isValidLanguage // && isValidCountry
   
   def displayName(implicit locale: Locale): String = self.getDisplayName(locale)
   def displayCountry(implicit locale: Locale): String = self.getDisplayCountry(locale)
