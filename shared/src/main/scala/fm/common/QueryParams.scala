@@ -82,6 +82,7 @@ object QueryParams {
 final class QueryParamsBuilder extends Builder[(String, String), QueryParams] {
   private[this] val builder = Vector.newBuilder[(String, String)]
   def +=(param: (String, String)): this.type = { builder += param; this }
+  def ++=(params: (String, String)*): this.type = { builder ++= params; this }
   def result(): QueryParams = QueryParams(builder.result)
   def clear(): Unit = builder.clear()
 }
