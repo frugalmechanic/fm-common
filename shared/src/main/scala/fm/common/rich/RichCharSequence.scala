@@ -15,7 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.{ImmutableArray, ImmutableArrayBuilder}
+import fm.common.{ASCIIUtil, ImmutableArray, ImmutableArrayBuilder}
 
 /**
  * Provides additional functionality for java.lang.CharSequence
@@ -107,4 +107,121 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
   
   def matches(pattern: java.util.regex.Pattern): Boolean = pattern.matcher(s).matches()
   def matches(regex: scala.util.matching.Regex): Boolean = regex.pattern.matcher(s).matches()
+
+  def containsNormalized(target: CharSequence): Boolean = {
+    containsWithTransform(target, Character.isLetterOrDigit(_), (c: Char) => Character.toLowerCase(ASCIIUtil.toASCIIChar(c)))
+  }
+
+  @inline def containsWithTransform(target: CharSequence, filter: Char => Boolean, map: Char => Char): Boolean = {
+    indexOfWithTransform(target, filter, map) > -1
+  }
+
+  def indexOfNormalized(target: CharSequence): Int = {
+    indexOfWithTransform(target, Character.isLetterOrDigit(_), (c: Char) => Character.toLowerCase(ASCIIUtil.toASCIIChar(c)))
+  }
+
+  @inline def indexOfWithTransform(target: CharSequence, filter: Char => Boolean, map: Char => Char): Int = {
+    if (null == s || null == target) return -1
+    if (target.length == 0) return 0
+
+    //
+    // Skip past any chars that we do not care about in the target
+    //
+    var targetStartingIdx: Int = 0
+    while (targetStartingIdx < target.length && !filter(target.charAt(targetStartingIdx))) targetStartingIdx += 1
+
+    //
+    // Loop over the source and check for matches of the target
+    //
+    var sourceIdx: Int = 0
+
+    while (sourceIdx < s.length) {
+      // Only check starting from this index if the char is included in our filter (so we have an accurate startIdx
+      // that can be returned from indexOfWithTransformImpl)
+      if (filter(s.charAt(sourceIdx))) {
+        val res: Int = indexOfWithTransformImpl(target, targetStartingIdx, sourceIdx, filter, map)
+        if (-1 != res) return res
+      }
+
+      sourceIdx += 1
+    }
+
+    -1
+  }
+
+  @inline private def indexOfWithTransformImpl(target: CharSequence, targetStartIdx: Int, sourceStartIdx: Int, filter: Char => Boolean, map: Char => Char): Int = {
+    var targetIdx: Int = targetStartIdx
+    var sourceIdx: Int = sourceStartIdx
+
+    do {
+      //
+      // 1 - Check if the chars match.
+      //
+      // Note: At this point we have already filtered past bad chars either in the indexOfWithTransform method
+      //       or via the code below.
+      //
+      val sourceChar: Char = map(s.charAt(sourceIdx))
+      val targetChar: Char = map(target.charAt(targetIdx))
+
+      if (sourceChar != targetChar) return -1
+
+      //
+      // 2 - Advance our indexes
+      //
+      targetIdx += 1
+      sourceIdx += 1
+
+      //
+      // 3 - Skip past any chars we do not care about
+      //
+      while (targetIdx < target.length && !filter(target.charAt(targetIdx))) targetIdx += 1
+      while (sourceIdx < s.length && !filter(s.charAt(sourceIdx))) sourceIdx += 1
+
+    } while (targetIdx < target.length && sourceIdx < s.length)
+
+    // If we have reached the end of the target then we have matches everything
+    if (targetIdx == target.length) sourceStartIdx else -1
+  }
+
+  def equalsNormalized(target: CharSequence): Boolean = {
+    equalsWithTransform(target, Character.isLetterOrDigit(_), (c: Char) => Character.toLowerCase(ASCIIUtil.toASCIIChar(c)))
+  }
+
+  def equalsWithTransform(target: CharSequence, filter: Char => Boolean, map: Char => Char): Boolean = {
+    if (null == s || null == target) return false
+
+    var sourceIdx: Int = 0
+    var targetIdx: Int = 0
+
+    while (sourceIdx < s.length && targetIdx < target.length) {
+      //
+      // 1 - Skip past any chars we do not care about
+      //
+      while (targetIdx < target.length && !filter(target.charAt(targetIdx))) targetIdx += 1
+      while (sourceIdx < s.length && !filter(s.charAt(sourceIdx))) sourceIdx += 1
+
+      if (sourceIdx < s.length && targetIdx < target.length) {
+        //
+        // 2 - Check if the chars match
+        //
+        val sourceChar: Char = map(s.charAt(sourceIdx))
+        val targetChar: Char = map(target.charAt(targetIdx))
+
+        if (sourceChar != targetChar) return false
+
+        //
+        // 3 - Advance our indexes
+        //
+        targetIdx += 1
+        sourceIdx += 1
+      }
+    }
+
+    // Skip over any remaining chars that should be filtered out
+    while (targetIdx < target.length && !filter(target.charAt(targetIdx))) targetIdx += 1
+    while (sourceIdx < s.length && !filter(s.charAt(sourceIdx))) sourceIdx += 1
+
+    // It is a match if we are at the end of both strings
+    sourceIdx == s.length && targetIdx == target.length
+  }
 }

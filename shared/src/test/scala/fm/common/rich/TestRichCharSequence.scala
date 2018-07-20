@@ -97,4 +97,30 @@ final class TestRichCharSequence extends FunSuite with Matchers {
     "aaaaaaaa".indexesOf("b", withOverlaps = false) should equal (Nil)
   }
 
+  test("equalsNormalized") {
+    (null: String).equalsNormalized(null) should equal (false)
+    (null: String).equalsNormalized("") should equal (false)
+    "".equalsNormalized(null) should equal (false)
+
+    "".equalsNormalized("") should equal (true)
+    "foo".equalsNormalized("foo") should equal (true)
+    "foo".equalsNormalized(" fOo ") should equal (true)
+    "  F o O B a R ".equalsNormalized(" fOo bAr ") should equal (true)
+  }
+
+  test("indexOfNormalized / containsNormalized") {
+    checkIndexOfNormalized(null, null, -1)
+    checkIndexOfNormalized(null, "", -1)
+    checkIndexOfNormalized("", null, -1)
+
+    checkIndexOfNormalized("", "", 0)
+    checkIndexOfNormalized("foo", "", 0)
+    checkIndexOfNormalized("foo", "foo", 0)
+    checkIndexOfNormalized("  F o O B a R ", " fOo bAr ", 2)
+  }
+
+  private def checkIndexOfNormalized(s: CharSequence, target: CharSequence, idx: Int): Unit = {
+    s.indexOfNormalized(target) should equal (idx)
+    s.containsNormalized(target) should equal (idx > -1)
+  }
 }
