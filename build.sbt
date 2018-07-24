@@ -7,7 +7,7 @@ scalaVersion in ThisBuild := "2.12.6"
 crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.6")
 
 lazy val `fm-common` = project.in(file(".")).
-  aggregate(fmCommonJS, fmCommonJVM).
+  aggregate(fmCommonJS, fmCommonJVM, `fm-common-bench`).
   settings(FMPublic ++ Seq(
     publish := {},
     publishLocal := {},
@@ -73,7 +73,13 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.6",
     libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.4"
   )
+  
+lazy val `fm-common-bench` = project.in(file("bench")).settings(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false,
+  publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))), // http://stackoverflow.com/a/18522706  
+).enablePlugins(JmhPlugin).dependsOn(fmCommonJVM, `fm-common-macros`)
 
 lazy val fmCommonJVM = `fm-common-`.jvm.dependsOn(`fm-common-macros` % "compile-internal, test-internal")
 lazy val fmCommonJS = `fm-common-`.js.dependsOn(`fm-common-macros` % "compile-internal, test-internal")
-
