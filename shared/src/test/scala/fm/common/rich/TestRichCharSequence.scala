@@ -108,6 +108,20 @@ final class TestRichCharSequence extends FunSuite with Matchers {
     "  F o O B a R ".equalsNormalized(" fOo bAr ") should equal (true)
   }
 
+  test("containsIgnoreCase") {
+    (null: String).containsIgnoreCase(null) should equal (false)
+    (null: String).containsIgnoreCase("") should equal (false)
+    "".containsIgnoreCase(null) should equal (false)
+
+    "".containsIgnoreCase("") should equal (true)
+    "foo".containsIgnoreCase("foo") should equal (true)
+    "FOO".containsIgnoreCase("foo") should equal (true)
+    "FOO".containsIgnoreCase("FOO") should equal (true)
+    "FoO".containsIgnoreCase("fOo") should equal (true)
+    "foo".containsIgnoreCase(" fOo ") should equal (false)
+    "  F o O B a R ".containsIgnoreCase(" fOo bAr ") should equal (false)
+  }
+
   test("indexOfNormalized / containsNormalized") {
     checkIndexOfNormalized(null, null, -1)
     checkIndexOfNormalized(null, "", -1)
@@ -119,8 +133,34 @@ final class TestRichCharSequence extends FunSuite with Matchers {
     checkIndexOfNormalized("  F o O B a R ", " fOo bAr ", 2)
   }
 
+  test("indexOfIgnoreCase / containsIgnoreCase") {
+    checkIndexOfIgnoreCase(null, null, -1)
+    checkIndexOfIgnoreCase(null, "", -1)
+    checkIndexOfIgnoreCase("", null, -1)
+
+    checkIndexOfIgnoreCase("", "", 0)
+    checkIndexOfIgnoreCase("foo", "", 0)
+    checkIndexOfIgnoreCase("foo", "foo", 0)
+    checkIndexOfIgnoreCase("  F o O B a R ", " fOo bAr ", -1)
+
+    checkIndexOfIgnoreCase("foo", "FOO", 0)
+    checkIndexOfIgnoreCase("FOO", "foo", 0)
+    checkIndexOfIgnoreCase("fOo", "FoO", 0)
+
+    checkIndexOfIgnoreCase("  foo  ", "FOO", 2)
+    checkIndexOfIgnoreCase("asdasd  FOO  12313!@#!#", "foo", 8)
+    checkIndexOfIgnoreCase("!@#!@# fOo!@#!@#!#", "FoO", 7)
+
+    checkIndexOfIgnoreCase("foo", "asdasdfooadasd", -1)
+  }
+
   private def checkIndexOfNormalized(s: CharSequence, target: CharSequence, idx: Int): Unit = {
     s.indexOfNormalized(target) should equal (idx)
     s.containsNormalized(target) should equal (idx > -1)
+  }
+
+  private def checkIndexOfIgnoreCase(s: CharSequence, target: CharSequence, idx: Int): Unit = {
+    s.indexOfIgnoreCase(target) should equal (idx)
+    s.containsIgnoreCase(target) should equal (idx > -1)
   }
 }

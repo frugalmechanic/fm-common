@@ -112,12 +112,20 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
     containsWithTransform(target, Character.isLetterOrDigit(_), (c: Char) => Character.toLowerCase(ASCIIUtil.toASCIIChar(c)))
   }
 
+  def containsIgnoreCase(target: CharSequence): Boolean = {
+    containsWithTransform(target, (_: Char) => true, (c: Char) => Character.toLowerCase(c))
+  }
+
   @inline def containsWithTransform(target: CharSequence, filter: Char => Boolean, map: Char => Char): Boolean = {
     indexOfWithTransform(target, filter, map) > -1
   }
 
   def indexOfNormalized(target: CharSequence): Int = {
     indexOfWithTransform(target, Character.isLetterOrDigit(_), (c: Char) => Character.toLowerCase(ASCIIUtil.toASCIIChar(c)))
+  }
+
+  def indexOfIgnoreCase(target: CharSequence): Int = {
+    indexOfWithTransform(target, (_: Char) => true, (c: Char) => Character.toLowerCase(c))
   }
 
   @inline def indexOfWithTransform(target: CharSequence, filter: Char => Boolean, map: Char => Char): Int = {
@@ -187,7 +195,7 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
     equalsWithTransform(target, Character.isLetterOrDigit(_), (c: Char) => Character.toLowerCase(ASCIIUtil.toASCIIChar(c)))
   }
 
-  def equalsWithTransform(target: CharSequence, filter: Char => Boolean, map: Char => Char): Boolean = {
+  @inline def equalsWithTransform(target: CharSequence, filter: Char => Boolean, map: Char => Char): Boolean = {
     if (null == s || null == target) return false
 
     var sourceIdx: Int = 0
