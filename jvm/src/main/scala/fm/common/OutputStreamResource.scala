@@ -25,8 +25,23 @@ import java.util.zip.{ZipEntry, ZipOutputStream}
 import java.util.jar.{JarEntry, JarOutputStream}
 
 object OutputStreamResource {
-  def wrap(os: OutputStream, fileName: String = "", autoCompress: Boolean = true, compressionLevel: Int = Deflater.BEST_SPEED, buffered: Boolean = true, internalArchiveFileName: Option[String] = None): OutputStreamResource = {
-    OutputStreamResource(SingleUseResource(os), fileName = fileName, autoCompress = autoCompress, compressionLevel = compressionLevel, buffered = buffered, internalArchiveFileName = internalArchiveFileName)
+  def wrap(
+    os: OutputStream,
+    fileName: String = "",
+    autoCompress: Boolean = true,
+    compressionLevel: Int = Deflater.BEST_SPEED,
+    buffered: Boolean = true,
+    internalArchiveFileName: Option[String] = None
+  ): OutputStreamResource = {
+
+    OutputStreamResource(
+      resource = SingleUseResource(os),
+      fileName = fileName,
+      autoCompress = autoCompress,
+      compressionLevel = compressionLevel,
+      buffered = buffered,
+      internalArchiveFileName = internalArchiveFileName
+    )
   }
   
   // Hacky anonymous inner class with anonymous constructor to set the compression level as seen here:
@@ -36,15 +51,22 @@ object OutputStreamResource {
   }
 }
 
-final case class OutputStreamResource(resource: Resource[OutputStream], fileName: String = "", autoCompress: Boolean = true, compressionLevel: Int = Deflater.BEST_SPEED, buffered: Boolean = true, internalArchiveFileName: Option[String] = None) extends Resource[OutputStream] {
+final case class OutputStreamResource(
+  resource: Resource[OutputStream],
+  fileName: String = "",
+  autoCompress: Boolean = true,
+  compressionLevel: Int = Deflater.BEST_SPEED,
+  buffered: Boolean = true,
+  internalArchiveFileName: Option[String] = None
+) extends Resource[OutputStream] {
   def isUsable: Boolean = resource.isUsable
   def isMultiUse: Boolean = resource.isMultiUse
   
   def use[T](f: OutputStream => T): T = filteredResource(bufferedFilter(resource)).use{ os: OutputStream => f(os) }
   
-  def writer(): Resource[Writer] = flatMap{ is => Resource(new OutputStreamWriter(is)) }
-  def writer(encoding: String): Resource[Writer] = flatMap{ is => Resource(new OutputStreamWriter(is, encoding)) }
-  def writer(cs: Charset): Resource[Writer] = flatMap{ is => Resource(new OutputStreamWriter(is, cs)) }
+  def writer(): Resource[Writer] = flatMap{ os => Resource(new OutputStreamWriter(os)) }
+  def writer(encoding: String): Resource[Writer] = flatMap{ os => Resource(new OutputStreamWriter(os, encoding)) }
+  def writer(cs: Charset): Resource[Writer] = flatMap{ os: OutputStream => Resource(new OutputStreamWriter(os, cs)) }
   
   def bufferedWriter(): Resource[BufferedWriter] = writer() flatMap { r => Resource(new BufferedWriter(r)) }
   def bufferedWriter(encoding: String): Resource[BufferedWriter] = writer(encoding) flatMap { r => Resource(new BufferedWriter(r)) }
@@ -79,7 +101,7 @@ final case class OutputStreamResource(resource: Resource[OutputStream], fileName
   private def xz(r: Resource[OutputStream]):     Resource[OutputStream] = r.flatMap { new XZCompressorOutputStream(_) }
   
   private def zip(r: Resource[OutputStream], extension: String): Resource[OutputStream] = r.flatMap { os: OutputStream =>
-    val zos = new ZipOutputStream(os)
+    val zos: ZipOutputStream = new ZipOutputStream(os)
     zos.setLevel(compressionLevel)
     // Add an entry with the extension stripped off
     val entryName: String = internalArchiveFileName.getOrElse(fileName.substring(0, fileName.length-extension.length))
@@ -88,7 +110,7 @@ final case class OutputStreamResource(resource: Resource[OutputStream], fileName
   }
   
   private def jar(r: Resource[OutputStream], extension: String): Resource[OutputStream] = r.flatMap { os: OutputStream =>
-    val zos = new JarOutputStream(os)
+    val zos: JarOutputStream = new JarOutputStream(os)
     zos.setLevel(compressionLevel)
     // Add an entry with the extension stripped off
     val entryName: String = internalArchiveFileName.getOrElse(fileName.substring(0, fileName.length-extension.length))
@@ -126,6 +148,6 @@ final case class OutputStreamResource(resource: Resource[OutputStream], fileName
 //  }
     
   private def bufferedFilter(resource: Resource[OutputStream]): Resource[OutputStream] = {
-    if(buffered) resource.flatMap{ new BufferedOutputStream(_) } else resource
+    if (buffered) resource.flatMap{ new BufferedOutputStream(_) } else resource
   }
 }

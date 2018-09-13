@@ -41,7 +41,13 @@ object InputStreamResource {
     InputStreamResource(SingleUseResource(is), fileName = fileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  def forFileOrResource(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true, classLoader: ClassLoader = defaultClassLoader): InputStreamResource = {
+  def forFileOrResource(
+    file: File,
+    originalFileName: String = "",
+    autoDecompress: Boolean = true,
+    autoBuffer: Boolean = true,
+    classLoader: ClassLoader = defaultClassLoader
+  ): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{
       if (file.isFile && file.canRead) new FileInputStream(file) else classLoader.getResourceAsStream(file.toResourcePath)
     }.map{ is: InputStream =>
@@ -51,7 +57,12 @@ object InputStreamResource {
     forFileImpl(resource, file, originalFileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  def forFile(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+  def forFile(
+    file: File,
+    originalFileName: String = "",
+    autoDecompress: Boolean = true,
+    autoBuffer: Boolean = true
+  ): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{ new FileInputStream(file) }.map{ is: InputStream =>
       if (null == is) throw new IOException("Missing File: "+file)
       is
@@ -59,22 +70,43 @@ object InputStreamResource {
     forFileImpl(resource, file, originalFileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  def forRandomAccessFile(raf: RandomAccessFile, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+  def forRandomAccessFile(
+    raf: RandomAccessFile,
+    originalFileName: String = "",
+    autoDecompress: Boolean = true,
+    autoBuffer: Boolean = true
+  ): InputStreamResource = {
     val bufs: Vector[MappedByteBuffer] = ByteBufferUtil.map(raf, FileChannel.MapMode.READ_ONLY)
     forByteBuffers(bufs, originalFileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  def forByteBuffer(buf: ByteBuffer, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+  def forByteBuffer(
+    buf: ByteBuffer,
+    originalFileName: String = "",
+    autoDecompress: Boolean = true,
+    autoBuffer: Boolean = true
+  ): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{ new ByteBufferInputStream(buf.duplicate()) }
     InputStreamResource(resource, fileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  def forByteBuffers(bufs: Vector[ByteBuffer], originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+  def forByteBuffers(
+    bufs: Vector[ByteBuffer],
+    originalFileName: String = "",
+    autoDecompress: Boolean = true,
+    autoBuffer: Boolean = true
+  ): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{ ByteBufferInputStream(bufs) }
     InputStreamResource(resource, fileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  def forResource(file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true, classLoader: ClassLoader = defaultClassLoader): InputStreamResource = {
+  def forResource(
+    file: File,
+    originalFileName: String = "",
+    autoDecompress: Boolean = true,
+    autoBuffer: Boolean = true,
+    classLoader: ClassLoader = defaultClassLoader
+  ): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{ classLoader.getResourceAsStream(file.toResourcePath) }.map{ is: InputStream =>
       if (null == is) throw new IOException("Missing Classpath Resource: "+file)
       is
@@ -82,7 +114,13 @@ object InputStreamResource {
     forFileImpl(resource, file, originalFileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
-  private def forFileImpl(resource: Resource[InputStream], file: File, originalFileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true): InputStreamResource = {
+  private def forFileImpl(
+    resource: Resource[InputStream],
+    file: File,
+    originalFileName: String = "",
+    autoDecompress: Boolean = true,
+    autoBuffer: Boolean = true
+  ): InputStreamResource = {
     val fileName: String = originalFileName.toBlankOption.getOrElse{ file.getName }
     InputStreamResource(resource, fileName = fileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
@@ -113,7 +151,9 @@ object InputStreamResource {
   }
   
   // Keep this in sync with BOMCharsets
-  private def newBOMInputStream(is: InputStream): InputStream = new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+  private def newBOMInputStream(is: InputStream): InputStream = {
+    new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+  }
   
   // Keep this in sync with BOMCharsets
   private def newBOMInputStreamReader(is: InputStream): Reader = {

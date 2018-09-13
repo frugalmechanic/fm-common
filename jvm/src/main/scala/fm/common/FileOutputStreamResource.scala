@@ -20,17 +20,45 @@ import java.nio.file.{Files, StandardCopyOption}
 import java.util.zip.Deflater
 
 object FileOutputStreamResource {
-  def apply(file: File, fileName: String = "", overwrite: Boolean = true, append: Boolean = false, useTmpFile: Boolean = true, autoCompress: Boolean = true, compressionLevel: Int = Deflater.BEST_SPEED, buffered: Boolean = true, internalArchiveFileName: Option[String] = None): OutputStreamResource = {
+  def apply(
+    file: File,
+    fileName: String = "",
+    overwrite: Boolean = true,
+    append: Boolean = false,
+    useTmpFile: Boolean = true,
+    autoCompress: Boolean = true,
+    compressionLevel: Int = Deflater.BEST_SPEED,
+    buffered: Boolean = true,
+    internalArchiveFileName: Option[String] = None
+  ): OutputStreamResource = {
     val finalFileName: String = fileName.toBlankOption.getOrElse{ file.getName }
-    val resource: Resource[OutputStream] = new FileOutputStreamResource(file = file, overwrite = overwrite, append = append, useTmpFile = useTmpFile)
+
+    val resource: Resource[OutputStream] = new FileOutputStreamResource(
+      file = file,
+      overwrite = overwrite,
+      append = append,
+      useTmpFile = useTmpFile
+    )
     
-    OutputStreamResource(resource = resource, fileName = finalFileName, autoCompress = autoCompress, compressionLevel = compressionLevel, buffered = buffered, internalArchiveFileName = internalArchiveFileName)
+    OutputStreamResource(
+      resource = resource,
+      fileName = finalFileName,
+      autoCompress = autoCompress,
+      compressionLevel = compressionLevel,
+      buffered = buffered,
+      internalArchiveFileName = internalArchiveFileName
+    )
   }
 }
 
 // Most of the logic in here was refactored into the OutputStreamResource class.  This still exists to handle the actual writing to the file and tmp file renaming stuff.
 // It's not meant to be used directly.
-final private class FileOutputStreamResource private (file: File, overwrite: Boolean = true, append: Boolean = false, useTmpFile: Boolean = true) extends Resource[OutputStream] with Logging {
+final private class FileOutputStreamResource private (
+  file: File,
+  overwrite: Boolean = true,
+  append: Boolean = false,
+  useTmpFile: Boolean = true
+) extends Resource[OutputStream] with Logging {
   if (overwrite) require(!append, "You've specified both append and overwrite!")
   
   def isUsable: Boolean = true

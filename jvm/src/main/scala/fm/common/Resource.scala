@@ -200,9 +200,9 @@ final class SingleUseResource[+A <% AutoCloseable](resource: A) extends Resource
  * For Resource.map
  */
 final class MappedResource[A, B](resource: Resource[A], mapping: A => B) extends Resource[B] {
-  def use[T](f: B => T): T = resource.use{ a => f(mapping(a)) }
+  def use[T](f: B => T): T = resource.use{ a: A => f(mapping(a)) }
   
-  def isUsable = resource.isUsable
+  def isUsable: Boolean = resource.isUsable
   def isMultiUse: Boolean = resource.isMultiUse
 }
 
@@ -210,8 +210,8 @@ final class MappedResource[A, B](resource: Resource[A], mapping: A => B) extends
  * For Resource.flatMap
  */
 final class FlatMappedResource[A, B](resource: Resource[A], mapping: A => Resource[B]) extends Resource[B] {
-  def use[T](f: B => T): T = resource.use{ a => mapping(a).use[T](f) }
+  def use[T](f: B => T): T = resource.use{ a: A => mapping(a).use[T](f) }
   
-  def isUsable = resource.isUsable
+  def isUsable: Boolean = resource.isUsable
   def isMultiUse: Boolean = resource.isMultiUse
 }
