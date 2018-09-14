@@ -17,7 +17,6 @@ package fm.common
 
 import org.scalatest.{FunSuite, Matchers}
 import java.io.{BufferedInputStream, File}
-import java.nio.charset.Charset
 
 final class TestIOUtils extends FunSuite with Matchers {
   // Test detecting charset encoding
@@ -40,7 +39,7 @@ final class TestIOUtils extends FunSuite with Matchers {
   
   private def checkDetectCharset(file: String, charsetName: String): Unit = {
     InputStreamResource.forResource(new File(s"encoding/$file")).flatMap { _.toBufferedInputStream }.foreach { bis: BufferedInputStream =>
-      IOUtils.detectCharset(bis, true) should equal (Some(Charset.forName(charsetName)))
+      IOUtils.detectCharset(bis, true) should equal (Some(CharsetUtil.forName(charsetName)))
     }
   } 
 }

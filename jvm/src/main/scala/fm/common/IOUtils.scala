@@ -137,7 +137,7 @@ object IOUtils {
   /**
    * Attempt to detect the charset of the InputStream using the XML Detector or the Universal Detector
    */
-  def detectCharset(is: InputStream, useMarkReset: Boolean): Option[Charset] = detectCharsetName(is, useMarkReset).map{ Charset.forName }
+  def detectCharset(is: InputStream, useMarkReset: Boolean): Option[Charset] = detectCharsetName(is, useMarkReset).map{ CharsetUtil.forName }
  
   
   /**
@@ -150,7 +150,7 @@ object IOUtils {
   /**
    * Attempt to detect the charset of the InputStream using org.mozilla.universalchardet.UniversalDetector
    */
-  def detectUniversalCharset(is: InputStream, useMarkReset: Boolean): Option[Charset] = detectUniversalCharsetName(is, useMarkReset).map{ Charset.forName }
+  def detectUniversalCharset(is: InputStream, useMarkReset: Boolean): Option[Charset] = detectUniversalCharsetName(is, useMarkReset).map{ CharsetUtil.forName }
  
   
   /**

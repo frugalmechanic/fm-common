@@ -17,7 +17,7 @@ package fm.common
 
 import java.io._
 import java.nio.charset.Charset
-
+import java.nio.charset.StandardCharsets.UTF_8
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import java.util.zip.{Deflater, GZIPOutputStream}
@@ -65,8 +65,37 @@ final case class OutputStreamResource(
   def use[T](f: OutputStream => T): T = filteredResource(bufferedFilter(resource)).use{ os: OutputStream => f(os) }
   
   def writer(): Resource[Writer] = flatMap{ os => Resource(new OutputStreamWriter(os)) }
-  def writer(encoding: String): Resource[Writer] = flatMap{ os => Resource(new OutputStreamWriter(os, encoding)) }
-  def writer(cs: Charset): Resource[Writer] = flatMap{ os: OutputStream => Resource(new OutputStreamWriter(os, cs)) }
+
+  def writer(encoding: String): Resource[Writer] = {
+    flatMap{ os: OutputStream =>
+      val updatedEncoding: String = if (encoding === UTF_8_BOM.name || UTF_8_BOM.aliases().contains(encoding)) {
+        // Write the UTF-8 BOM
+        UTF_8_BOM.writeBOM(os)
+
+        // Switch to the normal UTF_8 Charset (even though UTF_8_BOM should work the same)
+        "UTF-8"
+      } else {
+        encoding
+      }
+
+      Resource(new OutputStreamWriter(os, updatedEncoding)) }
+  }
+
+  def writer(cs: Charset): Resource[Writer] = {
+    flatMap{ os: OutputStream =>
+      val updatedCS: Charset = if (cs eq UTF_8_BOM) {
+        // Write the UTF-8 BOM
+        UTF_8_BOM.writeBOM(os)
+
+        // Switch to the normal UTF_8 Charset (even though UTF_8_BOM should work the same)
+        UTF_8
+      } else {
+        cs
+      }
+
+      Resource(new OutputStreamWriter(os, updatedCS))
+    }
+  }
   
   def bufferedWriter(): Resource[BufferedWriter] = writer() flatMap { r => Resource(new BufferedWriter(r)) }
   def bufferedWriter(encoding: String): Resource[BufferedWriter] = writer(encoding) flatMap { r => Resource(new BufferedWriter(r)) }

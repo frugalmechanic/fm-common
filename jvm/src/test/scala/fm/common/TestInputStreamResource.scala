@@ -60,7 +60,9 @@ final class TestInputStreamResource extends FunSuite with Matchers {
   test("UTF-32LE with BOM") { checkEncoding("quickbrown-UTF-32LE-with-BOM.txt") }
   //test("UTF-32LE no BOM")   { checkEncoding("quickbrown-UTF-32LE-no-BOM.txt") }
   
-  private val QuickBrownTest: String = InputStreamResource.forResource(new File(s"encoding/quickbrown-UTF-8-no-BOM.txt")).readToString("UTF-8")
+  private val QuickBrownTest: String = {
+    InputStreamResource.forResource(new File(s"encoding/quickbrown-UTF-8-no-BOM.txt")).readToString("UTF-8")
+  }
   
   private def checkEncoding(file: String): Unit = {
     InputStreamResource.forResource(new File(s"encoding/$file")).readToString() should equal(QuickBrownTest)

@@ -136,18 +136,27 @@ object InputStreamResource {
   
   private val BOMCharsets: Set[Charset] = {
     // Keep this in sync with newBOMInputStream
-    val BOMs: Vector[ByteOrderMark] = Vector(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+    val BOMs: Vector[ByteOrderMark] = Vector(
+      ByteOrderMark.UTF_8,
+      ByteOrderMark.UTF_16LE,
+      ByteOrderMark.UTF_16BE,
+      ByteOrderMark.UTF_32LE,
+      ByteOrderMark.UTF_32BE
+    )
     
     // Avoiding closures so no methods have ByteOrderMark in their signature (so Proguard doesn't complain)
-    val set = Set.newBuilder[Charset]
+    val setBuilder = Set.newBuilder[Charset]
     var i = 0
     
     while (i < BOMs.length) {
-      set += Charset.forName(BOMs(i).getCharsetName)
+      setBuilder += CharsetUtil.forName(BOMs(i).getCharsetName)
       i += 1
     }
-    
-    set.result
+
+    // Important: Also add our custom UTF_8_BOM Charset that wraps UTF-8
+    setBuilder += UTF_8_BOM
+
+    setBuilder.result
   }
   
   // Keep this in sync with BOMCharsets
@@ -163,7 +172,12 @@ object InputStreamResource {
   }
 }
 
-final case class InputStreamResource(resource: Resource[InputStream], fileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true) extends Resource[InputStream] with Logging {
+final case class InputStreamResource(
+  resource: Resource[InputStream],
+  fileName: String = "",
+  autoDecompress: Boolean = true,
+  autoBuffer: Boolean = true
+) extends Resource[InputStream] with Logging {
   import InputStreamResource.{BOMCharsets, newBOMInputStream, newBOMInputStreamReader}
   
   def isUsable: Boolean = resource.isUsable
@@ -195,7 +209,7 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
   def reader(encoding: String): Resource[Reader] = {
-    if (encoding.isNotBlank) reader(Charset.forName(encoding))
+    if (encoding.isNotBlank) reader(CharsetUtil.forName(encoding))
     else readerWithDetectedCharset()
   }
   
@@ -256,7 +270,7 @@ final case class InputStreamResource(resource: Resource[InputStream], fileName: 
   }
   
   /** Requires use() to be called so it will consume the Resource */
-  def detectCharset(): Option[Charset] = detectCharsetName().map{ Charset.forName }
+  def detectCharset(): Option[Charset] = detectCharsetName().map{ CharsetUtil.forName }
   
   /** Requires use() to be called so it will consume the Resource */
   def detectCharsetName(): Option[String] = use { is: InputStream => IOUtils.detectCharsetName(is, useMarkReset = false) }

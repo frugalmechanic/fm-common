@@ -177,7 +177,7 @@ object FileUtil extends Logging {
 
   def readInputStream(is: InputStream): String = readInputStream(is, UTF_8)
   
-  def readInputStream(is: InputStream, encoding: String): String = readInputStream(is, Charset.forName(encoding))
+  def readInputStream(is: InputStream, encoding: String): String = readInputStream(is, CharsetUtil.forName(encoding))
   
   def readInputStream(is: InputStream, charset: Charset): String = {
     val reader: BufferedReader = new BufferedReader(new InputStreamReader(is, charset))

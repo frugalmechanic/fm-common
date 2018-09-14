@@ -52,7 +52,7 @@ object XMLUtil {
   }
   
   def detectXMLCharset(is: InputStream): Option[Charset] = detectXMLCharset(is, true)
-  def detectXMLCharset(is: InputStream, useMarkReset: Boolean): Option[Charset] = detectXMLCharsetName(is, useMarkReset).map{ Charset.forName }
+  def detectXMLCharset(is: InputStream, useMarkReset: Boolean): Option[Charset] = detectXMLCharsetName(is, useMarkReset).map{ CharsetUtil.forName }
   
   def detectXMLCharsetName(is: InputStream): Option[String] = detectXMLCharsetName(is, true)
   

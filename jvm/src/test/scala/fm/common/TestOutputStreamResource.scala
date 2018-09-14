@@ -17,7 +17,9 @@ package fm.common
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
-import java.io.{ByteArrayInputStream}
+import java.io.ByteArrayInputStream
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 final class TestOutputStreamResource extends FunSuite with Matchers {
 //  test(".tar.gz") { check("hello_world.txt.tar.gz") }
@@ -29,6 +31,7 @@ final class TestOutputStreamResource extends FunSuite with Matchers {
 //  test(".tbz")    { check("hello_world.txt.tbz") }
 //  test(".tar.xz")    { check("hello_world.txt.tar.xz") }
 //  test(".tar")    { check("hello_world.txt.tar") }
+  test(".txt")    { check("hello_world.txt") }
   test(".gz")     { check("hello_world.txt.gz") }
   test(".bzip2")  { check("hello_world.txt.bzip2") }
   test(".bz2")    { check("hello_world.txt.bz2") }
@@ -37,13 +40,69 @@ final class TestOutputStreamResource extends FunSuite with Matchers {
   test(".xz")     { check("hello_world.txt.xz") }
   test(".zip")    { check("hello_world.txt.zip") }
   test(".jar")    { check("hello_world.txt.jar") }
- 
-  private def check(name: String): Unit = {
-    val bos = new ByteArrayOutputStream
-    OutputStreamResource.wrap(bos, fileName = name).writer("UTF-8").use { _.write("Hello World!\n") }
-    
-    val bis = new ByteArrayInputStream(bos.toByteArray())
-    
-    InputStreamResource.forInputStream(bis, fileName = name).readToString("UTF-8") should equal ("Hello World!\n")
+
+  test("UTF-8-BOM Charset") {
+    val bytes: Array[Byte] = writeBytes("foo.txt", UTF_8_BOM)
+
+    bytes(0) should equal (0xEF.toByte)
+    bytes(1) should equal (0xBB.toByte)
+    bytes(2) should equal (0xBF.toByte)
+
+    readToString("foo.txt", UTF_8_BOM, bytes) should equal (testString)
+    readToString("foo.txt", StandardCharsets.UTF_8, bytes) should equal (testString)
+    new String(bytes, StandardCharsets.UTF_8).head should equal ('\uFEFF')
+  }
+
+  test("UTF-8-BOM Encoding") {
+    val bytes: Array[Byte] = writeBytes("foo.txt", "UTF-8-BOM")
+
+    bytes(0) should equal (0xEF.toByte)
+    bytes(1) should equal (0xBB.toByte)
+    bytes(2) should equal (0xBF.toByte)
+
+    readToString("foo.txt", "UTF-8-BOM", bytes) should equal (testString)
+    readToString("foo.txt", "UTF-8", bytes) should equal (testString)
+    new String(bytes, StandardCharsets.UTF_8).head should equal ('\uFEFF')
+  }
+
+  private val testString: String = "Hello World!\n oneByte: \u0024 twoByte: \u00A2 threeByte: \u20AC fourByteSupplementary: \uD83D\uDCA5"
+
+  private def check(fileName: String): Unit = {
+    checkCharset(fileName, StandardCharsets.UTF_8)
+    checkCharset(fileName, StandardCharsets.UTF_16)
+    checkCharset(fileName, StandardCharsets.UTF_16BE)
+    checkCharset(fileName, StandardCharsets.UTF_16LE)
+    checkCharset(fileName, UTF_8_BOM)
+  }
+
+  private def checkCharset(fileName: String, cs: Charset): Unit = {
+    checkString(readToString(fileName, cs, writeBytes(fileName, cs)))
+    checkString(readToString(fileName, cs.name, writeBytes(fileName, cs.name)))
+  }
+
+  private def writeBytes(fileName: String, cs: Charset): Array[Byte] = {
+    val bos: ByteArrayOutputStream = new ByteArrayOutputStream()
+    OutputStreamResource.wrap(bos, fileName = fileName).writer(cs).use { _.write(testString) }
+    bos.toByteArray()
+  }
+
+  private def writeBytes(fileName: String, encoding: String): Array[Byte] = {
+    val bos: ByteArrayOutputStream = new ByteArrayOutputStream()
+    OutputStreamResource.wrap(bos, fileName = fileName).writer(encoding).use { _.write(testString) }
+    bos.toByteArray()
+  }
+
+  private def readToString(fileName: String, cs: Charset, bytes: Array[Byte]): String = {
+    val bis: ByteArrayInputStream = new ByteArrayInputStream(bytes)
+    InputStreamResource.forInputStream(bis, fileName = fileName).readToString(cs)
+  }
+
+  private def readToString(fileName: String, encoding: String, bytes: Array[Byte]): String = {
+    val bis: ByteArrayInputStream = new ByteArrayInputStream(bytes)
+    InputStreamResource.forInputStream(bis, fileName = fileName).readToString(encoding)
+  }
+
+  private def checkString(s: String): Unit = {
+    s should equal (testString)
   }
 }
