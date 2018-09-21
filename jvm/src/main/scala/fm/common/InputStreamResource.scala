@@ -19,8 +19,6 @@ import java.io._
 import java.nio.{ByteBuffer, MappedByteBuffer}
 import java.nio.channels.FileChannel
 import java.nio.charset.Charset
-import org.apache.commons.io.ByteOrderMark
-import org.apache.commons.io.input.BOMInputStream
 
 object InputStreamResource {
   implicit def toInputStreamResource(resource: Resource[InputStream]): InputStreamResource =  resource match {
@@ -129,57 +127,9 @@ object InputStreamResource {
     val cl: ClassLoader = Thread.currentThread.getContextClassLoader
     if (null != cl) cl else getClass().getClassLoader()
   }
-  
-  // Not using this any more since it doesn't play nicely with Proguard (the ScalaSig references org.apache.commons.io.ByteOrderMark which breaks on 2.10.x)
-  // Note - This cannot be an array since the BOMInputStream class modifies it
-  //private val BOMs: Vector[ByteOrderMark] = Vector(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
-  
-  private val BOMCharsets: Set[Charset] = {
-    // Keep this in sync with newBOMInputStream
-    val BOMs: Vector[ByteOrderMark] = Vector(
-      ByteOrderMark.UTF_8,
-      ByteOrderMark.UTF_16LE,
-      ByteOrderMark.UTF_16BE,
-      ByteOrderMark.UTF_32LE,
-      ByteOrderMark.UTF_32BE
-    )
-    
-    // Avoiding closures so no methods have ByteOrderMark in their signature (so Proguard doesn't complain)
-    val setBuilder = Set.newBuilder[Charset]
-    var i = 0
-    
-    while (i < BOMs.length) {
-      setBuilder += CharsetUtil.forName(BOMs(i).getCharsetName)
-      i += 1
-    }
-
-    // Important: Also add our custom UTF_8_BOM Charset that wraps UTF-8
-    setBuilder += UTF_8_BOM
-
-    setBuilder.result
-  }
-  
-  // Keep this in sync with BOMCharsets
-  private def newBOMInputStream(is: InputStream): InputStream = {
-    new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
-  }
-  
-  // Keep this in sync with BOMCharsets
-  private def newBOMInputStreamReader(is: InputStream): Reader = {
-    val bis: BOMInputStream = new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
-    val charset: String = if (bis.hasBOM()) bis.getBOMCharsetName else "UTF-8"
-    new InputStreamReader(bis, charset)
-  }
 }
 
-final case class InputStreamResource(
-  resource: Resource[InputStream],
-  fileName: String = "",
-  autoDecompress: Boolean = true,
-  autoBuffer: Boolean = true
-) extends Resource[InputStream] with Logging {
-  import InputStreamResource.{BOMCharsets, newBOMInputStream, newBOMInputStreamReader}
-  
+final case class InputStreamResource(resource: Resource[InputStream], fileName: String = "", autoDecompress: Boolean = true, autoBuffer: Boolean = true) extends Resource[InputStream] with Logging {
   def isUsable: Boolean = resource.isUsable
   def isMultiUse: Boolean = resource.isMultiUse
   
@@ -217,7 +167,7 @@ final case class InputStreamResource(
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
   def reader(charset: Charset): Resource[Reader] = flatMap { is: InputStream =>
-    val wrappedInputStream: InputStream = if (BOMCharsets.contains(charset)) newBOMInputStream(is) else is
+    val wrappedInputStream: InputStream = BOMInputStream.get(is, charset).getOrElse(is)
     
     SingleUseResource(new InputStreamReader(wrappedInputStream, charset))
   }
@@ -226,7 +176,7 @@ final case class InputStreamResource(
    * Creates a UTF-8/16/32 reader based on the BOM encoding with UTF-8 being a default
    */
   def utfReader(): Resource[Reader] = flatMap { is: InputStream =>
-    SingleUseResource(newBOMInputStreamReader(is))
+    SingleUseResource(BOMInputStreamReader(is))
   }
   
   def bufferedUTFReader(): Resource[Reader] = utfReader() flatMap { r => Resource(new BufferedReader(r)) }
@@ -266,7 +216,7 @@ final case class InputStreamResource(
     }.getOrElse("UTF-8")
     
     // Use org.apache.commons.io.input.BOMInputStream to filter out the BOM bytes if they exist
-    SingleUseResource(new InputStreamReader(newBOMInputStream(markSupportedInputStream), charsetName))
+    SingleUseResource(new InputStreamReader(BOMInputStream(markSupportedInputStream), charsetName))
   }
   
   /** Requires use() to be called so it will consume the Resource */
