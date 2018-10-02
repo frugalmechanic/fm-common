@@ -47,7 +47,7 @@ object IP {
   def get(ip: String): Option[IP] = try{ Some(apply(ip)) } catch{ case _: InvalidIPException => None }
   
   def apply(ip: String): IP = {
-    if (ip.isBlank) throw new InvalidIPException("IP Address cannot be empty")
+    if (ip.isNullOrBlank) throw new InvalidIPException("IP Address cannot be empty")
     
     val dotCount: Int = ip.count{ _ === '.' }
     

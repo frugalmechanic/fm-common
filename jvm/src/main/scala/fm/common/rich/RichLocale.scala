@@ -97,11 +97,11 @@ final class RichLocale(val self: Locale) extends AnyVal {
 
   // Note: This is package private since there isn't currently a use case for this method but we have tests setup for it
   /** Does this locale have a valid non-blank language? */
-  private[common] def hasNonBlankValidLanguage: Boolean = Try{ self.getISO3Language.isNotBlank }.getOrElse(false)
+  private[common] def hasNonBlankValidLanguage: Boolean = Try{ self.getISO3Language.isNotNullOrBlank }.getOrElse(false)
 
   // Note: This is package private since there isn't currently a use case for this method but we have tests setup for it
   /** Does this locale have a valid non-blank country set? */
-  private[common] def hasNonBlankValidCountry: Boolean = Try { self.getISO3Country.isNotBlank }.getOrElse(false)
+  private[common] def hasNonBlankValidCountry: Boolean = Try { self.getISO3Country.isNotNullOrBlank }.getOrElse(false)
 
   /** The Locale is considered valid if there is a valid (or blank) language and a valid (or blank) country */
   def isValid: Boolean = {

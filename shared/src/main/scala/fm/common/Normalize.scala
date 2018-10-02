@@ -134,7 +134,7 @@ object Normalize {
    * Note: This logic should match lowerAlphanumeric
    */
   def reverseLowerAlphanumeric(original: String, normalized: String): Option[String] = {
-    if (original.isBlank || normalized.isBlank) return None
+    if (original.isNullOrBlank || normalized.isNullOrBlank) return None
     
     val (normalizedOriginal: String, positions: Array[Int]) = lowerAlphanumericWithPositions(original)
     

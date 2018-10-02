@@ -24,8 +24,9 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
 
   /**
    * Returns true if the string is null or only whitespace
+   *
    */
-  def isBlank: Boolean = {
+  def isNullOrBlank: Boolean = {
     if (null == s) return true
     
     var i: Int = 0
@@ -41,12 +42,12 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
   /**
    * Opposite of isBlank
    */
-  def isNotBlank: Boolean = !isBlank
+  def isNotNullOrBlank: Boolean = !isNullOrBlank
   
   /**
    * Opposite of isBlank (alias for isNotBlank)
    */
-  def nonBlank: Boolean = !isBlank
+  def nonNullOrBlank: Boolean = !isNullOrBlank
 
   /**
    * Do the next characters starting at idx match the target

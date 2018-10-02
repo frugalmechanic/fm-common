@@ -22,34 +22,34 @@ final class TestRichCharSequence extends FunSuite with Matchers {
   import fm.common.Implicits._
   
   test("isBlank null") {
-    null.asInstanceOf[String].isBlank should equal(true)
+    null.asInstanceOf[String].isNullOrBlank should equal(true)
   }
   
   test("isBlank whitespace") {
-    "".isBlank should equal(true)
-    " ".isBlank should equal(true)
-    "  ".isBlank should equal(true)
-    "\t".isBlank should equal(true)
-    "\n".isBlank should equal(true)
-    "\r".isBlank should equal(true)
+    "".isNullOrBlank should equal(true)
+    " ".isNullOrBlank should equal(true)
+    "  ".isNullOrBlank should equal(true)
+    "\t".isNullOrBlank should equal(true)
+    "\n".isNullOrBlank should equal(true)
+    "\r".isNullOrBlank should equal(true)
   }
   
   test("isBlank whitespace followed by a character") {
-    "a".isBlank should equal(false)
-    " a".isBlank should equal(false)
-    "  a".isBlank should equal(false)
-    "\ta".isBlank should equal(false)
-    "\na".isBlank should equal(false)
-    "\ra".isBlank should equal(false)
+    "a".isNullOrBlank should equal(false)
+    " a".isNullOrBlank should equal(false)
+    "  a".isNullOrBlank should equal(false)
+    "\ta".isNullOrBlank should equal(false)
+    "\na".isNullOrBlank should equal(false)
+    "\ra".isNullOrBlank should equal(false)
   }
   
   test("isBlank non-empty") {
-    "abc".isBlank should equal(false)
-    "123".isBlank should equal(false)
-    "_".isBlank should equal(false)
-    "!".isBlank should equal(false)
-    "@".isBlank should equal(false)
-    "#".isBlank should equal(false)
+    "abc".isNullOrBlank should equal(false)
+    "123".isNullOrBlank should equal(false)
+    "_".isNullOrBlank should equal(false)
+    "!".isNullOrBlank should equal(false)
+    "@".isNullOrBlank should equal(false)
+    "#".isNullOrBlank should equal(false)
   }
   
   test("nextCharsMatch") {

@@ -49,7 +49,7 @@ final case class EmailSender (user: String, pass: String, host: String) {
       message.addRecipient(Message.RecipientType.BCC, new InternetAddress(bcc))
     }
 
-    if(replyTo.isNotBlank) try {
+    if(replyTo.isNotNullOrBlank) try {
       message.setReplyTo(Array(new InternetAddress(replyTo)))
     } catch {
       case ex: AddressException => // Bad replyTo Address, so don't set it

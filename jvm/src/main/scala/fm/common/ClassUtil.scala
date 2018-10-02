@@ -209,7 +209,7 @@ object ClassUtil extends Logging {
     val packageDirPath: Path = new File(getPackageDirPath(basePackage)).toPath
 
     // An empty Path("") will still return 1 for packageDirPath.getNameCount(), which will lead to an exception
-    // You can technically have a directory named " ", so using .isEmpty and not .isBlank
+    // You can technically have a directory named " ", so using .isEmpty and not .isNullOrBlank
     val subPathLength: Int = if (packageDirPath.toString.isEmpty) 1 else packageDirPath.getNameCount() + 1
 
     findClasspathFiles(basePackage, classLoader).map{ _.toPath.subpath(0, subPathLength).toFile }

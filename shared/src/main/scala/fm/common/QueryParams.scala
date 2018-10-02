@@ -33,7 +33,7 @@ object QueryParams {
    * @param queryString the URI/URL or Query String to extract Query Parameters from
    */
   def apply(queryString: String): QueryParams = {
-    if (queryString.isBlank) return empty
+    if (queryString.isNullOrBlank) return empty
 
     val questionIdx: Int = queryString.indexOf('?')
     val hashIdx: Int = queryString.indexOf('#')
@@ -258,7 +258,7 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
    * 
    * @return A new QueryParams instance without blank values
    */
-  def withoutBlankValues(): QueryParams = filter{ case (k, v) => v.isNotBlank }
+  def withoutBlankValues(): QueryParams = filter{ case (k, v) => v.isNotNullOrBlank }
   
   /**
    * Remove a key/value pair based on the key
@@ -273,7 +273,7 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   def replace(key: String, value: String): QueryParams = if (hasKey(key)) updated(key, value) else this
   
   private def nonNullValuesForKey(key: String): Seq[String] = params.filter{ case (k, v) => k === key && v != null }.map{ case (k, v) => v }.toList
-  private def nonBlankValuesForKey(key: String): Seq[String] = params.filter{ case (k, v) => k === key && v.isNotBlank }.map{ case (k, v) => v }.toList
+  private def nonBlankValuesForKey(key: String): Seq[String] = params.filter{ case (k, v) => k === key && v.isNotNullOrBlank }.map{ case (k, v) => v }.toList
   
   /**
    * The unique set of keys with or without values
@@ -288,7 +288,7 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   /**
    * The unique set of keys with non-blank values
    */
-  def keysWithNonBlankValues: Set[String] = params.filterNot{ case (k, v) => v.isBlank }.map{ case (k, v) => k }.toSet
+  def keysWithNonBlankValues: Set[String] = params.filterNot{ case (k, v) => v.isNullOrBlank }.map{ case (k, v) => k }.toSet
   
   /**
    * The unique set of keys without values

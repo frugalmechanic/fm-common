@@ -61,7 +61,7 @@ final class TestRichURI extends FunSuite with Matchers {
       
       queryParamsToCheck.foreach { case (k,v) =>
         uri.queryParams.hasKey(k) should equal (true)
-        uri.queryParams.hasKeyWithValue(k) should equal (v.isNotBlank)
+        uri.queryParams.hasKeyWithValue(k) should equal (v.isNotNullOrBlank)
         uri.queryParams.apply(k).head should equal (v)
       }
     }

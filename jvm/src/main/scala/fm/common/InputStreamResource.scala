@@ -209,7 +209,7 @@ final case class InputStreamResource(
    * Create a reader for this InputStream using the given encoding or auto-detect the encoding if the parameter is blank
    */
   def reader(encoding: String): Resource[Reader] = {
-    if (encoding.isNotBlank) reader(CharsetUtil.forName(encoding))
+    if (encoding.isNotNullOrBlank) reader(CharsetUtil.forName(encoding))
     else readerWithDetectedCharset()
   }
   

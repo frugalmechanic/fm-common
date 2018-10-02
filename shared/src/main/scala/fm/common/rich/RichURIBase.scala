@@ -141,7 +141,7 @@ trait RichURIBase[T] extends Any {
     sb ++= query.map{ "?"+_ }.getOrElse("")
     
     // Should this filter out blank query params?
-    // sb ++= query.filter{ _.isNotBlank }.map{ "?"+_ }.getOrElse("")
+    // sb ++= query.filter{ _.isNotNullOrBlank }.map{ "?"+_ }.getOrElse("")
     
     // 9. Finally, if a fragment is given then a hash character ('#') is appended, followed by the fragment. Any character that is not a legal URI character is quoted.
     sb ++= fragment.map{ "#"+_ }.getOrElse("")

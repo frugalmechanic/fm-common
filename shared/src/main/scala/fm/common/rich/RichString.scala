@@ -65,7 +65,7 @@ final class RichString(val s: String) extends AnyVal {
   /**
    * If the string is blank returns None else Some(string)
    */
-  def toBlankOption: Option[String] = if(new RichCharSequence(s).isNotBlank) Some(s) else None
+  def toBlankOption: Option[String] = if(new RichCharSequence(s).isNotNullOrBlank) Some(s) else None
   
   /**
    * If this string starts with the lead param then return a new string with lead stripped from the start
