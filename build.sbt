@@ -2,9 +2,9 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
-scalaVersion in ThisBuild := "2.12.6"
+scalaVersion in ThisBuild := "2.12.7"
 
-crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.6")
+crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.7")
 
 lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM, `fm-common-bench`).
@@ -46,7 +46,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     // include the macro sources in the main source jar
     mappings in (Compile, packageSrc) ++= { mappings in (`fm-common-macros`, Compile, packageSrc) }.value,
     
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.4" % "provided,test"
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.5" % "provided,test"
   )):_*).
   jvmSettings(Seq(
     // Add JVM-specific settings here
@@ -58,10 +58,10 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "com.fasterxml.woodstox" % "woodstox-core" % "5.1.0",
       "commons-codec" % "commons-codec" % "1.11",
       "commons-io" % "commons-io" % "2.6",
-      "it.unimi.dsi" % "fastutil" % "7.0.13",
-      "org.apache.commons" % "commons-compress" % "1.17",
-      "org.apache.commons" % "commons-lang3" % "3.7",
-      "org.bouncycastle" % "bcprov-jdk15on" % "1.59",
+      "it.unimi.dsi" % "fastutil" % "8.2.2",
+      "org.apache.commons" % "commons-compress" % "1.18",
+      "org.apache.commons" % "commons-lang3" % "3.8.1",
+      "org.bouncycastle" % "bcprov-jdk15on" % "1.60",
       "org.slf4j" % "slf4j-api" % "1.7.25",
       "org.tukaani" % "xz" % "1.6",  // Used by commons-compress and should be synced up with whatever version commons-compress requires
       "org.xerial.snappy" % "snappy-java" % "1.1.2.6"
@@ -69,9 +69,9 @@ lazy val `fm-common-` = crossProject.in(file(".")).
   ):_*).
   jsSettings(
     // Add JS-specific settings here
-    libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.3",
+    libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.4",
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.6",
-    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.4"
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.5"
   )
   
 lazy val `fm-common-bench` = project.in(file("bench")).settings(
