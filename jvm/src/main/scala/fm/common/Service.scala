@@ -175,25 +175,29 @@ object Service {
   }
   
   
-  def callAsync[X](msg: String = "Calling Async Service",
-                   logging: LoggingOption = UseStdOut,
-                   exceptionHandler: PartialFunction[Exception,Unit] = Service.defaultExceptionHandler, 
-                   delayBetweenCalls: FiniteDuration = Service.defaultDelayBetweenCalls, // This is a constant delay before making the call (e.g. for rate limiting to external services)
-                   backOffStrategy: BackOffStrategy = Service.defaultBackOffStrategy,
-                   maxRetries: Int = Service.defaultMaxRetries)(f: => Future[X])(implicit executionContext: ExecutionContext = ExecutionContext.global, timer: ScheduledTaskRunner = ScheduledTaskRunner.global): Future[X] = {
-    callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, null)
+  def callAsync[X](
+    msg: String = "Calling Async Service",
+    logging: LoggingOption = UseStdOut,
+    exceptionHandler: PartialFunction[Exception,Unit] = Service.defaultExceptionHandler,
+    delayBetweenCalls: FiniteDuration = Service.defaultDelayBetweenCalls, // This is a constant delay before making the call (e.g. for rate limiting to external services)
+    backOffStrategy: BackOffStrategy = Service.defaultBackOffStrategy,
+    maxRetries: Int = Service.defaultMaxRetries
+  )(f: => Future[X])(implicit executionContext: ExecutionContext = ExecutionContext.global, timer: ScheduledTaskRunner = ScheduledTaskRunner.global): Future[X] = {
+    callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, 0, System.currentTimeMillis(), null)
   }
   
   private def callAsync0[X](
-      msg: String, 
-      logging: LoggingOption, 
-      exceptionHandler: PartialFunction[Exception,Unit], 
-      delayBetweenCalls: FiniteDuration, 
-      backOffStrategy: BackOffStrategy, 
-      maxRetries: Int, 
-      f: => Future[X], 
-      tryCount: Int,
-      lastException: Exception)(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[X] = {
+    msg: String,
+    logging: LoggingOption,
+    exceptionHandler: PartialFunction[Exception,Unit],
+    delayBetweenCalls: FiniteDuration,
+    backOffStrategy: BackOffStrategy,
+    maxRetries: Int,
+    f: => Future[X],
+    tryCount: Int,
+    startTime: Long,
+    lastException: Exception
+  )(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[X] = {
     
     if (tryCount >= maxRetries) return Future.failed(new Exception(s"Service Failed after $maxRetries retries", lastException))
     
@@ -209,14 +213,21 @@ object Service {
       val p: Promise[X] = Promise()
       timer.schedule(sleepMillis.milliseconds) { p.completeWith(f) }
       p.future
-    } else f
+    } else {
+      f
+    }
+
+    res.foreach { _: X =>
+      // If the Future is successful then log the total time it took
+      logging.done(msg, System.currentTimeMillis() - startTime)
+    }
     
     res.recoverWith {
       case ex: Exception =>
         if (null != exceptionHandler && exceptionHandler.isDefinedAt(ex)) exceptionHandler(ex)
         else logging.exception(ex)
         
-        callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, tryCount + 1, ex)
+        callAsync0(msg, logging, exceptionHandler, delayBetweenCalls, backOffStrategy, maxRetries, f, tryCount + 1, startTime, ex)
     }
   }
 }
