@@ -14,19 +14,47 @@ object EmailSender {
   /*
    * Simple reg-ex based email address validation
    */
-  def isValidEmail(email: String): Boolean = email.toBlankOption.map{ emailRegex.findFirstMatchIn(_).isDefined }.getOrElse(false)
+  def isValidEmail(email: String): Boolean = {
+    email.toBlankOption.map{ emailRegex.findFirstMatchIn(_).isDefined }.getOrElse(false)
+  }
+
+  private val emailSenderTaskRunner: TaskRunner = TaskRunner(
+    name = "EmailSender",
+    threads = 16,
+    queueSize = 128,
+    blockOnFullQueue = false /* throw an exception when full */
+  )
 }
 
-final case class EmailSender (user: String, pass: String, host: String) {
-  def send(to: String, from: String, cc: Seq[String] = Nil, bcc: Seq[String] = Nil, replyTo: String, subject: String, body: String): Unit = {
+final case class EmailSender(user: String, pass: String, host: String) {
+
+  def send(
+    to: String,
+    from: String,
+    cc: Seq[String],
+    bcc: Seq[String],
+    replyTo: String,
+    subject: String,
+    body: String
+  ): Unit = {
     Service.call("EmailSender", backOffStrategy = Service.BackOffStrategy.exponentialForRemote(), maxRetries = 3) {
       sendImpl(to, from, cc, bcc, replyTo, subject, body)
     }
   }
   
-  def sendAsync(to: String, from: String, cc: Seq[String] = Nil, bcc: Seq[String] = Nil, replyTo: String, subject: String, body: String)(implicit executionContext: ExecutionContext, timer: ScheduledTaskRunner): Future[Unit] = {
+  def sendAsync(
+    to: String,
+    from: String,
+    cc: Seq[String],
+    bcc: Seq[String],
+    replyTo: String,
+    subject: String,
+    body: String
+  ): Future[Unit] = {
     Service.callAsync("EmailSenderAsync", backOffStrategy = Service.BackOffStrategy.exponentialForRemote(), maxRetries = 3) {
-      Future { sendImpl(to, from, cc, bcc, replyTo, subject, body) }
+      EmailSender.emailSenderTaskRunner.submit{
+        sendImpl(to, from, cc, bcc, replyTo, subject, body)
+      }
     }
   }
   
@@ -53,7 +81,7 @@ final case class EmailSender (user: String, pass: String, host: String) {
       message.addRecipient(Message.RecipientType.BCC, new InternetAddress(bcc))
     }
 
-    if(replyTo.isNotNullOrBlank) try {
+    if (replyTo.isNotNullOrBlank) try {
       message.setReplyTo(Array(new InternetAddress(replyTo)))
     } catch {
       case ex: AddressException => // Bad replyTo Address, so don't set it
