@@ -117,9 +117,9 @@ object InputStreamResource {
   private def forFileImpl(
     resource: Resource[InputStream],
     file: File,
-    originalFileName: String = "",
-    autoDecompress: Boolean = true,
-    autoBuffer: Boolean = true
+    originalFileName: String,
+    autoDecompress: Boolean,
+    autoBuffer: Boolean 
   ): InputStreamResource = {
     val fileName: String = originalFileName.toBlankOption.getOrElse{ file.getName }
     InputStreamResource(resource, fileName = fileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)

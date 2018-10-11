@@ -3,7 +3,7 @@ package fm.common
 import java.util.Properties
 import javax.mail.{Message, Session, Transport}
 import javax.mail.internet.{AddressException, InternetAddress, MimeMessage}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.matching.Regex
 
 object EmailSender {

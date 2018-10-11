@@ -55,9 +55,9 @@ object FileOutputStreamResource {
 // It's not meant to be used directly.
 final private class FileOutputStreamResource private (
   file: File,
-  overwrite: Boolean = true,
-  append: Boolean = false,
-  useTmpFile: Boolean = true
+  overwrite: Boolean,
+  append: Boolean,
+  useTmpFile: Boolean
 ) extends Resource[OutputStream] with Logging {
   if (overwrite) require(!append, "You've specified both append and overwrite!")
   
