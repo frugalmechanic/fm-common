@@ -45,6 +45,9 @@ final class RichInputStream(val is: InputStream) extends AnyVal {
   def unzip: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.ZIP)
   def unjar: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.JAR)
   def untar: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.TAR)
+
+  // Does not work: org.apache.commons.compress.archivers.StreamingNotSupportedException: The 7z doesn't support streaming.
+//  def un7zip: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.SEVEN_Z)
   
 //  def unzip: InputStream = {
 //    import java.util.zip._

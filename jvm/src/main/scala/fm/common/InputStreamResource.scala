@@ -19,6 +19,7 @@ import java.io._
 import java.nio.{ByteBuffer, MappedByteBuffer}
 import java.nio.channels.FileChannel
 import java.nio.charset.Charset
+import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
 
@@ -49,11 +50,12 @@ object InputStreamResource {
     classLoader: ClassLoader = defaultClassLoader
   ): InputStreamResource = {
     val resource: Resource[InputStream] = MultiUseResource{
-      if (file.isFile && file.canRead) new FileInputStream(file) else classLoader.getResourceAsStream(file.toResourcePath)
+      if (file.isFile && file.canRead) newFileInputStream(file, autoDecompress) else classLoader.getResourceAsStream(file.toResourcePath)
     }.map{ is: InputStream =>
       if (null == is) throw new IOException("Missing File or Classpath Resource: "+file)
       is
     }
+
     forFileImpl(resource, file, originalFileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
@@ -63,10 +65,11 @@ object InputStreamResource {
     autoDecompress: Boolean = true,
     autoBuffer: Boolean = true
   ): InputStreamResource = {
-    val resource: Resource[InputStream] = MultiUseResource{ new FileInputStream(file) }.map{ is: InputStream =>
+    val resource: Resource[InputStream] = MultiUseResource{ newFileInputStream(file, autoDecompress) }.map{ is: InputStream =>
       if (null == is) throw new IOException("Missing File: "+file)
       is
     }
+
     forFileImpl(resource, file, originalFileName = originalFileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
   }
   
@@ -119,7 +122,7 @@ object InputStreamResource {
     file: File,
     originalFileName: String,
     autoDecompress: Boolean,
-    autoBuffer: Boolean 
+    autoBuffer: Boolean
   ): InputStreamResource = {
     val fileName: String = originalFileName.toBlankOption.getOrElse{ file.getName }
     InputStreamResource(resource, fileName = fileName, autoDecompress = autoDecompress, autoBuffer = autoBuffer)
@@ -169,6 +172,29 @@ object InputStreamResource {
     val bis: BOMInputStream = new BOMInputStream(is, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE, ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
     val charset: String = if (bis.hasBOM()) bis.getBOMCharsetName else "UTF-8"
     new InputStreamReader(bis, charset)
+  }
+
+  /**
+    * Wraps creating a FileInputStream with special support for detecting and handling a 7z file which cannot be
+    * decompressed from an InputStream and only work directly on the File or a SeekableByteChannel
+    */
+  private def newFileInputStream(file: File, autoDecompress: Boolean): InputStream = {
+    if (autoDecompress && file.getName.toLowerCase.endsWith(".7z")) new SevenZipInputStream(file)
+    else new FileInputStream(file)
+  }
+
+  /**
+    * Simple wrapper over the commons-compress SevenZFile that allows us to read the first file in the archive
+    */
+  private class SevenZipInputStream(file: SevenZFile) extends InputStream {
+    // Advance to the first entry
+    file.getNextEntry
+
+    def this(file: File) = this(new SevenZFile(file))
+    def read(): Int = file.read()
+    override def read(b: Array[Byte]): Int = file.read(b)
+    override def read(b: Array[Byte], off: Int, len: Int): Int = file.read(b, off, len)
+    override def close(): Unit = file.close()
   }
 }
 
@@ -302,6 +328,7 @@ final case class InputStreamResource(
     else if (lowerFileName.endsWith(".xz"))        unxz(resource)
     else if (lowerFileName.endsWith(".zip"))       unzip(resource)
     else if (lowerFileName.endsWith(".jar"))       unjar(resource)
+//    else if (lowerFileName.endsWith(".7z"))        un7zip(resource) // Does not work since you cannot stream .7z files
     else resource
   }
   
@@ -312,6 +339,7 @@ final case class InputStreamResource(
   private def unzip(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.unzip    }
   private def unjar(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.unjar    }
   private def untar(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.untar    }
+//  private def un7zip(r: Resource[InputStream]):   Resource[InputStream] = r.flatMap{ _.un7zip   }
 
   def showArchiveEntries(): Unit = resource.use { is: InputStream =>
     val bufferedIS: InputStream = if (is.markSupported()) is else is.toBufferedInputStream

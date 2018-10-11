@@ -16,29 +16,45 @@
 package fm.common
 
 import org.scalatest.{FunSuite, Matchers}
-import java.io.File
+import java.io.{File, InputStream, InputStreamReader}
 
 final class TestInputStreamResource extends FunSuite with Matchers {
-  test(".tar.gz")    { checkCompression("hello_world.txt.tar.gz") }
-  test(".tgz")       { checkCompression("hello_world.txt.tgz") }
-  test(".tar.bz")    { checkCompression("hello_world.txt.tar.bz") }
-  test(".tar.bz2")   { checkCompression("hello_world.txt.tar.bz2") }
-  test(".tar.bzip2") { checkCompression("hello_world.txt.tar.bzip2") }
-  test(".tbz2")      { checkCompression("hello_world.txt.tbz2") }
-  test(".tbz")       { checkCompression("hello_world.txt.tbz") }
-  test(".tar.xz")    { checkCompression("hello_world.txt.tar.xz") }
-  test(".tar")       { checkCompression("hello_world.txt.tar") }
-  test(".gz")        { checkCompression("hello_world.txt.gz") }
-  test(".bzip2")     { checkCompression("hello_world.txt.bzip2") }
-  test(".bz2")       { checkCompression("hello_world.txt.bz2") }
-  test(".bz")        { checkCompression("hello_world.txt.bz") }
-  test(".snappy")    { checkCompression("hello_world.txt.snappy") }
-  test(".xz")        { checkCompression("hello_world.txt.xz") }
-  test(".zip")       { checkCompression("hello_world.txt.zip") }
-  test(".jar")       { checkCompression("hello_world.txt.jar") }
-  
-  private def checkCompression(name: String): Unit = {
-    InputStreamResource.forResource(new File(s"compression/$name")).readToString("UTF-8") should equal ("Hello World!\n")
+  test(".tar.gz")    { checkCompression("hello_world.txt.tar.gz", _.gunzip.untar) }
+  test(".tgz")       { checkCompression("hello_world.txt.tgz", _.gunzip.untar) }
+  test(".tar.bz")    { checkCompression("hello_world.txt.tar.bz", _.bunzip2.untar) }
+  test(".tar.bz2")   { checkCompression("hello_world.txt.tar.bz2", _.bunzip2.untar) }
+  test(".tar.bzip2") { checkCompression("hello_world.txt.tar.bzip2", _.bunzip2.untar) }
+  test(".tbz2")      { checkCompression("hello_world.txt.tbz2", _.bunzip2.untar) }
+  test(".tbz")       { checkCompression("hello_world.txt.tbz", _.bunzip2.untar) }
+  test(".tar.xz")    { checkCompression("hello_world.txt.tar.xz", _.unxz.untar) }
+  test(".tar")       { checkCompression("hello_world.txt.tar", _.untar) }
+  test(".gz")        { checkCompression("hello_world.txt.gz", _.gunzip) }
+  test(".bzip2")     { checkCompression("hello_world.txt.bzip2", _.bunzip2) }
+  test(".bz2")       { checkCompression("hello_world.txt.bz2", _.bunzip2) }
+  test(".bz")        { checkCompression("hello_world.txt.bz", _.bunzip2) }
+  test(".snappy")    { checkCompression("hello_world.txt.snappy", _.unsnappy) }
+  test(".xz")        { checkCompression("hello_world.txt.xz", _.unxz) }
+  test(".zip")       { checkCompression("hello_world.txt.zip", _.unzip) }
+  test(".jar")       { checkCompression("hello_world.txt.jar", _.unjar) }
+//  test(".7z")        { checkCompression("hello_world.txt.7z", _.un7zip) }
+
+  test(".z7") {
+    // .7z only works directly against a File so we have a special test for it
+    InputStreamResource.forFile(new File("jvm/src/test/resources/compression/hello_world.txt.7z")).readToString("UTF-8") should equal ("Hello World!\n")
+  }
+
+  private def checkCompression(name: String, uncompress: InputStream => InputStream): Unit = {
+    val file: File = new File(s"compression/$name")
+
+    // Check via InputStreamResource
+    InputStreamResource.forResource(file).readToString("UTF-8") should equal ("Hello World!\n")
+
+    // Check raw
+    Resource.using(getClass.getClassLoader.getResourceAsStream(file.toString)) { raw: InputStream =>
+      Resource.using(uncompress(raw)) { is: InputStream =>
+        IOUtils.toString(new InputStreamReader(is, "UTF-8")) should equal("Hello World!\n")
+      }
+    }
   }
   
   /*
