@@ -286,7 +286,7 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
    
   /** Calculate the MAC for an array of bytes */
   def mac(data: Array[Byte]): Array[Byte] = mac.synchronized {
-    mac.init(new KeyParameter(key))
+    mac.init(new KeyParameter(keyBytes))
     mac.update(data, 0, data.length)
     val out: Array[Byte] = new Array[Byte](mac.getMacSize)
     mac.doFinal(out, 0)
