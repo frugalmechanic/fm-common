@@ -30,7 +30,7 @@ object Crypto {
   private val DefaultKeyLengthBits: Int = 256
   
   object PBKDF2 {
-    private def PBKDF2_HMAC_SHA256: String = "PBKDF2WithHmacSHA1"
+    private def PBKDF2_HMAC_SHA256: String = "PBKDF2WithHmacSHA256"
 
     /** PBKDF2-HMAC-SHA256 with the result encoded as a HEX string */
     def sha256Hex(salt: Array[Byte], password: Array[Char], iterationCount: Int): String = {
@@ -49,7 +49,7 @@ object Crypto {
     
     /** PBKDF2-HMAC-SHA256 */
     def sha256(salt: Array[Byte], password: Array[Char], iterationCount: Int): Array[Byte] = {
-      sha256(new PBEKeySpec(password, salt, iterationCount))
+      sha256(new PBEKeySpec(password, salt, iterationCount, 256))
     }
 
     private def sha256(spec: PBEKeySpec): Array[Byte] = {
