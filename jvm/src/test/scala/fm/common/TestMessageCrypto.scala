@@ -107,10 +107,10 @@ class TestMessageCrypto extends FunSuite with Matchers {
       c.verify(signed) should equal(Some(plaintext))
     }
 
-    check("", "Foo", "BAgiCEZvbw==--9b3e21d3a78121d2847de57d39f5263cb29e45cb")
-    check("a", "Foo", "BAgiCEZvbw==--0943c2c7823b436b3f9bb13eedaf9b0ed8c54d91")
+    check("", "Foo", "BAgiCEZvbw==--784414712d7e61691394693f46ba9a6c90c1a854")
+    check("a", "Foo", "BAgiCEZvbw==--4a22839fa062cdd7b5055640ac3df272cfde1e40")
     check("dce104043477fa295bb97c509d6fb662", "Foo", "BAgiCEZvbw==--91a5ac856d7d9d3ce55d2c6a0988dbff71af4343")
-    check("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01", "Foo", "BAgiCEZvbw==--03737b299a95ce45194e9bf286f21c29a6898eff")
+    check("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01", "Foo", "BAgiCEZvbw==--91a5ac856d7d9d3ce55d2c6a0988dbff71af4343")
   }
 
   test("Rails ActiveSupport::MessageVerifier.generate Interop") {
@@ -121,10 +121,10 @@ class TestMessageCrypto extends FunSuite with Matchers {
       c.verify(signed) should equal(Some(plain))
     }
 
-    verify("BAgiAA==--008d8aecfaef43ba5a93ef49c9e491f3e8b33412", "")
-    verify("BAgiCEZvbw==--03737b299a95ce45194e9bf286f21c29a6898eff", "Foo")
-    verify("BAgiEEhlbGxvIFdvcmxk--c5e02284b487bb5959930debb8389f9e7f6d89af", "Hello World")
-    verify("BAgiAYBkY2UxMDQwNDM0NzdmYTI5NWJiOTdjNTA5ZDZmYjY2MmE5ZGVhZDNmOTQzZDY0NTgwZjNjZTc4ZTFlYzIyYzAxZGNlMTA0MDQzNDc3ZmEyOTViYjk3YzUwOWQ2ZmI2NjJhOWRlYWQzZjk0M2Q2NDU4MGYzY2U3OGUxZWMyMmMwMQ==--777b7b7fe0dcd4f6d30b83ef7e09db0c8280863a", "dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
+    verify("BAgiAA==--48ee813e77e0da7c1c99f74999e4f26ead268607", "")
+    verify("BAgiCEZvbw==--91a5ac856d7d9d3ce55d2c6a0988dbff71af4343", "Foo")
+    verify("BAgiEEhlbGxvIFdvcmxk--766dcf1024ce3fd117fbc2c5f43bb3078241bd2f", "Hello World")
+    verify("BAgiAYBkY2UxMDQwNDM0NzdmYTI5NWJiOTdjNTA5ZDZmYjY2MmE5ZGVhZDNmOTQzZDY0NTgwZjNjZTc4ZTFlYzIyYzAxZGNlMTA0MDQzNDc3ZmEyOTViYjk3YzUwOWQ2ZmI2NjJhOWRlYWQzZjk0M2Q2NDU4MGYzY2U3OGUxZWMyMmMwMQ==--cef508810575530997c70415e6122fef5c5444cb", "dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
   }
 
   test("FM's MessageCrypto.generate Interop") {
@@ -135,10 +135,10 @@ class TestMessageCrypto extends FunSuite with Matchers {
       c.verify(signed) should equal(Some(plain))
     }
 
-    verify("IiI=--654674a965da804170bab7aeaf6cc3a920961f3f", "")
-    verify("IkZvbyI=--95fc46708e826158a6d0d1044cc12a2c111e2cdd", "Foo")
-    verify("IkhlbGxvIFdvcmxkIg==--f6a22a9b3dce60af58f2c52393daeffba46ca95b", "Hello World")
-    verify("ImRjZTEwNDA0MzQ3N2ZhMjk1YmI5N2M1MDlkNmZiNjYyYTlkZWFkM2Y5NDNkNjQ1ODBmM2NlNzhlMWVjMjJjMDFkY2UxMDQwNDM0NzdmYTI5NWJiOTdjNTA5ZDZmYjY2MmE5ZGVhZDNmOTQzZDY0NTgwZjNjZTc4ZTFlYzIyYzAxIg==--68cc804a11e3649e0eab0e77df843aa9790fadcb", "dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
+    verify("IiI=--416779d9ae58e9940d76f2e74dbb0659fa9cebc3", "")
+    verify("IkZvbyI=--9ad3b78363160db1cbb819d620a836b79f305c7d", "Foo")
+    verify("IkhlbGxvIFdvcmxkIg==--cec91ac1b526739037669059a5999233d4764228", "Hello World")
+    verify("ImRjZTEwNDA0MzQ3N2ZhMjk1YmI5N2M1MDlkNmZiNjYyYTlkZWFkM2Y5NDNkNjQ1ODBmM2NlNzhlMWVjMjJjMDFkY2UxMDQwNDM0NzdmYTI5NWJiOTdjNTA5ZDZmYjY2MmE5ZGVhZDNmOTQzZDY0NTgwZjNjZTc4ZTFlYzIyYzAxIg==--a4f631fcd829ff2cb6c1b935645850eda565a28e", "dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
   }
 
   def encryptAndSign(key:String, msg:String) {
