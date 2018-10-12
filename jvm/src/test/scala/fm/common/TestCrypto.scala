@@ -19,6 +19,53 @@ import java.nio.charset.StandardCharsets.UTF_8
 import org.scalatest.{FunSuite, Matchers}
 
 final class TestCrypto extends FunSuite with Matchers {
+
+  test("PBKDF2") {
+    pbkdf2(
+      ivHex = "f6d49d390035b6d9a34656c79c12ea3b2b4d65a08c3dcdb666dbaf3378fd8fb8",
+      password = "",
+      iterationCount = 1,
+      expectedHex = "2ce2a31e6b7176d6ea9de0f48e205034c6bc3de87e4f01bbba47aabd231b5f9a"
+    )
+
+    pbkdf2(
+      ivHex = "f6d49d390035b6d9a34656c79c12ea3b2b4d65a08c3dcdb666dbaf3378fd8fb8",
+      password = "",
+      iterationCount = 10000,
+      expectedHex = "c04ab1fc4bc05bdf4c80925f35b2e1d315f2070246ab887dbe7e8cab14843419"
+    )
+
+    pbkdf2(
+      ivHex = "f6d49d390035b6d9a34656c79c12ea3b2b4d65a08c3dcdb666dbaf3378fd8fb8",
+      password = "foo",
+      iterationCount = 10000,
+      expectedHex = "262b5c8b42413faaf0ad792ae537770b4447c1dc7b5ed1bea508ace2a8644daa"
+    )
+
+    pbkdf2(
+      ivHex = "f6d49d390035b6d9a34656c79c12ea3b2b4d65a08c3dcdb666dbaf3378fd8fb8",
+      password = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      iterationCount = 20000,
+      expectedHex = "49ee2e84355cabfcc2ed39554b038f636dd1517126d1a93d36faa43398d79002"
+    )
+
+    pbkdf2(
+      ivHex = "f6d49d390035b6d9a34656c79c12ea3b2b4d65a08c3dcdb666dbaf3378fd8fb8",
+      password = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin pretium semper pellentesque. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum vitae nisl faucibus, luctus nisl eget, aliquam enim. Integer risus odio, vehicula a hendrerit eu, lacinia feugiat tellus. Vestibulum nisi nisi, blandit id dapibus et, hendrerit sed massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tincidunt interdum nibh, eu hendrerit ex rhoncus non. Nam ornare magna quis augue ultrices, non lobortis urna venenatis. Aliquam rutrum placerat aliquam. Fusce pellentesque ultrices justo sed vehicula. Mauris vel varius ligula, a condimentum enim. Fusce ornare tellus ac magna.",
+      iterationCount = 200000,
+      expectedHex = "7a2f436c531c6a5fead186338da4efbe19f0b9771bb2edfe758db553d01cd40c"
+    )
+  }
+
+  def pbkdf2(ivHex: String, password: String, iterationCount: Int, expectedHex: String): Unit = {
+    Crypto.PBKDF2.sha256Hex(Base16.decode(ivHex), password, iterationCount) should equal (expectedHex)
+    Crypto.PBKDF2.sha256Hex(Base16.decode(ivHex), password.toCharArray, iterationCount) should equal (expectedHex)
+
+    Crypto.PBKDF2.sha256(Base16.decode(ivHex), password, iterationCount) should equal (Base16.decode(expectedHex))
+    Crypto.PBKDF2.sha256(Base16.decode(ivHex), password.toCharArray, iterationCount) should equal (Base16.decode(expectedHex))
+  }
+
+
   test("Basic Encryption Key Sizes") {
 
     // Should use sha256 hash
