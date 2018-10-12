@@ -17,7 +17,7 @@ package fm.common
 
 import org.scalatest.{FunSuite, Matchers}
 
-class TestMessageCrypto extends FunSuite with Matchers {
+final class TestMessageCrypto extends FunSuite with Matchers {
   test("Basic Encryption Key Sizes") {
    
     // Should use sha256 hash
@@ -34,21 +34,21 @@ class TestMessageCrypto extends FunSuite with Matchers {
   }
 
   test("Encryption Keys of various sizes") {
-    var key = ""
+    var key: String = ""
     (0 to 1024).foreach{i =>
-      encrypt(key, "Hello World")
       key += "a"
+      encrypt(key, "Hello World")
     }
   }
 
   test("Encryption/Decryption of various sizes") {
-    val key = "dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01"
+    val key: String = "dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01"
 
-    var s = ""
+    var s: String = ""
 
     (0 to 1024).foreach{ i =>
-      encrypt(key, s)
       s += "a"
+      encrypt(key, s)
     }
   }
 
@@ -71,8 +71,8 @@ class TestMessageCrypto extends FunSuite with Matchers {
   }
 
   test("Rails ActiveSupport::MessageEncryptor.encrypt Key Size Interop") {
-    def check(key:String, plaintext:String, ciphertext:String) {
-      val c = MessageCrypto(key)
+    def check(key: String, plaintext: String, ciphertext: String): Unit = {
+      val c: MessageCrypto = MessageCrypto(key)
       c.decrypt(ciphertext) should equal(plaintext)
     }
 
@@ -84,7 +84,7 @@ class TestMessageCrypto extends FunSuite with Matchers {
   }
 
   test("Rails ActiveSupport::MessageEncryptor.encrypt Interop") {
-    val c = MessageCrypto("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
+    val c: MessageCrypto = MessageCrypto("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
     c.decrypt("idtnXxSZKDiJoyk0Kif9jQ==--6FghjILVom+lscED4e49Lw==") should equal("")
     c.decrypt("UsjXEqQ7uKgsJZULlOEpPA==--0iRba2OjgbRmGm83oKQvVg==") should equal("Foo")
     c.decrypt("Yoll1jeJnZqxnA8HffFLCA==--qLyl9W+QsRcgisvKXKeoiQ==") should equal("Hello World")
@@ -93,7 +93,7 @@ class TestMessageCrypto extends FunSuite with Matchers {
   }
 
   test("FM's MessageCrypto.encrypt Interop") {
-    val c = MessageCrypto("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01", json=true)
+    val c: MessageCrypto = MessageCrypto("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01", json=true)
     c.decrypt("HNUjCKVbV1Xv2I3Bt5ADfQ==--uXGLQL2SFcSIWvKHBxAWPA==") should equal("")
     c.decrypt("bZDOp79u5zxWz1EVHuejyQ==--HUeE8TcsS4TXsiVfdwN2Tw==") should equal("Foo")
     c.decrypt("vBDAnQE60cLsmNDbBjqn7A==--IKhD8K0FQIZc+hS4cBR8gA==") should equal("Hello World")
@@ -102,8 +102,8 @@ class TestMessageCrypto extends FunSuite with Matchers {
   }
 
   test("Rails ActiveSupport::MessageVerifier.generate Key Size Interop") {
-    def check(key:String, plaintext:String, signed:String) {
-      val c = MessageCrypto(key)
+    def check(key: String, plaintext: String, signed: String): Unit = {
+      val c: MessageCrypto = MessageCrypto(key)
       c.verify(signed) should equal(Some(plaintext))
     }
 
@@ -114,9 +114,9 @@ class TestMessageCrypto extends FunSuite with Matchers {
   }
 
   test("Rails ActiveSupport::MessageVerifier.generate Interop") {
-    val c = MessageCrypto("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
+    val c: MessageCrypto = MessageCrypto("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
 
-    def verify(signed:String, plain:String) {
+    def verify(signed: String, plain: String): Unit = {
       c.sign(plain) should equal(signed)
       c.verify(signed) should equal(Some(plain))
     }
@@ -128,9 +128,9 @@ class TestMessageCrypto extends FunSuite with Matchers {
   }
 
   test("FM's MessageCrypto.generate Interop") {
-    val c = MessageCrypto("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01",json=true)
+    val c: MessageCrypto = MessageCrypto("dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01",json=true)
 
-    def verify(signed:String, plain:String) {
+    def verify(signed: String, plain: String): Unit = {
       c.sign(plain) should equal(signed)
       c.verify(signed) should equal(Some(plain))
     }
@@ -141,26 +141,26 @@ class TestMessageCrypto extends FunSuite with Matchers {
     verify("ImRjZTEwNDA0MzQ3N2ZhMjk1YmI5N2M1MDlkNmZiNjYyYTlkZWFkM2Y5NDNkNjQ1ODBmM2NlNzhlMWVjMjJjMDFkY2UxMDQwNDM0NzdmYTI5NWJiOTdjNTA5ZDZmYjY2MmE5ZGVhZDNmOTQzZDY0NTgwZjNjZTc4ZTFlYzIyYzAxIg==--a4f631fcd829ff2cb6c1b935645850eda565a28e", "dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01dce104043477fa295bb97c509d6fb662a9dead3f943d64580f3ce78e1ec22c01")
   }
 
-  def encryptAndSign(key:String, msg:String) {
+  def encryptAndSign(key: String, msg: String): Unit = {
     List(MessageCrypto(key), MessageCrypto(key,json=true)).foreach{ c =>
-      val ciphertext = c.encryptAndSign(msg)
-      val plaintextOption = c.decryptAndVerify(ciphertext)
+      val ciphertext: String = c.encryptAndSign(msg)
+      val plaintextOption: Option[String] = c.decryptAndVerify(ciphertext)
       plaintextOption should equal(Some(msg))
     }
   }
 
-  def encrypt(key:String, msg:String) {
+  def encrypt(key: String, msg: String): Unit = {
     List(MessageCrypto(key), MessageCrypto(key,json=true)).foreach{ c =>
-      val ciphertext = c.encrypt(msg)
-      val plaintext = c.decrypt(ciphertext)
+      val ciphertext: String = c.encrypt(msg)
+      val plaintext: String = c.decrypt(ciphertext)
       msg should equal(plaintext)
     }
   }
 
-  def sign(key:String, msg:String) {
+  def sign(key: String, msg: String): Unit = {
     List(MessageCrypto(key), MessageCrypto(key,json=true)).foreach{ c =>
-      val signed = c.sign(msg)
-      val res = c.verify(signed)
+      val signed: String = c.sign(msg)
+      val res: Option[String] = c.verify(signed)
       res should equal (Some(msg))
     }
   }

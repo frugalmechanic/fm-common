@@ -56,12 +56,10 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3",
       "com.sun.mail" % "javax.mail" % "1.5.2" % "provided",
       "com.fasterxml.woodstox" % "woodstox-core" % "5.1.0",
-      "commons-codec" % "commons-codec" % "1.11",
       "commons-io" % "commons-io" % "2.6",
       "it.unimi.dsi" % "fastutil" % "8.2.2",
       "org.apache.commons" % "commons-compress" % "1.18",
       "org.apache.commons" % "commons-lang3" % "3.8.1",
-      "org.bouncycastle" % "bcprov-jdk15on" % "1.60",
       "org.slf4j" % "slf4j-api" % "1.7.25",
       "org.tukaani" % "xz" % "1.6",  // Used by commons-compress and should be synced up with whatever version commons-compress requires
       "org.xerial.snappy" % "snappy-java" % "1.1.2.6"

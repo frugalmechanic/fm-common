@@ -53,7 +53,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
   }
 
   def decrypt(msg: String): String = {
-    if(!msg.contains("--")) return null
+    if (!msg.contains("--")) return null
 
     val Array(ciphertext,iv) = msg.split("--").map{ s => Base64.decode(s.getBytes(UTF_8)) }
     val plaintext = crypto.decrypt(iv, ciphertext)
@@ -66,10 +66,10 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
   }
 
   def verify(msg: String): Option[String] = {
-    if(!msg.contains("--")) return None
+    if (!msg.contains("--")) return None
     
     val Array(data,sig) = msg.split("--")
-    if(sig != hexHmac(data)) {
+    if (sig != hexHmac(data)) {
       None
     } else {
       val bytes = Base64.decode(data.getBytes(UTF_8))
@@ -77,17 +77,16 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
     }
   }
 
-  def hexHmac(msg: String): String = new String(Base16.encode(hmac(msg.getBytes(UTF_8))))
+  def hexHmac(msg: String): String = crypto.macHex(msg)
 
-  private def hmac(data: Array[Byte]): Array[Byte] = crypto.mac(data)
-
-  private def dump(s: String) = if(json) jsonDump(s) else rubyMarshalDump(s)
+  private def dump(s: String) = if (json) jsonDump(s) else rubyMarshalDump(s)
+  
   private def load(b: Array[Byte]): String = {
     // If the byte array starts and ends with { and } then it's a JSON hash (currently unsupported)
-    if(b(0) == '{' && b(b.length-1) == '}') return ""
+    if (b(0) === '{'.toByte && b(b.length-1) === '}'.toByte) return ""
 
     // If the byte array starts and ends with quotes then it's json otherwise use the ruby unmarshal
-    if(b(0) == '"' && b(b.length-1) == '"') jsonLoad(b) else rubyMarshalLoad(b)
+    if (b(0) === '"'.toByte && b(b.length-1) === '"'.toByte) jsonLoad(b) else rubyMarshalLoad(b)
   }
 
   private def rubyMarshalDump(s: String): Array[Byte] = {
@@ -97,7 +96,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
   }
   
   private def rubyMarshalLoad(b: Array[Byte]):String = {
-    val unmarshal = new RubyUnmarshalStream(b)
+    val unmarshal: RubyUnmarshalStream = new RubyUnmarshalStream(b)
     unmarshal.readString
   }
 
@@ -106,8 +105,8 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
 
   // http://github.com/jruby/jruby/blob/master/src/org/jruby/runtime/marshal/MarshalStream.java
   private class RubyMarshalStream {
-    private[this] val MARSHAL_MAJOR = 4
-    private[this] val MARSHAL_MINOR = 8
+    private[this] val MARSHAL_MAJOR: Int = 4
+    private[this] val MARSHAL_MINOR: Int = 8
 
     val out = new java.io.ByteArrayOutputStream
     out.write(MARSHAL_MAJOR)
@@ -126,7 +125,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
     def writeInt(v: Int) {
       var value: Int = v
 
-      if (value == 0) {
+      if (value === 0) {
         out.write(0)
       } else if (0 < value && value < 123) {
         out.write(value + 5)
@@ -140,15 +139,15 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
             buf(i) = (value & 0xff).toByte
 
             value = value >> 8
-            if (value == 0 || value == -1) {
+            if (value === 0 || value === -1) {
               break
             }
             i += 1
           }
         }
 
-        val len = i + 1
-        out.write(if(value < 0) -len else len)
+        val len: Int = i + 1
+        out.write(if (value < 0) -len else len)
         out.write(buf, 0, i + 1)
       }
     }
@@ -161,7 +160,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
 
     def readString(): String = {
       val ch: Char = in.read().toChar
-      assert(ch == '"', "Expecting to read a quote. ByteString: "+new String(bytes, UTF_8)+"  Bytes: "+bytes.toSeq)
+      assert(ch === '"', "Expecting to read a quote. ByteString: "+new String(bytes, UTF_8)+"  Bytes: "+bytes.toSeq)
       val len: Int = readInt()
       val buf = new Array[Byte](len)
       IOUtils.read(in, buf)
@@ -170,7 +169,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
 
     def readInt(): Int = {
       var c: Int = readSignedByte().toInt
-      if (c == 0) return 0
+      if (c === 0) return 0
       else if (5 < c && c < 128) return c - 5
       else if (-129 < c && c < -5) return c + 5
 
@@ -198,7 +197,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
 
     def readSignedByte(): Byte = {
       val b: Int = readUnsignedByte()
-      if(b > 127) (b - 256).toByte else b.toByte
+      if (b > 127) (b - 256).toByte else b.toByte
     }
 
     def readUnsignedByte(): Int = in.read()

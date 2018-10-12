@@ -16,16 +16,10 @@
 package fm.common
 
 import java.nio.charset.StandardCharsets.UTF_8
-import java.security.SecureRandom
+import java.security.{MessageDigest, SecureRandom}
 import java.util.Arrays
-import org.bouncycastle.crypto.{BufferedBlockCipher, Digest, Mac}
-import org.bouncycastle.crypto.macs.HMac
-import org.bouncycastle.crypto.digests.{SHA1Digest, SHA256Digest}
-import org.bouncycastle.crypto.engines.AESFastEngine
-import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator
-import org.bouncycastle.crypto.modes.{CBCBlockCipher, GCMBlockCipher}
-import org.bouncycastle.crypto.paddings.{PaddedBufferedBlockCipher, PKCS7Padding}
-import org.bouncycastle.crypto.params.{KeyParameter, ParametersWithIV}
+import javax.crypto.spec.{GCMParameterSpec, IvParameterSpec, PBEKeySpec, SecretKeySpec}
+import javax.crypto._
 
 /**
  * 
@@ -36,22 +30,32 @@ object Crypto {
   private val DefaultKeyLengthBits: Int = 256
   
   object PBKDF2 {
+    private def PBKDF2_HMAC_SHA256: String = "PBKDF2WithHmacSHA1"
+
+    /** PBKDF2-HMAC-SHA256 with the result encoded as a HEX string */
+    def sha256Hex(salt: Array[Byte], password: Array[Char], iterationCount: Int): String = {
+      Base16.encode(sha256(salt, password, iterationCount))
+    }
+
+    /** PBKDF2-HMAC-SHA256 with the result encoded as a HEX string */
+    def sha256Hex(salt: Array[Byte], password: String, iterationCount: Int): String = {
+      Base16.encode(sha256(salt, password, iterationCount))
+    }
+
     /** PBKDF2-HMAC-SHA256 */
-    def sha256(salt: Array[Byte], password: String, iterationCount: Int): Array[Byte] = sha256(salt, password.getBytes(UTF_8), iterationCount)
-    
-    /** PBKDF2-HMAC-SHA256 */
-    def sha256(salt: Array[Byte], password: Array[Byte], iterationCount: Int): Array[Byte] = {
-      val gen: PKCS5S2ParametersGenerator = new PKCS5S2ParametersGenerator(new SHA256Digest())
-      gen.init(password, salt, iterationCount)
-      val dk: Array[Byte] = gen.generateDerivedParameters(256).asInstanceOf[KeyParameter].getKey()
-      dk
+    def sha256(salt: Array[Byte], password: String, iterationCount: Int): Array[Byte] = {
+      sha256(salt, password.toCharArray, iterationCount)
     }
     
-    /** PBKDF2-HMAC-SHA256 with the result encoded as a HEX string */
-    def sha256Hex(salt: Array[Byte], password: Array[Byte], iterationCount: Int): String = Hex.encodeHexString(sha256(salt, password, iterationCount))
-    
-    /** PBKDF2-HMAC-SHA256 with the result encoded as a HEX string */
-    def sha256Hex(salt: Array[Byte], password: String, iterationCount: Int): String = Hex.encodeHexString(sha256(salt, password, iterationCount))
+    /** PBKDF2-HMAC-SHA256 */
+    def sha256(salt: Array[Byte], password: Array[Char], iterationCount: Int): Array[Byte] = {
+      sha256(new PBEKeySpec(password, salt, iterationCount))
+    }
+
+    private def sha256(spec: PBEKeySpec): Array[Byte] = {
+      val factory: SecretKeyFactory = SecretKeyFactory.getInstance(PBKDF2_HMAC_SHA256)
+      factory.generateSecret(spec).getEncoded()
+    }
   }
   
   def makeRandomKeyBase64(): String = makeRandomKeyBase64(DefaultKeyLengthBits, urlSafe = false)
@@ -62,10 +66,12 @@ object Crypto {
   
   def makeRandomKeyBase64URLSafe(bits: Int): String = makeRandomKeyBase64(bits, urlSafe = true)
   
-  def makeRandomKeyBase64(bits: Int, urlSafe: Boolean): String = Base64.encodeBytes(makeRandomKey(bits), if (urlSafe) Base64.URL_SAFE else Base64.NO_OPTIONS)
+  def makeRandomKeyBase64(bits: Int, urlSafe: Boolean): String = {
+    Base64.encodeBytes(makeRandomKey(bits), if (urlSafe) Base64.URL_SAFE else Base64.NO_OPTIONS)
+  }
   
   def makeRandomKey(bits: Int): Array[Byte] = {
-    require(bits % 8 == 0, "bits should be a multiple of 8")
+    require(bits % 8 === 0, "bits should be a multiple of 8")
     val bytes = new Array[Byte](bits / 8)
     new SecureRandom().nextBytes(bytes)
     bytes
@@ -92,33 +98,36 @@ object Crypto {
   
   def authenticatedCipherForBase64Key(key: String): Crypto = new Crypto(base64Decode(key), new AuthenticatedCipher)
 
-  sealed trait Cipher {
-    def getBlockSize: Int
-    def init(forEncryption: Boolean, keyBytes: Array[Byte], iv: Array[Byte]): Unit
-    def getOutputSize(len: Int): Int
-    def processBytes(in: Array[Byte], inOff: Int, len: Int, out: Array[Byte], outOff: Int): Int
-    def doFinal(out: Array[Byte], outOff: Int): Int
+  sealed trait CipherMode {
+    protected val cipher: Cipher
+    def init(mode: Int, keyBytes: Array[Byte], iv: Array[Byte]): Unit
+
+    final def getBlockSize: Int = cipher.getBlockSize()
+
+    final def getOutputSize(len: Int): Int = cipher.getOutputSize(len)
+
+    final def processBytes(in: Array[Byte], inOff: Int, len: Int, out: Array[Byte], outOff: Int): Int = {
+      cipher.update(in, inOff, len, out, outOff)
+    }
+
+    final def doFinal(out: Array[Byte], outOff: Int): Int = cipher.doFinal(out, outOff)
   }
   
-  final class DefaultCipher extends Cipher {
-    private[this] val cipher: BufferedBlockCipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESFastEngine), new PKCS7Padding)
-    
-    def getBlockSize: Int = cipher.getBlockSize()
-    def init(forEncryption: Boolean, keyBytes: Array[Byte], iv: Array[Byte]): Unit = cipher.init(forEncryption, new ParametersWithIV(new KeyParameter(keyBytes), iv))
-    def getOutputSize(len: Int): Int = cipher.getOutputSize(len)
-    def processBytes(in: Array[Byte], inOff: Int, len: Int, out: Array[Byte], outOff: Int): Int = cipher.processBytes(in, inOff, len, out, outOff)
-    def doFinal(out: Array[Byte], outOff: Int): Int = cipher.doFinal(out, outOff)
+  final class DefaultCipher extends CipherMode {
+    protected val cipher: Cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+
+    def init(mode: Int, keyBytes: Array[Byte], iv: Array[Byte]): Unit = {
+      cipher.init(mode, new SecretKeySpec(keyBytes, "AES"), new IvParameterSpec(iv))
+    }
   }
   
-  final class AuthenticatedCipher extends Cipher {
-    private[this] val aes: AESFastEngine = new AESFastEngine
-    private[this] val cipher: GCMBlockCipher = new GCMBlockCipher(aes)
-    
-    def getBlockSize: Int = aes.getBlockSize()
-    def init(forEncryption: Boolean, keyBytes: Array[Byte], iv: Array[Byte]): Unit = cipher.init(forEncryption, new ParametersWithIV(new KeyParameter(keyBytes), iv))
-    def getOutputSize(len: Int): Int = cipher.getOutputSize(len)
-    def processBytes(in: Array[Byte], inOff: Int, len: Int, out: Array[Byte], outOff: Int): Int = cipher.processBytes(in, inOff, len, out, outOff)
-    def doFinal(out: Array[Byte], outOff: Int): Int = cipher.doFinal(out, outOff)
+  final class AuthenticatedCipher extends CipherMode {
+    // AES/GCM/NoPadding
+    protected val cipher: Cipher = Cipher.getInstance("AES/GCM/NoPadding")
+
+    def init(mode: Int, keyBytes: Array[Byte], iv: Array[Byte]): Unit = {
+      cipher.init(mode, new SecretKeySpec(keyBytes, "AES"), new GCMParameterSpec(16 * java.lang.Byte.SIZE, iv))
+    }
   }
   
   // I'm not sure why the base64 decoders don't automatically decode the URL-safe variant...
@@ -148,40 +157,34 @@ object Crypto {
  * 
  * NOTE: Use at your own risk.  We make no claim that any of this Crypto code is correct.
  */
-final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Logging {
+final class Crypto private (rawKey: Array[Byte], cipher: Crypto.CipherMode) extends Logging {
   import Crypto.base64Decode
-  
-  @deprecated("Use the Crypto object factory methods instead of directly calling this constructor.  e.g. Crypto.defaultCipherForRawKey or Crypto.defaultCipherForBase64Key", "")
-  def this(key: Array[Byte]) = this(key, new Crypto.DefaultCipher)
-  
-  @deprecated("Use the Crypto object factory methods instead of directly calling this constructor.  e.g. Crypto.defaultCipherForRawKey or Crypto.defaultCipherForBase64Key", "")
-  def this(base64Key: String) = this(Crypto.base64Decode(base64Key), new Crypto.DefaultCipher)
-  
-  private[this] val DefaultMac: Mac = new HMac(new SHA1Digest)
+
+  private[this] def HmacSHA1: String = "HmacSHA1"
+  private[this] val DefaultMac: Mac = Mac.getInstance(HmacSHA1)
   
   private[this] val keyLengthBits: Int = Crypto.DefaultKeyLengthBits
   private[this] val mac: Mac = DefaultMac
   private[this] val secureRandom: SecureRandom = new SecureRandom()
-  
-  private def ENCRYPT: Boolean = true
-  private def DECRYPT: Boolean = false
     
   private[this] val keyLenBytes: Int = {
-    require(keyLengthBits % 8 == 0, "keyLengthBits should be a multiple of 8")
+    require(keyLengthBits % 8 === 0, "keyLengthBits should be a multiple of 8")
     keyLengthBits / 8
   }
   
   private[this] val keyBytes: Array[Byte] = {
-    if(key.length == keyLenBytes) key
-    else if(key.length > keyLenBytes) {
-      logger.warn(s"Key is too long (${key.length * 8} bits).  It is being truncated to $keyLengthBits")
-      key.slice(0, keyLenBytes) // truncate
+    if(rawKey.length === keyLenBytes) {
+      rawKey
+    } else if(rawKey.length > keyLenBytes) {
+      logger.warn(s"Key is too long (${rawKey.length * 8} bits).  It is being truncated to $keyLengthBits")
+      rawKey.slice(0, keyLenBytes) // truncate
     } else {
-      logger.warn(s"Key too short (${key.length * 8} bits).  Using sha256 to expand it")
-      require(keyLengthBits == 256, s"Can't expand using sha256 since key is not 256 bits.  Key is $keyLengthBits bits.")
-      // NOTE: this needs to be replaced with a proper key derivation function but we first need to figure out if any production code relies on this functionality.
-      //       Some tests in MessageCrypto rely on it but I don't think any production code does.
-      sha256(key)
+      logger.warn(s"Key too short (${rawKey.length * 8} bits).  Using sha256 to expand it")
+      require(keyLengthBits === 256, s"Can't expand using sha256 since key is not 256 bits.  Key is $keyLengthBits bits.")
+      // NOTE: this needs to be replaced with a proper key derivation function but we first need to figure out if any
+      //       production code relies on this functionality. Some tests in MessageCrypto rely on it but I don't think
+      //       any production code does.
+      sha256(rawKey)
     }
     
   }
@@ -194,7 +197,9 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
 
   def encryptBase64URLSafe(bytes: Array[Byte]): String = encryptBase64(bytes, urlSafe = true)
   
-  def encryptBase64String(plaintext: String, urlSafe: Boolean): String = encryptBase64(plaintext.getBytes(UTF_8), urlSafe)
+  def encryptBase64String(plaintext: String, urlSafe: Boolean): String = {
+    encryptBase64(plaintext.getBytes(UTF_8), urlSafe)
+  }
 
   def encryptBase64(bytes: Array[Byte], urlSafe: Boolean): String = {
     Base64.encodeBytes(encrypt(bytes), if (urlSafe) Base64.URL_SAFE else Base64.NO_OPTIONS)
@@ -219,7 +224,7 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
   def encryptRaw(plaintext: Array[Byte]): (Array[Byte], Array[Byte]) = {
     val iv: Array[Byte] = new Array[Byte](cipher.getBlockSize)
     secureRandom.nextBytes(iv)
-    val ciphertext: Array[Byte] = doCipher(ENCRYPT, iv, plaintext)
+    val ciphertext: Array[Byte] = doCipher(Cipher.ENCRYPT_MODE, iv, plaintext)
     (iv, ciphertext)
   }
   
@@ -228,7 +233,9 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
    * 
    * If successful then Some(plaintext) will be returned.  Otherwise None will be returned.
    */
-  def tryDecryptBase64String(base64IvAndCiphertext: String): Option[String] = tryWrap{ decryptBase64String(base64IvAndCiphertext) }
+  def tryDecryptBase64String(base64IvAndCiphertext: String): Option[String] = {
+    tryWrap{ decryptBase64String(base64IvAndCiphertext) }
+  }
   
   def tryDecrypt(ivAndCiphertext: Array[Byte]): Option[Array[Byte]] = tryWrap{ decrypt(ivAndCiphertext) }
   
@@ -250,11 +257,11 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
   def decrypt(ivAndCiphertext: Array[Byte]): Array[Byte] = {
     val iv: Array[Byte] = Arrays.copyOfRange(ivAndCiphertext, 0, cipher.getBlockSize)
     val ciphertext: Array[Byte] = Arrays.copyOfRange(ivAndCiphertext, cipher.getBlockSize, ivAndCiphertext.length)
-    doCipher(DECRYPT, iv, ciphertext)
+    doCipher(Cipher.DECRYPT_MODE, iv, ciphertext)
   }
   
   /** Decrypt given the IV and Ciphertext */
-  def decrypt(iv: Array[Byte], ciphertext: Array[Byte]): Array[Byte] = doCipher(DECRYPT, iv, ciphertext)
+  def decrypt(iv: Array[Byte], ciphertext: Array[Byte]): Array[Byte] = doCipher(Cipher.DECRYPT_MODE, iv, ciphertext)
 
   @inline private def tryWrap[T](f: => T): Option[T] = {
     try {
@@ -262,8 +269,8 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
     } catch {
       case _: IllegalArgumentException => None
       case _: java.io.IOException => None // fm.common.Base64.decode throws an IOException
-      case _: org.bouncycastle.crypto.CryptoException => None
-      case _: org.bouncycastle.crypto.RuntimeCryptoException => None
+      case _: BadPaddingException => None
+      case _: AEADBadTagException => None
     } 
   }
   
@@ -276,50 +283,40 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
   
   def macBase64URLSafe(data: Array[Byte]): String = macBase64(data, urlSafe = true)
   
-  def macBase64(data: Array[Byte], urlSafe: Boolean): String = Base64.encodeBytes(mac(data), if (urlSafe) Base64.URL_SAFE else Base64.NO_OPTIONS)
+  def macBase64(data: Array[Byte], urlSafe: Boolean): String = {
+    Base64.encodeBytes(mac(data), if (urlSafe) Base64.URL_SAFE else Base64.NO_OPTIONS)
+  }
   
   /** The Hex Encoded MAC for a String */
   def macHex(data: String): String = macHex(data.getBytes(UTF_8))
   
   /** The Hex Encoded MAC for an array of bytes */
-  def macHex(data: Array[Byte]): String = new String(Base16.encode(mac(data)))
-   
+  def macHex(data: Array[Byte]): String = Base16.encode(mac(data))
+
   /** Calculate the MAC for an array of bytes */
   def mac(data: Array[Byte]): Array[Byte] = mac.synchronized {
-    mac.init(new KeyParameter(keyBytes))
+    mac.init(new SecretKeySpec(keyBytes, HmacSHA1))
     mac.update(data, 0, data.length)
-    val out: Array[Byte] = new Array[Byte](mac.getMacSize)
+    val out: Array[Byte] = new Array[Byte](mac.getMacLength)
     mac.doFinal(out, 0)
     out
   }
   
   private def sha256(data: Array[Byte]): Array[Byte] = {
-    // Note: doDigest was manually inlined here since proguard complains and then scala (at least the console) also complains
-    val d: Digest = new SHA256Digest
-    d.update(data, 0, data.length)
-    val buf = new Array[Byte](d.getDigestSize)
-    d.doFinal(buf, 0)
-    buf
+    MessageDigest.getInstance("SHA-256").digest(data)
   }
 
-  private def doCipher(doEncrypt: Boolean, iv: Array[Byte], data: Array[Byte]): Array[Byte] = cipher.synchronized{
-    cipher.init(doEncrypt, keyBytes, iv)
+  private def doCipher(mode: Int, iv: Array[Byte], data: Array[Byte]): Array[Byte] = cipher.synchronized{
+    cipher.init(mode, keyBytes, iv)
     val estimatedSize: Int = cipher.getOutputSize(data.length)
     val outBytes: Array[Byte] = new Array[Byte](estimatedSize)
     var outLen: Int = cipher.processBytes(data, 0, data.length, outBytes, 0)
     outLen += cipher.doFinal(outBytes, outLen)
+
     if (outLen < estimatedSize) {
       val tmp: Array[Byte] = new Array[Byte](outLen)
       System.arraycopy(outBytes, 0, tmp, 0, outLen)
       tmp
     } else outBytes
   }
-  
-  // Commenting out and inlining manually since proguard complains and the scala console doesn't like this
-//  private def doDigest(d: Digest, data: Array[Byte]): Array[Byte] = {
-//    d.update(data, 0, data.length)
-//    val buf = new Array[Byte](d.getDigestSize)
-//    d.doFinal(buf, 0)
-//    buf
-//  }
 }

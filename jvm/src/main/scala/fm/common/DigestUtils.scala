@@ -16,39 +16,79 @@
 package fm.common
 
 import java.io.{File, FileInputStream, InputStream}
-import org.apache.commons.codec.digest.{DigestUtils => Apache}
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 
 /**
- * Simple Wrapper around org.apache.commons.codec.digest.DigestUtils
- */
+  * MD5/SHA1/SHA256 Helpers
+  */
 object DigestUtils {
-  def md5(data: Array[Byte]): Array[Byte] = Apache.md5(data)
-  def md5(data: InputStream): Array[Byte] = Apache.md5(data)
-  def md5(data: String)     : Array[Byte] = Apache.md5(data)
+  private val BUFFER_SIZE: Int = 1024
+
+  def md5(data: Array[Byte]): Array[Byte] = digestBytes(makeMD5Digest(), data)
+  def md5(data: InputStream): Array[Byte] = digestBytes(makeMD5Digest(), data)
+  def md5(data: String)     : Array[Byte] = digestBytes(makeMD5Digest(), data)
   def md5(file: File)       : Array[Byte] = Resource.using(new FileInputStream(file)){ md5 }
   
-  def md5Hex(data: Array[Byte]): String = Apache.md5Hex(data)
-  def md5Hex(data: InputStream): String = Apache.md5Hex(data)
-  def md5Hex(data: String)     : String = Apache.md5Hex(data)
+  def md5Hex(data: Array[Byte]): String = digestHex(makeMD5Digest(), data)
+  def md5Hex(data: InputStream): String = digestHex(makeMD5Digest(), data)
+  def md5Hex(data: String)     : String = digestHex(makeMD5Digest(), data)
   def md5Hex(file: File)       : String = Resource.using(new FileInputStream(file)){ md5Hex }
   
-  def sha1(data: Array[Byte]): Array[Byte] = Apache.sha1(data)
-  def sha1(data: InputStream): Array[Byte] = Apache.sha1(data)
-  def sha1(data: String)     : Array[Byte] = Apache.sha1(data)
+  def sha1(data: Array[Byte]): Array[Byte] = digestBytes(makeSHA1Digest(), data)
+  def sha1(data: InputStream): Array[Byte] = digestBytes(makeSHA1Digest(), data)
+  def sha1(data: String)     : Array[Byte] = digestBytes(makeSHA1Digest(), data)
   def sha1(file: File)       : Array[Byte] = Resource.using(new FileInputStream(file)){ sha1 }
   
-  def sha1Hex(data: Array[Byte]): String = Apache.sha1Hex(data)
-  def sha1Hex(data: InputStream): String = Apache.sha1Hex(data)
-  def sha1Hex(data: String)     : String = Apache.sha1Hex(data)
+  def sha1Hex(data: Array[Byte]): String = digestHex(makeSHA1Digest(), data)
+  def sha1Hex(data: InputStream): String = digestHex(makeSHA1Digest(), data)
+  def sha1Hex(data: String)     : String = digestHex(makeSHA1Digest(), data)
   def sha1Hex(file: File)       : String = Resource.using(new FileInputStream(file)){ sha1Hex }
   
-  def sha256(data: Array[Byte]): Array[Byte] = Apache.sha256(data)
-  def sha256(data: InputStream): Array[Byte] = Apache.sha256(data)
-  def sha256(data: String)     : Array[Byte] = Apache.sha256(data)
+  def sha256(data: Array[Byte]): Array[Byte] = digestBytes(makeSHA256Digest(), data)
+  def sha256(data: InputStream): Array[Byte] = digestBytes(makeSHA256Digest(), data)
+  def sha256(data: String)     : Array[Byte] = digestBytes(makeSHA256Digest(), data)
   def sha256(file: File)       : Array[Byte] = Resource.using(new FileInputStream(file)){ sha256 }
   
-  def sha256Hex(data: Array[Byte]): String = Apache.sha256Hex(data)
-  def sha256Hex(data: InputStream): String = Apache.sha256Hex(data)
-  def sha256Hex(data: String)     : String = Apache.sha256Hex(data)
+  def sha256Hex(data: Array[Byte]): String = digestHex(makeSHA256Digest(), data)
+  def sha256Hex(data: InputStream): String = digestHex(makeSHA256Digest(), data)
+  def sha256Hex(data: String)     : String = digestHex(makeSHA256Digest(), data)
   def sha256Hex(file: File)       : String = Resource.using(new FileInputStream(file)){ sha256Hex }
+
+  private def makeMD5Digest(): MessageDigest = MessageDigest.getInstance("MD5")
+  private def makeSHA1Digest(): MessageDigest = MessageDigest.getInstance("SHA-1")
+  private def makeSHA256Digest(): MessageDigest = MessageDigest.getInstance("SHA-256")
+
+  private def digestHex(digest: MessageDigest, data: String): String = {
+    digestHex(digest, data.getBytes(StandardCharsets.UTF_8))
+  }
+
+  private def digestHex(digest: MessageDigest, data: Array[Byte]): String = {
+    Base16.encode(digestBytes(digest, data))
+  }
+
+  private def digestHex(digest: MessageDigest, in: InputStream): String = {
+    Base16.encode(digestBytes(digest, in))
+  }
+
+  private def digestBytes(digest: MessageDigest, data: String): Array[Byte] = {
+    digest.digest(data.getBytes(StandardCharsets.UTF_8))
+  }
+
+  private def digestBytes(digest: MessageDigest, data: Array[Byte]): Array[Byte] = {
+    digest.digest(data)
+  }
+
+  private def digestBytes(digest: MessageDigest, data: InputStream): Array[Byte] = {
+    val buf: Array[Byte] = new Array(BUFFER_SIZE)
+
+    var bytesRead: Int = data.read(buf)
+
+    while (bytesRead > -1) {
+      digest.update(buf, 0, bytesRead)
+      bytesRead = data.read(buf)
+    }
+
+    digest.digest()
+  }
 }
