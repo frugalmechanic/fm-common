@@ -15,6 +15,7 @@
  */
 package fm.common
 
+import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets.UTF_8
 import org.scalatest.{FunSuite, Matchers}
 
@@ -58,22 +59,28 @@ final class TestDigestUtils extends FunSuite with Matchers {
     // MD5
     DigestUtils.md5Hex(msg) should equal (md5Hex)
     DigestUtils.md5Hex(msg.getBytes(UTF_8)) should equal (md5Hex)
+    DigestUtils.md5Hex(new ByteArrayInputStream(msg.getBytes(UTF_8))) should equal (md5Hex)
 
     DigestUtils.md5(msg) should equal (Base16.decode(md5Hex))
     DigestUtils.md5(msg.getBytes(UTF_8)) should equal (Base16.decode(md5Hex))
+    DigestUtils.md5(new ByteArrayInputStream(msg.getBytes(UTF_8))) should equal (Base16.decode(md5Hex))
 
     // SHA1
     DigestUtils.sha1Hex(msg) should equal (sha1Hex)
     DigestUtils.sha1Hex(msg.getBytes(UTF_8)) should equal (sha1Hex)
+    DigestUtils.sha1Hex(new ByteArrayInputStream(msg.getBytes(UTF_8))) should equal (sha1Hex)
 
     DigestUtils.sha1(msg) should equal (Base16.decode(sha1Hex))
     DigestUtils.sha1(msg.getBytes(UTF_8)) should equal (Base16.decode(sha1Hex))
+    DigestUtils.sha1(new ByteArrayInputStream(msg.getBytes(UTF_8))) should equal (Base16.decode(sha1Hex))
 
     // SHA256
     DigestUtils.sha256Hex(msg) should equal (sha256Hex)
     DigestUtils.sha256Hex(msg.getBytes(UTF_8)) should equal (sha256Hex)
+    DigestUtils.sha256Hex(new ByteArrayInputStream(msg.getBytes(UTF_8))) should equal (sha256Hex)
 
     DigestUtils.sha256(msg) should equal (Base16.decode(sha256Hex))
     DigestUtils.sha256(msg.getBytes(UTF_8)) should equal (Base16.decode(sha256Hex))
+    DigestUtils.sha256(new ByteArrayInputStream(msg.getBytes(UTF_8))) should equal (Base16.decode(sha256Hex))
   }
 }
