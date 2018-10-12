@@ -268,7 +268,7 @@ final class Crypto private (key: Array[Byte], cipher: Crypto.Cipher) extends Log
   }
   
   def macBase64(data: String): String = macBase64(data.getBytes(UTF_8))
-  def macBase64URLSafe(data: String): String = macBase64(data.getBytes(UTF_8))
+  def macBase64URLSafe(data: String): String = macBase64URLSafe(data.getBytes(UTF_8))
   def macBase64(data: String, urlSafe: Boolean): String = macBase64(data.getBytes(UTF_8), urlSafe = urlSafe)
   
   /** The Base64 Encoded MAC for an array of bytes */
