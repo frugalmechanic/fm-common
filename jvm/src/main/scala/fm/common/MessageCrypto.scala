@@ -48,15 +48,19 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
   def decryptAndVerify(msg: String): Option[String] = verify(msg).map{decrypt}
 
   def encrypt(msg: String): String = {
-    val (iv, ciphertext) = crypto.encryptRaw(dump(msg))
+    val (iv: Array[Byte], ciphertext: Array[Byte]) = crypto.encryptRaw(dump(msg))
     Array(ciphertext,iv).map{s => Base64.encodeBytes(s)}.mkString("--")
   }
 
   def decrypt(msg: String): String = {
-    if (!msg.contains("--")) return null
+    val lastIdx: Int = msg.lastIndexOf("--")
 
-    val Array(ciphertext,iv) = msg.split("--").map{ s => Base64.decode(s.getBytes(UTF_8)) }
-    val plaintext = crypto.decrypt(iv, ciphertext)
+    if (-1 === lastIdx) throw new IllegalArgumentException("Message is in invalid format")
+
+    val ciphertext: String = msg.substring(0, lastIdx)
+    val iv: String = msg.substring(lastIdx+2)
+
+    val plaintext = crypto.decrypt(Base64.decode(iv), Base64.decode(ciphertext))
     load(plaintext)
   }
 
@@ -66,9 +70,13 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
   }
 
   def verify(msg: String): Option[String] = {
-    if (!msg.contains("--")) return None
-    
-    val Array(data,sig) = msg.split("--")
+    val lastIdx: Int = msg.lastIndexOf("--")
+
+    if (-1 === lastIdx) return None
+
+    val data: String = msg.substring(0, lastIdx)
+    val sig: String = msg.substring(lastIdx+2)
+
     if (sig != hexHmac(data)) {
       None
     } else {
@@ -79,7 +87,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
 
   def hexHmac(msg: String): String = crypto.macHex(msg)
 
-  private def dump(s: String) = if (json) jsonDump(s) else rubyMarshalDump(s)
+  private def dump(s: String): Array[Byte] = if (json) jsonDump(s) else rubyMarshalDump(s)
   
   private def load(b: Array[Byte]): String = {
     // If the byte array starts and ends with { and } then it's a JSON hash (currently unsupported)
@@ -112,17 +120,17 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
     out.write(MARSHAL_MAJOR)
     out.write(MARSHAL_MINOR)
 
-    def writeString(s: String) {
+    def writeString(s: String): Unit = {
       out.write('"'.toInt)
       writeStringBytes(s.getBytes(UTF_8))
     }
 
-    def writeStringBytes(b: Array[Byte]) {
+    def writeStringBytes(b: Array[Byte]): Unit = {
       writeInt(b.length)
       out.write(b)
     }
 
-    def writeInt(v: Int) {
+    def writeInt(v: Int): Unit = {
       var value: Int = v
 
       if (value === 0) {
@@ -153,7 +161,7 @@ final class MessageCrypto(key: Array[Byte], json: Boolean = false) {
     }
   }
 
-  class RubyUnmarshalStream(bytes: Array[Byte]) {
+  final class RubyUnmarshalStream(bytes: Array[Byte]) {
     val in = new java.io.ByteArrayInputStream(bytes)
     in.read() // Major
     in.read() // Minor

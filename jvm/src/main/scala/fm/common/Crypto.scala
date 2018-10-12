@@ -16,7 +16,7 @@
 package fm.common
 
 import java.nio.charset.StandardCharsets.UTF_8
-import java.security.{MessageDigest, SecureRandom}
+import java.security.{InvalidAlgorithmParameterException, MessageDigest, SecureRandom}
 import java.util.Arrays
 import javax.crypto.spec.{GCMParameterSpec, IvParameterSpec, PBEKeySpec, SecretKeySpec}
 import javax.crypto._
@@ -271,6 +271,8 @@ final class Crypto private (rawKey: Array[Byte], cipher: Crypto.CipherMode) exte
       case _: java.io.IOException => None // fm.common.Base64.decode throws an IOException
       case _: BadPaddingException => None
       case _: AEADBadTagException => None
+      case _: IllegalBlockSizeException => None
+      case _: InvalidAlgorithmParameterException => None
     } 
   }
   

@@ -160,6 +160,9 @@ final class TestCrypto extends FunSuite with Matchers {
       c.decryptBase64String(c.encryptBase64String(msg)) should equal (msg)
       c.decryptBase64String(c.encryptBase64StringURLSafe(msg)) should equal (msg)
 
+      c.tryDecryptBase64String(c.encryptBase64String(msg)) should equal (Some(msg))
+      c.tryDecryptBase64String(c.encryptBase64StringURLSafe(msg)) should equal (Some(msg))
+
       if (macHex.isDefined) c.macHex(msg) should equal (macHex.get)
       if (macBase64.isDefined) c.macBase64(msg) should equal (macBase64.get)
       if (macBase64URLSafe.isDefined) c.macBase64URLSafe(msg) should equal (macBase64URLSafe.get)
@@ -170,5 +173,22 @@ final class TestCrypto extends FunSuite with Matchers {
 
     if (encryptedBase64Authenticated.isDefined) authenticatedCrypto.decryptBase64String(encryptedBase64Authenticated.get) should equal (msg)
     if (encryptedBase64URLSafeAuthenticated.isDefined) authenticatedCrypto.decryptBase64String(encryptedBase64URLSafeAuthenticated.get) should equal (msg)
+
+    Vector(
+      "not_valid_encrypted_value",
+      "not_valid_encrypted_value_not_valid_encrypted_value_not_valid_encrypted_value_not_valid_encrypted_value_not_valid_encrypted_value",
+      "12345678",
+      "1234567812345678",
+      "123456781234567812345678",
+      "12345678123456781234567812345678",
+      "1234567812345678123456781234567812345678",
+      "123456781234567812345678123456781234567812345678",
+    ).foreach { invalid: String =>
+      an [Exception] should be thrownBy authenticatedCrypto.decryptBase64String(invalid)
+      authenticatedCrypto.tryDecryptBase64String(invalid) should equal (None)
+
+      an [Exception] should be thrownBy authenticatedCrypto.decryptBase64String(Base64.encode(invalid.getBytes(UTF_8)))
+      authenticatedCrypto.tryDecryptBase64String(Base64.encode(invalid.getBytes(UTF_8))) should equal (None)
+    }
   }
 }

@@ -142,26 +142,41 @@ final class TestMessageCrypto extends FunSuite with Matchers {
   }
 
   def encryptAndSign(key: String, msg: String): Unit = {
-    List(MessageCrypto(key), MessageCrypto(key,json=true)).foreach{ c =>
+    List(MessageCrypto(key), MessageCrypto(key, json = true)).foreach{ c =>
       val ciphertext: String = c.encryptAndSign(msg)
       val plaintextOption: Option[String] = c.decryptAndVerify(ciphertext)
       plaintextOption should equal(Some(msg))
+
+      c.decryptAndVerify("not_valid") should equal(None)
+      c.decryptAndVerify("has--but-still-not-valid") should equal (None)
+      c.decryptAndVerify("has--but--still--not--valid") should equal (None)
     }
   }
 
   def encrypt(key: String, msg: String): Unit = {
-    List(MessageCrypto(key), MessageCrypto(key,json=true)).foreach{ c =>
+    List(MessageCrypto(key), MessageCrypto(key, json = true)).foreach{ c =>
       val ciphertext: String = c.encrypt(msg)
       val plaintext: String = c.decrypt(ciphertext)
       msg should equal(plaintext)
+
+      an [IllegalArgumentException] should be thrownBy c.decrypt("not_valid")
+
+      // These aren't thrown consistently.  Sometimes you get an IllegalArgumentException and other times
+      // you get a java.security.InvalidAlgorithmParameterException
+//      an [IllegalArgumentException] should be thrownBy c.decrypt("has--but-still-not-valid")
+//      an [IllegalArgumentException] should be thrownBy c.decrypt("has--but--still--not--valid")
     }
   }
 
   def sign(key: String, msg: String): Unit = {
-    List(MessageCrypto(key), MessageCrypto(key,json=true)).foreach{ c =>
+    List(MessageCrypto(key), MessageCrypto(key, json = true)).foreach{ c =>
       val signed: String = c.sign(msg)
       val res: Option[String] = c.verify(signed)
       res should equal (Some(msg))
+
+      c.verify("not_valid") should equal(None)
+      c.verify("has--but-still-not-valid") should equal (None)
+      c.verify("has--but--still--not--valid") should equal (None)
     }
   }
 }
