@@ -110,7 +110,7 @@ final class TestCrypto extends FunSuite with Matchers {
       encryptedBase64Default = Some("EUnSvZbLU7SPbmfxOaODOQAAudLhPHwMw0bCTCETh6U="),
       encryptedBase64URLSafeDefault = Some("aWbJ-CU02rCqxiDWwXX1yEzyhIFjgx6VI5I0WPcsrqE="),
       encryptedBase64Authenticated = Some("gvV/mm3s/pbp0HKxbGLAlDKIDGl3+4rlKjZzq2QYAkbhHz1O9MsaSTWhtg=="),
-      encryptedBase64URLSafeAuthenticated = Some("FVaylXfcEKDyNtvvpeoY74apnNujKqygu2N1-MRIiJ_iixpDzdWq76rIMA=="),
+      encryptedBase64URLSafeAuthenticated = Some("FVaylXfcEKDyNtvvpeoY74apnNujKqygu2N1-MRIiJ_iixpDzdWq76rIMA==")
     )
 
     encrypt(
@@ -122,7 +122,7 @@ final class TestCrypto extends FunSuite with Matchers {
       encryptedBase64Default = Some("+KVsjqxVbd38ZjlEg6bfET54fsr7AbEpDCJylPrwcC4="),
       encryptedBase64URLSafeDefault = Some("ytaAtdtDqR5XZzxUnPEob8WvNaHr70GFMdmZWz2PTOc="),
       encryptedBase64Authenticated = Some("wjp8byzoDd/E2UXrD4lkfvPFJQWOpvLVcF30y2KLqGmYw9uHdYyHz1EBGg=="),
-      encryptedBase64URLSafeAuthenticated = Some("9fcuYpVgR_xXStviETn_thmI_5c5jfTX2ijscnQDh7WFlW2IvoZmrG53pg=="),
+      encryptedBase64URLSafeAuthenticated = Some("9fcuYpVgR_xXStviETn_thmI_5c5jfTX2ijscnQDh7WFlW2IvoZmrG53pg==")
     )
 
     encrypt(
@@ -134,7 +134,7 @@ final class TestCrypto extends FunSuite with Matchers {
       encryptedBase64Default = Some("xgZVddUI8+SdnDIRrSWBLa7dx3Mmce1N7+oyzBahwuE="),
       encryptedBase64URLSafeDefault = Some("Unx4yuuwNtAluPP0thxyloVKKftW8o3Mn2SiXi3Sk2M="),
       encryptedBase64Authenticated = Some("TBEiKzIp+L/waZeq0k3+j1LSdcJBV2CDd25zKhW8R14RD9b3R93HPxJlJQ=="),
-      encryptedBase64URLSafeAuthenticated = Some("Yu4lWSqP6IgQ52HCQA1l-HsxW-afYJLcjrZiPvr0Bg9wcR8SExfPeO04gg=="),
+      encryptedBase64URLSafeAuthenticated = Some("Yu4lWSqP6IgQ52HCQA1l-HsxW-afYJLcjrZiPvr0Bg9wcR8SExfPeO04gg==")
     )
 
     encrypt(
@@ -146,7 +146,7 @@ final class TestCrypto extends FunSuite with Matchers {
       encryptedBase64Default = Some("ifv6wveneEqpjs92Yb7dz4TfU+RNBXDnbJElXNCe/oU="),
       encryptedBase64URLSafeDefault = Some("dqUxoy1PeUlrNVnQB1yceiB_4v40A-hvjG_QCP341tY="),
       encryptedBase64Authenticated = Some("7Gwf1OpCAyeKhqJiUo+K3e1GvqOJ0CaT35ThVqqq3y3VPaSAKSlzhoklPA=="),
-      encryptedBase64URLSafeAuthenticated = Some("RKSpJHdeyr_SbV12H-XyL_PpoVuivYFoqis1q1Fu3FVE_Nv6pff_8DnapA=="),
+      encryptedBase64URLSafeAuthenticated = Some("RKSpJHdeyr_SbV12H-XyL_PpoVuivYFoqis1q1Fu3FVE_Nv6pff_8DnapA==")
     )
 
     encrypt(
@@ -158,7 +158,7 @@ final class TestCrypto extends FunSuite with Matchers {
       encryptedBase64Default = Some("NxAZRK7VeaaxTnDcNdEfw2gPiIcpZqsqd2dWCMU3g+w="),
       encryptedBase64URLSafeDefault = Some("B0VpQEeU5RrJjItXF7otQff0y78WcaoWVQvvXtSKULA="),
       encryptedBase64Authenticated = Some("Iwj+PotL4cFIKGnXxsasI1YyfZ5rdQyYz/Dad8q7cD7zGI7kZCyMV7FEoA=="),
-      encryptedBase64URLSafeAuthenticated = Some("lMTNidtc5es7Wr82ALtgNX42PrM5eir3SveZDoomSGK_BjZSF_QdX8yj-w=="),
+      encryptedBase64URLSafeAuthenticated = Some("lMTNidtc5es7Wr82ALtgNX42PrM5eir3SveZDoomSGK_BjZSF_QdX8yj-w==")
     )
 
     encrypt(
@@ -170,7 +170,7 @@ final class TestCrypto extends FunSuite with Matchers {
       encryptedBase64Default = Some("4QYuP1dhe113lr8jkfcKfkfXxvMA9LL/UY/aRvlcOUw="),
       encryptedBase64URLSafeDefault = Some("5A3JNffMxhqU0bd61l58QC9f6XwG9dS3oyDaGASb2o0="),
       encryptedBase64Authenticated = Some("RBYDD4pRJjVkoKbURO0/UcRdEpJ5UIUlZY6lNyZavbOcQVwRthgjSqaBpg=="),
-      encryptedBase64URLSafeAuthenticated = Some("7Z-yybdwyfShu6mFpHEKSxfMNQpQPA-IEQcR6Inp2VW44qGcqh_KKWC-YQ=="),
+      encryptedBase64URLSafeAuthenticated = Some("7Z-yybdwyfShu6mFpHEKSxfMNQpQPA-IEQcR6Inp2VW44qGcqh_KKWC-YQ==")
     )
 
     encrypt(
@@ -182,7 +182,7 @@ final class TestCrypto extends FunSuite with Matchers {
       encryptedBase64Default = Some("L6PEAERv3pDntKyE3dvpfxbeRKvH0S+FmI8IgX+kq2PI0KV4qYN+MEEf52K2taDSxXQAUM8FBh9cUTA2Ac7K/1QUc8pT0izcTRc94WdAIo1aGdmsn8gFCA234FAW1BcKnHJ3W8PeZd7PORfgWjiRjxU/ZKLukvws/QCuG1ac1EMLLt+ns11naTndma2QHtT1FhBduRlkQgjkzVRslfJGNaOtmFVEWIVIIatTqEPQFtM70HUCDBIs0DsqQRAevX+sc2micHGwlDTxUchk/Z4BNk0615XEFbL2xiEZDJB8kgqDMVZpkdbNrQY7ZDueSLVedCh2/ZEfQ8S523/SC/kT9CcAsbl8ttRo3z4cpybcUG00bORX2e4WvBFHIiRVav/Du2u7dJeXbbTw10N02i3BBg4cKC9MOL46QTQ929vKfbRsJ2xh7gulfc6RKHil0LFjhdCrU0WAqZ85Y3z+Nkste/bdqj8qg5gAfbL2PDcenSq+Uzn2w4dgZFCmdMVqpckb0krskgoRSZHJzCKL/5d2uTtOsBoi54/LZyg5pALfqKbB7O9IWeHLKjxVqsNDPw7+aZ17tujIHpDvXyrc0jF9KLwRGmTNmgk+ljWRHbNmzBbGbEF9eOBon63xchl/feRTzGVYZhwTTSjb3ExvPtrIkxFP6OtPb91+h7wWJCuhM0RBa5cWPYE2cIY/gXJE7l6JgxRRlTUVdgyRUxBa7PdVkpA/14HXR0sF/RqhBtv9zU2rUEB8Pc8mCYZVWXWg920i6IsjFmSxUr3V+mhBc3jnRXceyG8+QqWzp+LmLHtVso18/cGEy6rbYft3UdvdycW8wrmidYSlAFGnbVpp7xChRi5QsttdRTWgjzitFB0Z/gYtcBbEqT5zhGO5CbOCOcF+wR5+tza8a+LVKcxpjmk3budr2RG1dC+OIK76eLmOtT0L8PVcTL20Udr/KtxUH5pe"),
       encryptedBase64URLSafeDefault = Some("Np4J98FcHCNdPVMHGoE0Q5vUjc6w_1Z_IjGUXYCi4BDZpEq0GcL955a6Sj5zuWO42K5Q4m5KmzOelYk92WyW_GWen8MWEQc0sKXoffEwhvd92a1ttDRac6F1PB2__atkUOGOAiKCpBrTSY9hspk-Gihmr1v6Zm7B9dw6n6Q4EURq8Y84AO6bqzR7dTh0CyKElsraSd6cMfIoQkQqKBangMIJpWQFdVMzLgBqxalgBXbn42OMWJoYvIIQyw2aSBzSdUJt1ZKXriaqf9dz9fjHuS_ir76DTZpIrS9Tt1JP04Cozb1Cmmptge_jyzW3k3IejWEtB-Mhx6y4_boe6iZ8d1Q1JoptF1FsY3Om-_s5d932bFTzY_jzhYapGFKZSOAr4ylJ14ATzQnMhlG83ihATqq60kodN51QENbNTEeeyPDAj_EV4UT9CAKSZTK6fbJGMyPfYoByXimMtcdrnoIdtHV-0v-2sjhL-ZNfyXn4U2a-sq3uJQG3c4uxbwWImsfmxss9xAaXqLe6c9nWx9oXJj741IkYk_o9N-uIDhSwV2N6wjbK_qJMhnEe5LNIuOnOA6lOinbDuhX_pdGk4PmdIpNv5vrA-11TDbDD-uspX4do7mRyMD0NHNrDBEYSRHbFP2ls_QfmkAZ0lH36faNWoEQISFLhNtPkK1Kcb6rgc5OhjUlzfciuZJdmXhvUuogH7uMiIfocSttaX6RCVGqpM5fqBO9WbPDUEPRTgyyONgf1yITVZV61R7yfFxHfmcnviw7TwXGJDqlj7o96FpRKFlDHjZ18zYyuXvN5gHWCfnwZBrCCPWjJgi9ixOP5WC_4jnXJiFBt0hDT9yit_YnNxxAKPzv9B3X9Hz38KRwmwi85pDPuC8bEWtE5XTyowsbvFmo6UjYBS2dgX1QcTCeh3tXQ1ZV6JaqZQmpjjSsf2hw9tHDba8JPu0oyBA-Amlbh"),
       encryptedBase64Authenticated = Some("TmcFV0DJIVDvfJVstbE6qfgQAQUPrXH4MFU5g8lPvcOp0PW1S7XhdztB28SvhM7aI7HYFTn/B8pJO7MSL8SVRjcKs/R7eBUnmjppgY6YxKBWJH7ymk3R57lM4VoEx9+yJ/799xhE40JtE9eYvEf4ZQ5hRUG6/nICARip1/S3RzueQYivd5/pMwMO5WZvzs3+H9De0K6BwZHHZPXcbEbYaN46qLNQPQ6DS4JrtTNV94gIgoayrzi4AN3FrJ2qIM0ZrEam7NH1AvXktZmgN8e2+mKecGwBYUAlWt8GZqKipXPMzlWnbRtQAicd932sQGFoS+mO6F0uJUh8fD6/ejjlM22Z8ODNa2M4dPR4YeX/cMx+ziKzpbgXxtFM+Qb5fQ/XK4yXFzKCGzxsNEQmSlyQjUHUc9F8bnyRQy4MPU+iQ/0duDUAVL+Q0L9TjmzKPwpq2IWIxfHSXGKJYqDR770UauXRxtv61+Xcgp0na0uxsaIIPkUxlBJzDC+1jhLN+ftS4RlgZsFCOAhagJj/VYdP655QUrxyrLTvwCWed3yjIHVlEpjmt+IOuLG15157w9x2o/+ieS6fzNTvZgLDCFoN+VcEfUMYk0YBjUe3zY/fJOjxC6VKBM2a371eoRik0kfQXIyBH7T2bqdt6OxmEch18BXyWRCmyP066uEMgxI6Oxmy8uVZOh5rrDv9VulDCDYc+G7xwf0qfMvME4ixuNhwmnk4aJah55fWojhYgnm/f4bEkMFQCD+zPXrNdpe2j5Z69pS70unczvrrKPz5NX04NIWR1L9PjRCv2VaHgrD4L+9qihJ8KuEXn8YzqiJYKLuLa6jnQ3RNAIXksKIJ5Zew3Qh9Mi+PUIHu5YYIWhczmzt9ZNvB2U1yjaXgJvNVZ5eAXP/bUPko5w3zmlrSqikUWOpFvTydeda6crMIIhm4keVUcsX2b6DyNyRGhH5aAV3MbkX3GLAqXQ=="),
-      encryptedBase64URLSafeAuthenticated = Some("t6nvsXB1nC_ria2p6iX6IpqB7YbzsB0VXVqozcgT3aJdYVHnPPVQ6AHQP-QaTFYy5IifNc3GV_XKeUWLuJAwk0dhSrKuq2TfShcWU4ggPbh-JrJ-BymGj4K2BUDsRo7DKw1bx9v5wWS-8J3YyjRy12oG-GihtJ4B1dIli1Obsxyoi8wm_KymsB4OuiTJyNRU7cbAnJxx3S3NgKMpD2h4DB7WkReIJZV2yeLeUA6TXUu-gAxN7Bm9JWY4jOqIF7axk3Q4C4QjnbWZV5Jfi4Vpmm8cNy87c-fh0CAf5rPj1A2dIYYYgvZzLhqzHnaMzdv5MkknUE5L2WJjrTQUbdj5o4F9qshcEONFkO7piSmflyoUTQBnWO4INhfLEb0CVBHGFt2cGv7nPOtCK42gyIEAafcoV2gOsGALJdAhKc398fr3PY1_GBGckAPpfy-Zn0YeciOtMUsjUtsSHIcPKWGKdBuIv5ZGNjcRC_QouQkep4GiSv1XtSh1mbJlWWO6seasxws4S5XATE5OmEL2foC5eMTnZyBd4rJQsoA68kicEsbvzXUT67kHHqGiQ8cDQClM1rfOI28LftRR3gbBM3S_tvjv-C5ic3V7gpalvn4SHTAACben9cNBmxbFt5f8rkDkniecj9uozD47qyksR4ar5_fgzwQRmRPCHFfwlsul4D70Sin2RqUdEkmY4yTWNSwvUFNBTc7aL8e2GPFxNE4x9ZeYMbmA3xfcEmzAvrRe2PHxEtX7hMM3n4tWSjic3HmGtIecdAOonBdLt10SAC8T_-d_dvLAl1PYKsQY6tXOrsShT5kBrMalhekpCNSKoUN6wGIc_x7It8F4v5gMgggcLxbG7AnnNnG21kNwAfQl7Morfxp-gG0m_wHM4vmXtp2i70zrMMpVBRlNJrez57VAL04nvXM6vqVn_qLsCQO-0uFf5CFmR2pgBbQ6HJZf_JOnoNChLCGWiA=="),
+      encryptedBase64URLSafeAuthenticated = Some("t6nvsXB1nC_ria2p6iX6IpqB7YbzsB0VXVqozcgT3aJdYVHnPPVQ6AHQP-QaTFYy5IifNc3GV_XKeUWLuJAwk0dhSrKuq2TfShcWU4ggPbh-JrJ-BymGj4K2BUDsRo7DKw1bx9v5wWS-8J3YyjRy12oG-GihtJ4B1dIli1Obsxyoi8wm_KymsB4OuiTJyNRU7cbAnJxx3S3NgKMpD2h4DB7WkReIJZV2yeLeUA6TXUu-gAxN7Bm9JWY4jOqIF7axk3Q4C4QjnbWZV5Jfi4Vpmm8cNy87c-fh0CAf5rPj1A2dIYYYgvZzLhqzHnaMzdv5MkknUE5L2WJjrTQUbdj5o4F9qshcEONFkO7piSmflyoUTQBnWO4INhfLEb0CVBHGFt2cGv7nPOtCK42gyIEAafcoV2gOsGALJdAhKc398fr3PY1_GBGckAPpfy-Zn0YeciOtMUsjUtsSHIcPKWGKdBuIv5ZGNjcRC_QouQkep4GiSv1XtSh1mbJlWWO6seasxws4S5XATE5OmEL2foC5eMTnZyBd4rJQsoA68kicEsbvzXUT67kHHqGiQ8cDQClM1rfOI28LftRR3gbBM3S_tvjv-C5ic3V7gpalvn4SHTAACben9cNBmxbFt5f8rkDkniecj9uozD47qyksR4ar5_fgzwQRmRPCHFfwlsul4D70Sin2RqUdEkmY4yTWNSwvUFNBTc7aL8e2GPFxNE4x9ZeYMbmA3xfcEmzAvrRe2PHxEtX7hMM3n4tWSjic3HmGtIecdAOonBdLt10SAC8T_-d_dvLAl1PYKsQY6tXOrsShT5kBrMalhekpCNSKoUN6wGIc_x7It8F4v5gMgggcLxbG7AnnNnG21kNwAfQl7Morfxp-gG0m_wHM4vmXtp2i70zrMMpVBRlNJrez57VAL04nvXM6vqVn_qLsCQO-0uFf5CFmR2pgBbQ6HJZf_JOnoNChLCGWiA==")
     )
   }
 
@@ -195,7 +195,7 @@ final class TestCrypto extends FunSuite with Matchers {
     encryptedBase64Default: Option[String] = None,
     encryptedBase64URLSafeDefault: Option[String] = None,
     encryptedBase64Authenticated: Option[String] = None,
-    encryptedBase64URLSafeAuthenticated: Option[String] = None,
+    encryptedBase64URLSafeAuthenticated: Option[String] = None
   ): Unit = {
     val defaultCrypto: Crypto = Crypto.defaultCipherForRawKey(key.getBytes(UTF_8))
     val authenticatedCrypto: Crypto = Crypto.authenticatedCipherForRawKey(key.getBytes(UTF_8))
@@ -229,7 +229,7 @@ final class TestCrypto extends FunSuite with Matchers {
       "123456781234567812345678",
       "12345678123456781234567812345678",
       "1234567812345678123456781234567812345678",
-      "123456781234567812345678123456781234567812345678",
+      "123456781234567812345678123456781234567812345678"
     ).foreach { invalid: String =>
       an [Exception] should be thrownBy authenticatedCrypto.decryptBase64String(invalid)
       authenticatedCrypto.tryDecryptBase64String(invalid) should equal (None)
