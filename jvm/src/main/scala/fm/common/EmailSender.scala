@@ -2,7 +2,7 @@ package fm.common
 
 import java.util.Properties
 import javax.mail.{Message, Session, Transport}
-import javax.mail.internet.{AddressException, InternetAddress, MimeMessage}
+import javax.mail.internet.{AddressException, InternetAddress, MimeBodyPart, MimeMessage, MimeMultipart}
 import scala.concurrent.Future
 import scala.util.matching.Regex
 
@@ -28,37 +28,179 @@ object EmailSender {
 
 final case class EmailSender(user: String, pass: String, host: String) {
 
-  def send(
+  def sendPlaintext(
     to: String,
     from: String,
     cc: Seq[String],
     bcc: Seq[String],
     replyTo: String,
     subject: String,
-    body: String
-  ): Unit = {
-    Service.call("EmailSender", backOffStrategy = Service.BackOffStrategy.exponentialForRemote(), maxRetries = 3) {
-      sendImpl(to, from, cc, bcc, replyTo, subject, body)
-    }
-  }
-  
-  def sendAsync(
+    plaintextBody: String,
+  ): Unit = sendSyncImpl(
+    loggingName = "sendPlaintext",
+    to = to,
+    from = from,
+    cc = cc,
+    bcc = bcc,
+    replyTo = replyTo,
+    subject = subject,
+    plaintextBody = Some(plaintextBody),
+    htmlBody = None
+  )
+
+  def sendPlaintextAsync(
     to: String,
     from: String,
     cc: Seq[String],
     bcc: Seq[String],
     replyTo: String,
     subject: String,
-    body: String
-  ): Future[Unit] = {
-    Service.callAsync("EmailSenderAsync", backOffStrategy = Service.BackOffStrategy.exponentialForRemote(), maxRetries = 3) {
-      EmailSender.emailSenderTaskRunner.submit{
-        sendImpl(to, from, cc, bcc, replyTo, subject, body)
-      }
+    plaintextBody: String
+  ): Future[Unit] = sendAsyncImpl(
+    loggingName = "sendPlaintextAsync",
+    to = to,
+    from = from,
+    cc = cc,
+    bcc = bcc,
+    replyTo = replyTo,
+    subject = subject,
+    plaintextBody = Some(plaintextBody),
+    htmlBody = None
+  )
+
+  def sendHtml(
+    to: String,
+    from: String,
+    cc: Seq[String],
+    bcc: Seq[String],
+    replyTo: String,
+    subject: String,
+    htmlBody: String,
+  ): Unit = sendSyncImpl(
+    loggingName = "sendHtml",
+    to = to,
+    from = from,
+    cc = cc,
+    bcc = bcc,
+    replyTo = replyTo,
+    subject = subject,
+    plaintextBody = None,
+    htmlBody = Some(htmlBody)
+  )
+
+  def sendHtmlAsync(
+    to: String,
+    from: String,
+    cc: Seq[String],
+    bcc: Seq[String],
+    replyTo: String,
+    subject: String,
+    htmlBody: String
+  ): Future[Unit] = sendAsyncImpl(
+    loggingName = "sendHtmlAsync",
+    to = to,
+    from = from,
+    cc = cc,
+    bcc = bcc,
+    replyTo = replyTo,
+    subject = subject,
+    plaintextBody = None,
+    htmlBody = Some(htmlBody)
+  )
+
+  def sendMultipart(
+    to: String,
+    from: String,
+    cc: Seq[String],
+    bcc: Seq[String],
+    replyTo: String,
+    subject: String,
+    plaintextBody: String,
+    htmlBody: String,
+  ): Unit = sendSyncImpl(
+    loggingName = "sendMultipart",
+    to = to,
+    from = from,
+    cc = cc,
+    bcc = bcc,
+    replyTo = replyTo,
+    subject = subject,
+    plaintextBody = Some(plaintextBody),
+    htmlBody = Some(htmlBody)
+  )
+
+  def sendMultipartAsync(
+    to: String,
+    from: String,
+    cc: Seq[String],
+    bcc: Seq[String],
+    replyTo: String,
+    subject: String,
+    plaintextBody: String,
+    htmlBody: String,
+  ): Future[Unit] = sendAsyncImpl(
+    loggingName = "sendMultipartAsync",
+    to = to,
+    from = from,
+    cc = cc,
+    bcc = bcc,
+    replyTo = replyTo,
+    subject = subject,
+    plaintextBody = Some(plaintextBody),
+    htmlBody = Some(htmlBody)
+  )
+
+  private def sendSyncImpl(
+    loggingName: String,
+    to: String,
+    from: String,
+    cc: Seq[String],
+    bcc: Seq[String],
+    replyTo: String,
+    subject: String,
+    plaintextBody: Option[String],
+    htmlBody: Option[String]
+  ): Unit = Service.call(s"EmailSender.${loggingName}", backOffStrategy = Service.BackOffStrategy.exponentialForRemote(), maxRetries = 3) {
+    sendImpl(
+      to = to,
+      from = from,
+      cc = cc,
+      bcc = bcc,
+      replyTo = replyTo,
+      subject = subject,
+      plaintextBody = plaintextBody,
+      htmlBody = htmlBody
+    )
+  }
+
+  private def sendAsyncImpl(
+    loggingName: String,
+    to: String,
+    from: String,
+    cc: Seq[String],
+    bcc: Seq[String],
+    replyTo: String,
+    subject: String,
+    plaintextBody: Option[String],
+    htmlBody: Option[String]
+  ): Future[Unit] = Service.callAsync(s"EmailSender.${loggingName}", backOffStrategy = Service.BackOffStrategy.exponentialForRemote(), maxRetries = 3) {
+    EmailSender.emailSenderTaskRunner.submit{
+      sendImpl(
+        to = to,
+        from = from,
+        cc = cc,
+        bcc = bcc,
+        replyTo = replyTo,
+        subject = subject,
+        plaintextBody = plaintextBody,
+        htmlBody = htmlBody
+      )
     }
   }
-  
-  private def sendImpl(to: String, from: String, cc: Seq[String], bcc: Seq[String], replyTo: String, subject: String, body: String): Unit = {
+
+  private def sendImpl(to: String, from: String, cc: Seq[String], bcc: Seq[String], replyTo: String, subject: String, plaintextBody: Option[String], htmlBody: Option[String]): Unit = {
+    require(plaintextBody.isDefined || htmlBody.isDefined, "Either plaintextBody or htmlBody has to be set!")
+
     val props: Properties = new Properties
     props.put("mail.smtp.starttls.enable", "true")
     props.put("mail.smtp.host", host)
@@ -89,8 +231,14 @@ final case class EmailSender(user: String, pass: String, host: String) {
 
     message.setSentDate(new java.util.Date)
     message.setSubject(subject, "utf-8")
-    message.setText(body, "utf-8")
-    
+
+    if (plaintextBody.isDefined && htmlBody.isDefined) {
+      message.setContent(createMultipart(plaintextBody.get, htmlBody.get))
+    } else {
+      plaintextBody.foreach{ message.setText(_, "utf-8") }
+      htmlBody.foreach{ message.setText(_, "utf-8", "html")  }
+    }
+
     // Not AutoCloseable
     val transport: Transport = session.getTransport("smtp")
     try {
@@ -99,5 +247,28 @@ final case class EmailSender(user: String, pass: String, host: String) {
     } finally {
       transport.close()
     }
+  }
+
+  private def createMultipart(plaintextBody: String, htmlBody: String): MimeMultipart = {
+    val multipart: MimeMultipart = new MimeMultipart()
+
+    // According to the RFC for Multipart content, the plainest format should be set first and the richest format last
+    // Source: https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
+    multipart.addBodyPart(createBodyPart(text = plaintextBody, isHtml = false))
+    multipart.addBodyPart(createBodyPart(text = htmlBody     , isHtml = true ))
+
+    multipart
+  }
+
+  private def createBodyPart(text: String, isHtml: Boolean): MimeBodyPart = {
+    val bodyPart: MimeBodyPart = new MimeBodyPart
+
+    if (isHtml) {
+      bodyPart.setText(text, "utf-8", "html")
+    } else {
+      bodyPart.setText(text, "utf-8")
+    }
+
+    bodyPart
   }
 }
