@@ -35,7 +35,7 @@ final case class EmailSender(user: String, pass: String, host: String) {
     bcc: Seq[String],
     replyTo: String,
     subject: String,
-    plaintextBody: String,
+    plaintextBody: String
   ): Unit = sendSyncImpl(
     loggingName = "sendPlaintext",
     to = to,
@@ -75,7 +75,7 @@ final case class EmailSender(user: String, pass: String, host: String) {
     bcc: Seq[String],
     replyTo: String,
     subject: String,
-    htmlBody: String,
+    htmlBody: String
   ): Unit = sendSyncImpl(
     loggingName = "sendHtml",
     to = to,
@@ -116,7 +116,7 @@ final case class EmailSender(user: String, pass: String, host: String) {
     replyTo: String,
     subject: String,
     plaintextBody: String,
-    htmlBody: String,
+    htmlBody: String
   ): Unit = sendSyncImpl(
     loggingName = "sendMultipart",
     to = to,
@@ -137,7 +137,7 @@ final case class EmailSender(user: String, pass: String, host: String) {
     replyTo: String,
     subject: String,
     plaintextBody: String,
-    htmlBody: String,
+    htmlBody: String
   ): Future[Unit] = sendAsyncImpl(
     loggingName = "sendMultipartAsync",
     to = to,
