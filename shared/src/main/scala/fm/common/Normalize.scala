@@ -15,31 +15,48 @@
  */
 package fm.common
 
-import java.util.Arrays
+import java.lang.{StringBuilder => JavaStringBuilder}
 import scala.collection.mutable.{ArrayBuffer,Builder}
 
 object Normalize {
   def stripAccents(s: String): String = ASCIIUtil.convertToASCII(s)
-  
+
   /**
    * Replaces any non-alphanumeric characters with collapsed spaces
    */
   def lowerAlphanumericWithSpaces(s: String): String = {
     if (null == s) return ""
-    
-    val sb = new java.lang.StringBuilder
+
+    val normalized: String = unicodeNormalization(s)
+    val sb: JavaStringBuilder = new JavaStringBuilder()
     
     var i: Int = 0
     var prevCh: Char = 0
-    while (i < s.length) {
-      val ch = stripAccent(s.charAt(i))
-      if(Character.isLetterOrDigit(ch)) {
+
+    def handleChar(ch: Char): Unit = {
+      if (Character.isLetterOrDigit(ch)) {
         sb.append(Character.toLowerCase(ch))
         prevCh = ch
-      } else if(prevCh != ' ') {
+      } else if (prevCh != ' ') {
         sb.append(' ')
         prevCh = ' '
       }
+    }
+
+    while (i < normalized.length) {
+      val rawCh: Char = normalized.charAt(i)
+      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh)
+
+      if (null == expandedChars) {
+        handleChar(rawCh)
+      } else {
+        var j: Int = 0
+        while (j < expandedChars.length) {
+          handleChar(expandedChars.charAt(j))
+          j += 1
+        }
+      }
+
       i += 1
     }
     
@@ -65,58 +82,71 @@ object Normalize {
    */
   private def lowerAlphanumericWithPositionsImpl(s: String, includePositions: Boolean): (String, Array[Int]) = {
     if (null == s) return ("", Array())
-    
-    var arr: Array[Char] = null // The lowerAlphanumeric chars
-    var pos: Array[Int] = null // Original positions the lowerAlphanumeric chars came from
-    var arrIdx: Int = 0
-    
+
+    val normalized: String = unicodeNormalization(s)
+
+    var res: JavaStringBuilder = null // The lowerAlphanumeric chars
+    var pos: ImmutableArrayBuilder[Int] = null // Original positions the lowerAlphanumeric chars came from
+
     var i: Int = 0
-    while (i < s.length) {
-      val ch: Char = stripAccent(s.charAt(i))
-      
-      if (null == arr && (!Character.isLetterOrDigit(ch) || ch != Character.toLowerCase(ch))) {
+
+    def handleChar(ch: Char): Unit = {
+      if (null == res && (!Character.isLetterOrDigit(ch) || ch != Character.toLowerCase(ch))) {
         // The original string is not normalized so we need to initialize arr and copy over everything so far
-        arr = new Array[Char](s.length)
-        if (includePositions) pos = makePositionsArray(s.length, i)
-        
+        res = new JavaStringBuilder(s.length)
+        if (includePositions) pos = makePositionsArray(normalized.length, i)
+
         // Copy over everything so far
         if (i > 0) {
-          s.getChars(0, i, arr, 0)
-          arrIdx = i
+          res.append(normalized, 0, i)
         }
       }
-      
+
       // Normal case of building up our new string
-      if (null != arr) {
+      if (null != res) {
         if (Character.isLetterOrDigit(ch)) {
-          arr(arrIdx) = Character.toLowerCase(ch)
-          if (includePositions) pos(arrIdx) = i
-          arrIdx += 1
+          res.append(Character.toLowerCase(ch))
+          if (includePositions) pos += i
         }
       }
-      
+    }
+
+    while (i < normalized.length) {
+      val rawCh: Char = normalized.charAt(i)
+      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh)
+
+      if (null == expandedChars) {
+        handleChar(rawCh)
+      } else {
+        var j: Int = 0
+        while (j < expandedChars.length) {
+          handleChar(expandedChars.charAt(j))
+          j += 1
+        }
+      }
+
       i += 1
     }
-    
+
     // If arr is null then the original string is already normalized
-    val normalizedString: String = if (null == arr) s else new String(arr, 0, arrIdx)
-    
+    val normalizedString: String = if (null == res) s else res.toString
+
     val normalizedPositions: Array[Int] = if (includePositions) {
       if (null == pos) {
         // If pos is null then arr was null so we just need to fill with 0..normalizedString.length
-        makePositionsArray(normalizedString.length, normalizedString.length)
+        makePositionsArray(normalizedString.length, normalizedString.length).toArray
       } else {
         // Otherwise trim the pos array to the same length as the normalized string
-        Arrays.copyOf(pos, normalizedString.length)
+        pos.toArray
       }
     } else null
-    
+
     (normalizedString, normalizedPositions)
   }
   
   // Used by lowerAlphanumericWithPositionsImpl
-  private def makePositionsArray(length: Int, fillLength: Int): Array[Int] = {
-    val arr: Array[Int] = new Array(length)
+  private def makePositionsArray(length: Int, fillLength: Int): ImmutableArrayBuilder[Int] = {
+    val arr: ImmutableArrayBuilder[Int] = ImmutableArray.newBuilder
     
     var i: Int = 0
     while (i < fillLength) {
@@ -135,48 +165,64 @@ object Normalize {
    */
   def reverseLowerAlphanumeric(original: String, normalized: String): Option[String] = {
     if (original.isNullOrBlank || normalized.isNullOrBlank) return None
+
+    val unicodeNormalizedOriginal: String = unicodeNormalization(original)
+    val (lowerAlphaNumericOriginal: String, positions: Array[Int]) = lowerAlphanumericWithPositions(unicodeNormalizedOriginal)
     
-    val (normalizedOriginal: String, positions: Array[Int]) = lowerAlphanumericWithPositions(original)
-    
-    val matchIdx: Int = normalizedOriginal.indexOf(normalized)
+    val matchIdx: Int = lowerAlphaNumericOriginal.indexOf(normalized)
     
     if (matchIdx < 0) None else {
       val startIdx: Int = positions(matchIdx)
       
       var endIdx: Int = positions(matchIdx + normalized.length - 1)
-      val maxEndIdx: Int = if (matchIdx + normalized.length >= normalizedOriginal.length) original.length else positions(matchIdx + normalized.length)
+      val maxEndIdx: Int = if (matchIdx + normalized.length >= lowerAlphaNumericOriginal.length) unicodeNormalizedOriginal.length else positions(matchIdx + normalized.length)
       
       // Take any additional non-whitespace up to the next normalized character
-      while (endIdx < maxEndIdx && !Character.isWhitespace(original.charAt(endIdx))) {
+      while (endIdx < maxEndIdx && !Character.isWhitespace(unicodeNormalizedOriginal.charAt(endIdx))) {
         endIdx += 1
       }
       
-      Some(original.substring(startIdx, endIdx))
+      Some(unicodeNormalizedOriginal.substring(startIdx, endIdx))
     }
   }
   
   def lowerAlphaNumericWords(s: String): Array[String] = {
-    val buf = new ArrayBuffer[String]
+    val buf: ArrayBuffer[String] = new ArrayBuffer()
     lowerAlphaNumericWords(s, buf)
     buf.toArray
   }
   
   def lowerAlphaNumericWords(s: String, buf: Builder[String,_]): Unit = {
-    val size: Int = s.length
+    if (null == s) return
+
+    val normalized: String = unicodeNormalization(s)
     var i: Int = 0
 
-    var sb = new StringBuilder
-    
-    while(i < size) {
-      val ch: Char = stripAccent(s.charAt(i))
-      
+    var sb: JavaStringBuilder = new JavaStringBuilder()
+
+    def handleChar(ch: Char): Unit = {
       // If its a valid character (alphanumeric or a dot) add it to the StringBuilder
       if (Character.isLetterOrDigit(ch) || ch == '.') {
         sb.append(Character.toLowerCase(ch))
       } else if (sb.length > 0) {
         // Otherwise we have a complete word, add it to the result buffer
         buf += sb.toString
-        sb = new StringBuilder
+        sb = new JavaStringBuilder()
+      }
+    }
+
+    while (i < normalized.length) {
+      val rawCh: Char = normalized.charAt(i)
+      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh)
+
+      if (null == expandedChars) {
+        handleChar(rawCh)
+      } else {
+        var j: Int = 0
+        while (j < expandedChars.length) {
+          handleChar(expandedChars.charAt(j))
+          j += 1
+        }
       }
       
       i += 1
@@ -216,7 +262,7 @@ object Normalize {
     // 2015-02-19 - This additional step to added to strip accented chars
     val s: String = stripAccents(raw)
 
-    val sb = new java.lang.StringBuilder(s.length)
+    val sb: JavaStringBuilder = new JavaStringBuilder(s.length)
     var i: Int = 0
     var lastCharWasSep: Boolean = false
     
@@ -267,11 +313,10 @@ object Normalize {
    * Converts ASCII Characters in a String to their Unicode Full Width equivalent
    */
   def toFullWidth(s: String): String = s.map{ toFullWidth }
-  
-  /**
-   * Converts Accented Characters to the Non-Accented Equivalent.
-   * 
-   * Note: This only works for when there is a 1 to 1 Character equivalence (i.e. it does not work for stuff like Æ which needs to expand to AE)
-   */
-  private def stripAccent(c: Char): Char = ASCIIUtil.toASCIIChar(c)
+
+  /** Used by the various lowerAlphanumeric methods */
+  private[common] def unicodeNormalization(s: String): String = {
+    // Unicode Normalization Form KC (NFKC) - "Compatibility decomposition, followed by canonical composition."
+    UnicodeNormalization.normalizeNFKC(s)
+  }
 }
