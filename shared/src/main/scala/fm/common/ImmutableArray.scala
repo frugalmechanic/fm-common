@@ -95,40 +95,63 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
   //
   private var arr: Array[A] = if (initialSize > 0) new Array[A](initialSize) else null // Array.empty creates a new array each time so avoid using that
   private var capacity: Int = if (null == arr) 0 else arr.length
-  private var length: Int = 0
-  @volatile private var done: Boolean = false
+  private var _length: Int = 0
 
   /**
    * The number of items that have been added to this builder
    */
-  def size: Int = length
+  def size: Int = _length
+  def length: Int = _length
 
   def +=(elem: A): this.type = {
-    assert(!done, "Trying to add to an already closed ImmutableArrayBuilder")
-    ensureCapacity(length + 1)
-    arr(length) = elem
-    length += 1
+    ensureCapacity(_length + 1)
+    arr(_length) = elem
+    _length += 1
     this
+  }
+
+  def apply(idx: Int): A = {
+    if (idx < 0 || idx >= length) throw new ArrayIndexOutOfBoundsException(s"Length: $length, requested idx: $idx")
+    arr(idx)
+  }
+
+  def update(idx: Int, value: A): Unit = {
+    ensureCapacity(idx + 1)
+    arr(idx) = value
+    _length = math.max(_length, idx + 1)
+  }
+
+  def insert(idx: Int, value: A): Unit = {
+    ensureCapacity(_length + 1)
+
+    if (idx >= _length) {
+      // Nothing to shift around so just use the update() method
+      update(idx, value)
+    } else {
+      System.arraycopy(arr, idx, arr, idx + 1, _length - idx)
+      arr(idx) = value
+      _length += 1
+    }
+  }
+
+  def toArray: Array[A] = {
+    if (_length == 0) return Array.empty
+    assert(_length <= arr.length, s"Length: ${_length},  Array.length: ${arr.length}")
+
+    val buf: Array[A] = new Array[A](_length)
+    System.arraycopy(arr, 0, buf, 0, _length)
+    buf
   }
   
   def result: ImmutableArray[A] = {
-    assert(!done, "Calling result again on an already closed ImmutableArrayBuilder")
-    
-    done = true
-    
-    if (length == 0) return ImmutableArray.empty
-    assert(length <= arr.length, s"Length: $length,  Array.length: ${arr.length}")
-    
-    val buf: Array[A] = new Array[A](length)
-    System.arraycopy(arr, 0, buf, 0, length)
-    new ImmutableArray[A](buf)
+    if (_length == 0) return ImmutableArray.empty
+    else new ImmutableArray[A](toArray)
   }
   
   def clear(): Unit = {
     arr = null
     capacity = 0
-    length = 0
-    done = false
+    _length = 0
   }
   
   override def sizeHint(size: Int): Unit = {
@@ -145,8 +168,13 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
   
   private def resize(size: Int): Unit = {
     val buf: Array[A] = new Array[A](size)
-    if (length > 0 && null != arr) System.arraycopy(arr, 0, buf, 0, length)
+    if (_length > 0 && null != arr) System.arraycopy(arr, 0, buf, 0, _length)
     arr = buf
     capacity = size
+  }
+
+  override def toString: String = {
+    if (null == arr) "ImmutableArrayBuilder()"
+    else arr.slice(0, _length).mkString("ImmutableArrayBuilder(", ",",")")
   }
 }
