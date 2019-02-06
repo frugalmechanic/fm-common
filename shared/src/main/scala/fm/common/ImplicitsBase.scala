@@ -27,7 +27,9 @@ import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
 protected trait ImplicitsBase extends OrderingImplicits {
   implicit def toRichAnyRef[A <: AnyRef](ref: A): RichAnyRef[A] = new RichAnyRef[A](ref)
   implicit def toAnyRefNullChecks[A <: AnyRef](ref: A): AnyRefNullChecks[A] = new AnyRefNullChecks[A](ref)
-  
+
+  implicit def toRichChar(ch: Char): RichChar = new RichChar(ch)
+
   implicit def toRichCharSequence(s: CharSequence): RichCharSequence = new RichCharSequence(s)
   implicit def toRichString(s: String): RichString = new RichString(s)
   
