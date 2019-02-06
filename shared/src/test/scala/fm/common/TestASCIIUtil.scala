@@ -23,15 +23,25 @@ final class TestASCIIUtil extends FunSuite with Matchers {
   private val ascii: String = (0 to 127).map{ _.toChar }.mkString
 
   test("toASCIIChar - 0-127 ascii") {
-    ASCIIUtil.toASCIIChar('a') should equal ('a')
-    ASCIIUtil.toASCIIChar('*') should equal ('*')
+    ASCIIUtil.toASCIIChar('a') shouldBe 'a'
+    ASCIIUtil.toASCIIChar('*') shouldBe '*'
 
-    ascii.foreach { ch: Char => ASCIIUtil.toASCIIChar(ch) should equal (ch) }
+    ascii.foreach { ch: Char => ASCIIUtil.toASCIIChar(ch) shouldBe ch }
   }
 
   test("toASCIIChar - accents") {
-    ASCIIUtil.toASCIIChar('\u204E') should equal ('*')
-    ASCIIUtil.toASCIIChar('\u2052') should equal ('%')
+    ASCIIUtil.toASCIIChar('\u204E') shouldBe '*'
+    ASCIIUtil.toASCIIChar('\u2052') shouldBe '%'
+  }
+
+  test("toASCIICharsOrNull - 0-127 ASCII") {
+    ascii.foreach { ch: Char => ASCIIUtil.toASCIICharsOrNull(ch) shouldBe null }
+  }
+
+  test("toASCIICharsOrNull - accents") {
+    ASCIIUtil.toASCIICharsOrNull('\u204E') shouldBe "*"
+    ASCIIUtil.toASCIICharsOrNull('\u2052') shouldBe "%"
+    ASCIIUtil.toASCIICharsOrNull('Æ') shouldBe "AE"
   }
 
   test("convertToASCII - ascii") {
@@ -41,12 +51,12 @@ final class TestASCIIUtil extends FunSuite with Matchers {
   }
 
   test("convertToASCII - non-ascii") {
-    ASCIIUtil.convertToASCII("\u204E") should equal ("*")
-    ASCIIUtil.convertToASCII("\u204E"+ascii) should equal ("*"+ascii)
-    ASCIIUtil.convertToASCII("\u2052") should equal ("%")
-    ASCIIUtil.convertToASCII("Æ") should equal ("AE")
-    ASCIIUtil.convertToASCII(ascii+"Æ") should equal (ascii+"AE")
-    ASCIIUtil.convertToASCII("Æ"+ascii) should equal ("AE"+ascii)
-    ASCIIUtil.convertToASCII(ascii+"Foo Bar \u204E \u2052 Æ") should equal (ascii+"Foo Bar * % AE")
+    ASCIIUtil.convertToASCII("\u204E") shouldBe "*"
+    ASCIIUtil.convertToASCII("\u204E"+ascii) shouldBe "*"+ascii
+    ASCIIUtil.convertToASCII("\u2052") shouldBe "%"
+    ASCIIUtil.convertToASCII("Æ") shouldBe "AE"
+    ASCIIUtil.convertToASCII(ascii+"Æ") shouldBe ascii+"AE"
+    ASCIIUtil.convertToASCII("Æ"+ascii) shouldBe "AE"+ascii
+    ASCIIUtil.convertToASCII(ascii+"Foo Bar \u204E \u2052 Æ") shouldBe ascii+"Foo Bar * % AE"
   }
 }

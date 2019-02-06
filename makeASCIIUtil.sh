@@ -62,6 +62,12 @@ def getMapping(file: String): Vector[(UnicodeChar, String)] = {
 val res: Vector[(UnicodeChar, String)] = getMapping("lucene-solr/lucene/analysis/common/src/java/org/apache/lucene/analysis/miscellaneous/ASCIIFoldingFilter.java")
 val groupedByAscii: Vector[(String,Vector[UnicodeChar])] = res.groupBy{ _._2 }.mapValues{ _.map{ _._1 } }.toVector.sortBy{ _._1 }
 
+val maxExpandedLength: Int = groupedByAscii.map{ _._1.length }.max
+
+val maxLengthExamples: String = groupedByAscii.filter{ _._1.length == maxExpandedLength }.flatMap { case (ascii: String, unicode: Vector[UnicodeChar]) =>
+  unicode.map{ u: UnicodeChar => s"""'${u.char}' => "$ascii"  // ${u.comment}""" }
+}.mkString("", "\n   *   ", "")
+
 println(s"""// Generated ${new java.util.Date()}
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
@@ -89,6 +95,14 @@ import java.lang.{StringBuilder => JavaStringBuilder}
 import scala.annotation.switch
 
 object ASCIIUtil {
+  /**
+   * The maximum number of ASCII characters a single Unicode character will expand to
+   *
+   * All examples that expands to $maxExpandedLength characters:
+   *
+   *   $maxLengthExamples
+   */
+  val MaxASCIIExpandedLength: Int = $maxExpandedLength
   
   /**
    * Converts Accented Characters to the Non-Accented Equivalent Char.
@@ -104,6 +118,13 @@ object ASCIIUtil {
   }
   
   /**
+   * Converts Accented Characters to the Non-Accented Equivalent String (or null if already ASCII or no conversion exists).
+   */
+  def toASCIICharsOrNull(c: Char): String = {
+    if (c < '\\u0080') null else stripAccentStringImplOrNull(c)
+  }
+  
+  /**
    * Converts Accented Characters to the Non-Accented Equivalent String.
    *
    * Note: This expands stuff like Æ to AE)
@@ -113,7 +134,8 @@ object ASCIIUtil {
 
     var i: Int = 0
 
-    while (i < s.length && s.charAt(i) < '\u0080'){
+    // Skip past any ASCII characters
+    while (i < s.length && s.charAt(i) < '\\u0080'){
       i += 1
     }
 

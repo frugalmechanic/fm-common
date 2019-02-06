@@ -1,4 +1,4 @@
-// Generated Thu Jun 07 15:13:50 PDT 2018
+// Generated Tue Feb 05 21:28:01 PST 2019
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
 // AUTO-GENERATED FROM THE makeAccents.sh SCRIPT
@@ -25,6 +25,24 @@ import java.lang.{StringBuilder => JavaStringBuilder}
 import scala.annotation.switch
 
 object ASCIIUtil {
+  /**
+   * The maximum number of ASCII characters a single Unicode character will expand to
+   *
+   * All examples that expands to 4 characters:
+   *
+   *   '\u247D' => "(10)"  // ⑽  [PARENTHESIZED NUMBER TEN]
+   *   '\u247E' => "(11)"  // ⑾  [PARENTHESIZED NUMBER ELEVEN]
+   *   '\u247F' => "(12)"  // ⑿  [PARENTHESIZED NUMBER TWELVE]
+   *   '\u2480' => "(13)"  // ⒀  [PARENTHESIZED NUMBER THIRTEEN]
+   *   '\u2481' => "(14)"  // ⒁  [PARENTHESIZED NUMBER FOURTEEN]
+   *   '\u2482' => "(15)"  // ⒂  [PARENTHESIZED NUMBER FIFTEEN]
+   *   '\u2483' => "(16)"  // ⒃  [PARENTHESIZED NUMBER SIXTEEN]
+   *   '\u2484' => "(17)"  // ⒄  [PARENTHESIZED NUMBER SEVENTEEN]
+   *   '\u2485' => "(18)"  // ⒅  [PARENTHESIZED NUMBER EIGHTEEN]
+   *   '\u2486' => "(19)"  // ⒆  [PARENTHESIZED NUMBER NINETEEN]
+   *   '\u2487' => "(20)"  // ⒇  [PARENTHESIZED NUMBER TWENTY]
+   */
+  val MaxASCIIExpandedLength: Int = 4
   
   /**
    * Converts Accented Characters to the Non-Accented Equivalent Char.
@@ -40,6 +58,13 @@ object ASCIIUtil {
   }
   
   /**
+   * Converts Accented Characters to the Non-Accented Equivalent String (or null if already ASCII or no conversion exists).
+   */
+  def toASCIICharsOrNull(c: Char): String = {
+    if (c < '\u0080') null else stripAccentStringImplOrNull(c)
+  }
+  
+  /**
    * Converts Accented Characters to the Non-Accented Equivalent String.
    *
    * Note: This expands stuff like Æ to AE)
@@ -49,7 +74,8 @@ object ASCIIUtil {
 
     var i: Int = 0
 
-    while (i < s.length && s.charAt(i) < ''){
+    // Skip past any ASCII characters
+    while (i < s.length && s.charAt(i) < '\u0080'){
       i += 1
     }
 
