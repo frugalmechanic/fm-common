@@ -53,12 +53,11 @@ final class RichCharSequence(val s: CharSequence) extends AnyVal {
    * Do the next characters starting at idx match the target
    */
   def nextCharsMatch(target: CharSequence, idx: Int = 0): Boolean = {
-    require(idx >= 0, s"RichSequence.nextCharsMatch - Negative Idx: $idx")
-    
-    if(null == target || target.length == 0) return false
+    if (idx < 0) throw new IllegalArgumentException(s"RichSequence.nextCharsMatch - Negative Idx: $idx")
+    if (null == target || target.length == 0) return false
 
     var i: Int = 0
-    while(i < target.length && i+idx < s.length && target.charAt(i) == s.charAt(i+idx)) {
+    while (i < target.length && i+idx < s.length && target.charAt(i) == s.charAt(i+idx)) {
       i += 1
     }
 
