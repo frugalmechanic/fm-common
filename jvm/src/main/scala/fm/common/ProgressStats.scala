@@ -40,7 +40,22 @@ final case class ProgressStats(dotPer: Long = 1000L, statsPer: Long = 25000L, lo
   
   def increment(): Unit = {
     val c: Long = _count.incrementAndGet
+    handleIteration(c)
+  }
 
+  def incrementBatch(delta: Long): Unit = {
+    val start: Long = _count.getAndAdd(delta) + 1
+    val end: Long = start + delta
+
+    var c: Long = start
+
+    while (c <= end) {
+      handleIteration(c)
+      c += 1
+    }
+  }
+
+  private def handleIteration(c: Long): Unit = {
     if (c % dotPer == 0) {
       if (!hide) print(".")
     }
