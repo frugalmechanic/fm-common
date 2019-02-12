@@ -15,14 +15,11 @@
  */
 package fm.common.rich
 
-object RichBooleanOption {
-  private val TRUE = Some(true)
-  private val FALSE = Some(false)
-}
+import fm.common.OptionCache
 
 final class RichBooleanOption(val opt: Option[Boolean]) extends AnyVal {
   /**
    * Like String.intern but for Option[Boolean]
    */
-  def intern: Option[Boolean] = if (opt.isEmpty) None else if (opt.get) RichBooleanOption.TRUE else RichBooleanOption.FALSE
+  def intern: Option[Boolean] = if (opt.isEmpty) None else OptionCache.valueOf(opt.get)
 }

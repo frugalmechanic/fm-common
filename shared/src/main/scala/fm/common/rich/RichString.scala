@@ -15,8 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.{Normalize, ThreadLocalHashMap}
-import fm.common.Implicits.toRichTraversableOnce
+import fm.common.{Normalize, OptionCache, ThreadLocalHashMap}
 import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import java.text.{DecimalFormat, NumberFormat, ParseException}
@@ -25,26 +24,16 @@ import java.util.function.IntConsumer
 import scala.util.matching.Regex
 
 object RichString {
-  private[this] val booleanLookupMap: Map[String,Boolean] = Vector(
-    "true" -> true,
-    "yes" -> true,
-    "t" -> true,
-    "y" -> true,
-    "1" -> true,
-    "false" -> false,
-    "no" -> false,
-    "f" -> false,
-    "n" -> false,
-    "0" -> false
-  ).toUniqueHashMap
-  
   def parseBoolean(s: String): Option[Boolean] = {
     if (null == s) return None
-    
+
     val lower: String = s.trim.toLowerCase
     if (lower == "") return None
-    
-    booleanLookupMap.get(lower)
+
+    lower match {
+      case "true" | "t" | "yes" | "y" | "1" => OptionCache.valueOf(true)
+      case "false" | "f" | "no" | "n" | "0" => OptionCache.valueOf(false)
+    }
   }
 
   // NumberFormat.getInstance(locale) is expensive (and not thread-safe) so we need to cache it
@@ -96,11 +85,11 @@ final class RichString(val s: String) extends AnyVal {
    */
   def requireTrailing(trail: String): String = if (s.endsWith(trail)) s else s+trail
   
-  def toBooleanOption: Option[Boolean] = try { Some(java.lang.Boolean.valueOf(s)) } catch { case _: NumberFormatException => None }
-  def toByteOption:    Option[Byte]    = try { Some(java.lang.Byte.valueOf(s))    } catch { case _: NumberFormatException => None }
-  def toShortOption:   Option[Short]   = try { Some(java.lang.Short.valueOf(s))   } catch { case _: NumberFormatException => None }
-  def toIntOption:     Option[Int]     = try { Some(java.lang.Integer.valueOf(s)) } catch { case _: NumberFormatException => None }
-  def toLongOption:    Option[Long]    = try { Some(java.lang.Long.valueOf(s))    } catch { case _: NumberFormatException => None }
+  def toBooleanOption: Option[Boolean] = try { OptionCache.valueOf(java.lang.Boolean.valueOf(s)) } catch { case _: NumberFormatException => None }
+  def toByteOption:    Option[Byte]    = try { OptionCache.valueOf(java.lang.Byte.valueOf(s))    } catch { case _: NumberFormatException => None }
+  def toShortOption:   Option[Short]   = try { OptionCache.valueOf(java.lang.Short.valueOf(s))   } catch { case _: NumberFormatException => None }
+  def toIntOption:     Option[Int]     = try { OptionCache.valueOf(java.lang.Integer.valueOf(s)) } catch { case _: NumberFormatException => None }
+  def toLongOption:    Option[Long]    = try { OptionCache.valueOf(java.lang.Long.valueOf(s))    } catch { case _: NumberFormatException => None }
   def toFloatOption:   Option[Float]   = try { Some(java.lang.Float.valueOf(s))   } catch { case _: NumberFormatException => None }
   def toDoubleOption:  Option[Double]  = try { Some(java.lang.Double.valueOf(s))  } catch { case _: NumberFormatException => None }
   
