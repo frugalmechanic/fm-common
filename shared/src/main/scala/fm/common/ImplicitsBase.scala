@@ -42,8 +42,9 @@ protected trait ImplicitsBase extends OrderingImplicits {
   implicit def toRichBooleanOption(opt: Option[Boolean]): RichBooleanOption = new RichBooleanOption(opt)
   implicit def toRichCharOption(opt: Option[Char]): RichCharOption = new RichCharOption(opt)
 
+  implicit def toRichSomeObject(some: Some.type): RichSomeObject = new RichSomeObject(some)
   implicit def toRichOption[T](opt: Option[T]): RichOption[T] = new RichOption[T](opt)
-  
+
   implicit def toTypeSafeEquals[L](left: L): TypeSafeEquals[L] = new TypeSafeEquals(left)
   
   implicit def bigIntegerOrdering: Ordering[JavaBigInteger] = RichBigInteger

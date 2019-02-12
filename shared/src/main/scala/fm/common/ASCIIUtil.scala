@@ -25,6 +25,9 @@ import java.lang.{StringBuilder => JavaStringBuilder}
 import scala.annotation.switch
 
 object ASCIIUtil {
+  val MaxASCIIChar: Char = '\u007F' // 127
+  val MaxASCIICodePoint: Int = MaxASCIIChar.toInt
+
   /**
    * The maximum number of ASCII characters a single Unicode character will expand to
    *
