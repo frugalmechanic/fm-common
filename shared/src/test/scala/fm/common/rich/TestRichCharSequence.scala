@@ -92,34 +92,34 @@ final class TestRichCharSequence extends FunSuite with Matchers {
   }
   
   test("indexesOf") {
-    "aaaaaaaa".indexesOf("aa", withOverlaps = false) should equal (List(0, 2, 4, 6))
-    "aaaaaaaa".indexesOf(target = "aa", withOverlaps = true) should equal (List(0, 1, 2, 3, 4, 5, 6))
-    "aaaaaaaa".indexesOf("b", withOverlaps = false) should equal (Nil)
+    "aaaaaaaa".indexesOf("aa", withOverlaps = false) shouldBe List(0, 2, 4, 6)
+    "aaaaaaaa".indexesOf(target = "aa", withOverlaps = true) shouldBe List(0, 1, 2, 3, 4, 5, 6)
+    "aaaaaaaa".indexesOf("b", withOverlaps = false) shouldBe Nil
   }
 
   test("equalsNormalized") {
-    (null: String).equalsNormalized(null) should equal (false)
-    (null: String).equalsNormalized("") should equal (false)
-    "".equalsNormalized(null) should equal (false)
+    (null: String).equalsNormalized(null) shouldBe false
+    (null: String).equalsNormalized("") shouldBe false
+    "".equalsNormalized(null) shouldBe false
 
-    "".equalsNormalized("") should equal (true)
-    "foo".equalsNormalized("foo") should equal (true)
-    "foo".equalsNormalized(" fOo ") should equal (true)
-    "  F o O B a R ".equalsNormalized(" fOo bAr ") should equal (true)
+    "".equalsNormalized("") shouldBe true
+    "foo".equalsNormalized("foo") shouldBe true
+    "foo".equalsNormalized(" fOo ") shouldBe true
+    "  F o O B a R ".equalsNormalized(" fOo bAr ") shouldBe true
   }
 
   test("containsIgnoreCase") {
-    (null: String).containsIgnoreCase(null) should equal (false)
-    (null: String).containsIgnoreCase("") should equal (false)
-    "".containsIgnoreCase(null) should equal (false)
+    (null: String).containsIgnoreCase(null) shouldBe false
+    (null: String).containsIgnoreCase("") shouldBe false
+    "".containsIgnoreCase(null) shouldBe false
 
-    "".containsIgnoreCase("") should equal (true)
-    "foo".containsIgnoreCase("foo") should equal (true)
-    "FOO".containsIgnoreCase("foo") should equal (true)
-    "FOO".containsIgnoreCase("FOO") should equal (true)
-    "FoO".containsIgnoreCase("fOo") should equal (true)
-    "foo".containsIgnoreCase(" fOo ") should equal (false)
-    "  F o O B a R ".containsIgnoreCase(" fOo bAr ") should equal (false)
+    "".containsIgnoreCase("") shouldBe true
+    "foo".containsIgnoreCase("foo") shouldBe true
+    "FOO".containsIgnoreCase("foo") shouldBe true
+    "FOO".containsIgnoreCase("FOO") shouldBe true
+    "FoO".containsIgnoreCase("fOo") shouldBe true
+    "foo".containsIgnoreCase(" fOo ") shouldBe false
+    "  F o O B a R ".containsIgnoreCase(" fOo bAr ") shouldBe false
   }
 
   test("indexOfNormalized / containsNormalized") {
@@ -155,12 +155,12 @@ final class TestRichCharSequence extends FunSuite with Matchers {
   }
 
   private def checkIndexOfNormalized(s: CharSequence, target: CharSequence, idx: Int): Unit = {
-    s.indexOfNormalized(target) should equal (idx)
-    s.containsNormalized(target) should equal (idx > -1)
+    s.indexOfNormalized(target) shouldBe idx
+    s.containsNormalized(target) shouldBe idx > -1
   }
 
   private def checkIndexOfIgnoreCase(s: CharSequence, target: CharSequence, idx: Int): Unit = {
-    s.indexOfIgnoreCase(target) should equal (idx)
-    s.containsIgnoreCase(target) should equal (idx > -1)
+    s.indexOfIgnoreCase(target) shouldBe idx
+    s.containsIgnoreCase(target) shouldBe idx > -1
   }
 }

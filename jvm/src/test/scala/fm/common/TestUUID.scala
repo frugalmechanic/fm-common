@@ -102,9 +102,9 @@ final class TestUUID extends FunSuite with Matchers {
 
   private def checkSpecial(value: UUID, expected: UUID, isSpecial: UUID => Boolean): Unit = {
     check(value)
-    value should equal (expected)
-    isSpecial(expected) should equal (true)
-    isSpecial(value) should equal (true)
+    value shouldBe expected
+    isSpecial(expected) shouldBe true
+    isSpecial(value) shouldBe true
   }
 
   private def check(uuid: UUID): Unit = {
@@ -153,10 +153,10 @@ final class TestUUID extends FunSuite with Matchers {
   }
   
   private def check(epochMilli: Long, counter: Int, nodeId: Int, random: Long, uuid: UUID): Unit = TestHelpers.withCallerInfo {
-    withClue ("epochMilli:") { uuid.epochMilli should equal (epochMilli) }
-    withClue ("counter:") { uuid.counter should equal (counter) }
-    withClue ("nodeId:") { uuid.nodeId should equal (nodeId) }
-    withClue ("random:") { uuid.random should equal (random) }
+    withClue ("epochMilli:") { uuid.epochMilli shouldBe epochMilli }
+    withClue ("counter:") { uuid.counter shouldBe counter }
+    withClue ("nodeId:") { uuid.nodeId shouldBe nodeId }
+    withClue ("random:") { uuid.random shouldBe random }
   }
   
   private def checkInvalidArgument(epochMilli: Long, counter: Int, nodeId: Int, random: Long): Unit = TestHelpers.withCallerInfo{

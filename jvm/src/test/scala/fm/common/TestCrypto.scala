@@ -58,11 +58,11 @@ final class TestCrypto extends FunSuite with Matchers {
   }
 
   def pbkdf2(ivHex: String, password: String, iterationCount: Int, expectedHex: String): Unit = {
-    Crypto.PBKDF2.sha256Hex(Base16.decode(ivHex), password, iterationCount) should equal (expectedHex)
-    Crypto.PBKDF2.sha256Hex(Base16.decode(ivHex), password.toCharArray, iterationCount) should equal (expectedHex)
+    Crypto.PBKDF2.sha256Hex(Base16.decode(ivHex), password, iterationCount) shouldBe expectedHex
+    Crypto.PBKDF2.sha256Hex(Base16.decode(ivHex), password.toCharArray, iterationCount) shouldBe expectedHex
 
-    Crypto.PBKDF2.sha256(Base16.decode(ivHex), password, iterationCount) should equal (Base16.decode(expectedHex))
-    Crypto.PBKDF2.sha256(Base16.decode(ivHex), password.toCharArray, iterationCount) should equal (Base16.decode(expectedHex))
+    Crypto.PBKDF2.sha256(Base16.decode(ivHex), password, iterationCount) shouldBe Base16.decode(expectedHex)
+    Crypto.PBKDF2.sha256(Base16.decode(ivHex), password.toCharArray, iterationCount) shouldBe Base16.decode(expectedHex)
   }
 
 
@@ -204,22 +204,22 @@ final class TestCrypto extends FunSuite with Matchers {
       defaultCrypto,
       authenticatedCrypto
     ).foreach{ c: Crypto =>
-      c.decryptBase64String(c.encryptBase64String(msg)) should equal (msg)
-      c.decryptBase64String(c.encryptBase64StringURLSafe(msg)) should equal (msg)
+      c.decryptBase64String(c.encryptBase64String(msg)) shouldBe msg
+      c.decryptBase64String(c.encryptBase64StringURLSafe(msg)) shouldBe msg
 
-      c.tryDecryptBase64String(c.encryptBase64String(msg)) should equal (Some(msg))
-      c.tryDecryptBase64String(c.encryptBase64StringURLSafe(msg)) should equal (Some(msg))
+      c.tryDecryptBase64String(c.encryptBase64String(msg)) shouldBe Some(msg)
+      c.tryDecryptBase64String(c.encryptBase64StringURLSafe(msg)) shouldBe Some(msg)
 
-      if (macHex.isDefined) c.macHex(msg) should equal (macHex.get)
-      if (macBase64.isDefined) c.macBase64(msg) should equal (macBase64.get)
-      if (macBase64URLSafe.isDefined) c.macBase64URLSafe(msg) should equal (macBase64URLSafe.get)
+      if (macHex.isDefined) c.macHex(msg) shouldBe macHex.get
+      if (macBase64.isDefined) c.macBase64(msg) shouldBe macBase64.get
+      if (macBase64URLSafe.isDefined) c.macBase64URLSafe(msg) shouldBe macBase64URLSafe.get
     }
 
-    if (encryptedBase64Default.isDefined) defaultCrypto.decryptBase64String(encryptedBase64Default.get) should equal (msg)
-    if (encryptedBase64URLSafeDefault.isDefined) defaultCrypto.decryptBase64String(encryptedBase64URLSafeDefault.get) should equal (msg)
+    if (encryptedBase64Default.isDefined) defaultCrypto.decryptBase64String(encryptedBase64Default.get) shouldBe msg
+    if (encryptedBase64URLSafeDefault.isDefined) defaultCrypto.decryptBase64String(encryptedBase64URLSafeDefault.get) shouldBe msg
 
-    if (encryptedBase64Authenticated.isDefined) authenticatedCrypto.decryptBase64String(encryptedBase64Authenticated.get) should equal (msg)
-    if (encryptedBase64URLSafeAuthenticated.isDefined) authenticatedCrypto.decryptBase64String(encryptedBase64URLSafeAuthenticated.get) should equal (msg)
+    if (encryptedBase64Authenticated.isDefined) authenticatedCrypto.decryptBase64String(encryptedBase64Authenticated.get) shouldBe msg
+    if (encryptedBase64URLSafeAuthenticated.isDefined) authenticatedCrypto.decryptBase64String(encryptedBase64URLSafeAuthenticated.get) shouldBe msg
 
     Vector(
       "not_valid_encrypted_value",
@@ -232,10 +232,10 @@ final class TestCrypto extends FunSuite with Matchers {
       "123456781234567812345678123456781234567812345678"
     ).foreach { invalid: String =>
       an [Exception] should be thrownBy authenticatedCrypto.decryptBase64String(invalid)
-      authenticatedCrypto.tryDecryptBase64String(invalid) should equal (None)
+      authenticatedCrypto.tryDecryptBase64String(invalid) shouldBe None
 
       an [Exception] should be thrownBy authenticatedCrypto.decryptBase64String(Base64.encode(invalid.getBytes(UTF_8)))
-      authenticatedCrypto.tryDecryptBase64String(Base64.encode(invalid.getBytes(UTF_8))) should equal (None)
+      authenticatedCrypto.tryDecryptBase64String(Base64.encode(invalid.getBytes(UTF_8))) shouldBe None
     }
   }
 }

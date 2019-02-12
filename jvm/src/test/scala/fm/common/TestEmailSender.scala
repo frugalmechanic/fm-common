@@ -8,7 +8,7 @@ class TestEmailSender extends FunSuite with Matchers {
 
     def testAddresses(addresses: Seq[String], result: Boolean): Unit = {
       addresses.foreach { email: String =>
-        withClue(email) { isValidEmail(email) should equal (result) }
+        withClue(email) { isValidEmail(email) shouldBe result }
       }
     }
 

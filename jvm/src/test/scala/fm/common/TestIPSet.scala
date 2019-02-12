@@ -24,8 +24,8 @@ final class TestIPSet extends FunSuite with Matchers {
   private def no(set: IPSetMutable, ip: String): Unit = TestHelpers.withCallerInfo{ check(set, ip, false) }
   
   private def check(set: IPSetMutable, ip: String, res: Boolean): Unit = {
-    set.contains(ip) should equal (res)
-    set.result.contains(ip) should equal (res)
+    set.contains(ip) shouldBe res
+    set.result.contains(ip) shouldBe res
   }
   
   test("Contains") {
@@ -77,13 +77,13 @@ final class TestIPSet extends FunSuite with Matchers {
     no(set, "0.123.0.0")
     no(set, "0.255.0.0")
     
-    set.hasDefaultRoute should equal (false)
-    set.hasQuadZero should equal (false)
+    set.hasDefaultRoute shouldBe false
+    set.hasQuadZero shouldBe false
     
     set += "0.0.0.0/0"
     
-    set.hasDefaultRoute should equal (true)
-    set.hasQuadZero should equal (true)
+    set.hasDefaultRoute shouldBe true
+    set.hasQuadZero shouldBe true
     
     yes(set, "0.0.0.0")
     yes(set, "0.1.0.0")

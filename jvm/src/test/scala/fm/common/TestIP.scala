@@ -46,8 +46,8 @@ class TestIP extends FunSuite with Matchers {
     val ip1 = IP("65.249.66.235")
     val ip2 = IP("66.249.66.235")
 
-    ip1 should equal (ip1)
-    ip2 should equal (ip2)
+    ip1 shouldBe ip1
+    ip2 shouldBe ip2
 
     ip1 should not equal (ip2)
     ip2 should not equal (ip1)
@@ -99,19 +99,19 @@ class TestIP extends FunSuite with Matchers {
     test("IP Conversions - "+ipStr) {
       IP.toLong(IP.toInt(ipLong)) should equal(ipLong)
 
-      IP.toLong(ipStr) should equal (ipLong)
-      IP.toInt(ipLong) should equal (IP.toInt(ipStr))
+      IP.toLong(ipStr) shouldBe ipLong
+      IP.toInt(ipLong) shouldBe IP.toInt(ipStr)
       IP.toString(ipLong) should equal(ipStr)
       IP.toIntArray(ipLong).toList.toString should equal(ipOctets.toList.toString)
-      IP.toLong(ipOctets).toString should equal (ipLong.toString)
+      IP.toLong(ipOctets).toString shouldBe ipLong.toString
 
       val ip = IP(ipStr)
       val ipFromLong = IP(ipLong.toString)
 
-      ip should equal (IP(ipLong))
-      ip should equal (IP(ipStr))
-      ip.longValue should equal (ipLong)
-      ip.toString should equal (ipStr)
+      ip shouldBe IP(ipLong)
+      ip shouldBe IP(ipStr)
+      ip.longValue shouldBe ipLong
+      ip.toString shouldBe ipStr
       ipFromLong should equal(ip)
     }
   }

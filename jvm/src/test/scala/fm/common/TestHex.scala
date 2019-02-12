@@ -35,13 +35,13 @@ final class TestHex extends FunSuite with Matchers {
   private def check(original: String, encoded: String): Unit = {
     val bytes: Array[Byte] = original.getBytes(UTF_8)
     
-    Hex.encodeHex(bytes) should equal (encoded.toCharArray)
-    Hex.encodeHex(bytes, true) should equal (encoded.toCharArray) // Lowercase by default
-    Hex.encodeHex(bytes, false) should equal (encoded.toUpperCase.toCharArray)
-    Hex.encodeHexString(bytes) should equal (encoded)
+    Hex.encodeHex(bytes) shouldBe encoded.toCharArray
+    Hex.encodeHex(bytes, true) shouldBe encoded.toCharArray // Lowercase by default
+    Hex.encodeHex(bytes, false) shouldBe encoded.toUpperCase.toCharArray
+    Hex.encodeHexString(bytes) shouldBe encoded
     
-    Hex.decodeHex(encoded.toCharArray) should equal (bytes)
-    Hex.decodeHex(encoded.toLowerCase.toCharArray) should equal (bytes)
-    Hex.decodeHex(encoded.toUpperCase.toCharArray) should equal (bytes)
+    Hex.decodeHex(encoded.toCharArray) shouldBe bytes
+    Hex.decodeHex(encoded.toLowerCase.toCharArray) shouldBe bytes
+    Hex.decodeHex(encoded.toUpperCase.toCharArray) shouldBe bytes
   }
 }

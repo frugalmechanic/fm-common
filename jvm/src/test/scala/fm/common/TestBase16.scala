@@ -35,17 +35,17 @@ final class TestBase16 extends FunSuite with Matchers {
   private def check(original: String, encoded: String): Unit = {
     val bytes: Array[Byte] = original.getBytes(UTF_8)
     
-    Base16.encode(bytes) should equal (encoded)
-    Base16.encodeUpper(bytes) should equal (encoded.toUpperCase)
+    Base16.encode(bytes) shouldBe encoded
+    Base16.encodeUpper(bytes) shouldBe encoded.toUpperCase
     
     // def decode(data: String)
-    Base16.decode(encoded) should equal (bytes)
-    Base16.decode(encoded.toCharArray) should equal (bytes)
-    Base16.decode(encoded.toCharArray) should equal (bytes)
+    Base16.decode(encoded) shouldBe bytes
+    Base16.decode(encoded.toCharArray) shouldBe bytes
+    Base16.decode(encoded.toCharArray) shouldBe bytes
     
     // def decode(data: Array[Char])
-    Base16.decode(encoded.toCharArray) should equal (bytes)
-    Base16.decode(encoded.toLowerCase.toCharArray) should equal (bytes)
-    Base16.decode(encoded.toUpperCase.toCharArray) should equal (bytes)
+    Base16.decode(encoded.toCharArray) shouldBe bytes
+    Base16.decode(encoded.toLowerCase.toCharArray) shouldBe bytes
+    Base16.decode(encoded.toUpperCase.toCharArray) shouldBe bytes
   }
 }

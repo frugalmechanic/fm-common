@@ -23,13 +23,13 @@ class TestAnyRefNullChecks extends FunSuite with Matchers {
     val strNull: String = null
     val strNonNull: String = "non-null"
 
-    strNull.isNull should equal (true)
-    strNull.isNotNull should equal (false)
-    strNull.nonNull should equal (false)
+    strNull.isNull shouldBe true
+    strNull.isNotNull shouldBe false
+    strNull.nonNull shouldBe false
 
-    strNonNull.isNull should equal (false)
-    strNonNull.isNotNull should equal (true)
-    strNonNull.nonNull should equal (true)
+    strNonNull.isNull shouldBe false
+    strNonNull.isNotNull shouldBe true
+    strNonNull.nonNull shouldBe true
   }
 
 }

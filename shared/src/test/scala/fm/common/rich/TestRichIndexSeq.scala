@@ -21,21 +21,21 @@ import fm.common.Implicits._
 class TestRichIndexSeq extends FunSuite with Matchers {
   
   test("takeWhile") {
-    Vector.empty[Int].countWhile{ _ == 0 } should equal (0)
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile{ _ == 0 } should equal (0)
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile{ _ == 1 } should equal (3)
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile{ _ == 2 } should equal (0)
+    Vector.empty[Int].countWhile{ _ == 0 } shouldBe 0
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile{ _ == 0 } shouldBe 0
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile{ _ == 1 } shouldBe 3
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile{ _ == 2 } shouldBe 0
   }
   
   test("takeWhile with starting idx") {
-    Vector.empty[Int].countWhile(0){ _ == 0 } should equal (0)
-    Vector.empty[Int].countWhile(5){ _ == 0 } should equal (0)
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(0){ _ == 0 } should equal (0)
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(0){ _ == 1 } should equal (3)
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(0){ _ == 2 } should equal (0)
+    Vector.empty[Int].countWhile(0){ _ == 0 } shouldBe 0
+    Vector.empty[Int].countWhile(5){ _ == 0 } shouldBe 0
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(0){ _ == 0 } shouldBe 0
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(0){ _ == 1 } shouldBe 3
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(0){ _ == 2 } shouldBe 0
     
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(100){ _ == 0 } should equal (0)
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(3){ _ == 1 } should equal (0)
-    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(4){ _ == 2 } should equal (1)
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(100){ _ == 0 } shouldBe 0
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(3){ _ == 1 } shouldBe 0
+    Vector(1,1,1,2,2,3,3,3,3,3).countWhile(4){ _ == 2 } shouldBe 1
   }
 }

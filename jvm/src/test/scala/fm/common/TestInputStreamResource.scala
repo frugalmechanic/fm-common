@@ -40,14 +40,14 @@ final class TestInputStreamResource extends FunSuite with Matchers {
 
   test(".z7") {
     // .7z only works directly against a File so we have a special test for it
-    InputStreamResource.forFile(new File("jvm/src/test/resources/compression/hello_world.txt.7z")).readToString("UTF-8") should equal ("Hello World!\n")
+    InputStreamResource.forFile(new File("jvm/src/test/resources/compression/hello_world.txt.7z")).readToString("UTF-8") shouldBe "Hello World!\n"
   }
 
   private def checkCompression(name: String, uncompress: InputStream => InputStream): Unit = {
     val file: File = new File(s"compression/$name")
 
     // Check via InputStreamResource
-    InputStreamResource.forResource(file).readToString("UTF-8") should equal ("Hello World!\n")
+    InputStreamResource.forResource(file).readToString("UTF-8") shouldBe "Hello World!\n"
 
     // Check raw
     Resource.using(getClass.getClassLoader.getResourceAsStream(file.toString)) { raw: InputStream =>

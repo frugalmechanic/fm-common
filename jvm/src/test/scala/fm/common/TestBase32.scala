@@ -36,27 +36,27 @@ final class TestBase32 extends FunSuite with Matchers {
     val bytes: Array[Byte] = original.getBytes(UTF_8)
     val encodedNoPadding: String = stripPadding(encoded)
     
-    Base32.encode(bytes) should equal (encoded)
-    Base32.encodeUpper(bytes) should equal (encoded.toUpperCase)
+    Base32.encode(bytes) shouldBe encoded
+    Base32.encodeUpper(bytes) shouldBe encoded.toUpperCase
     
-    Base32.encodeNoPadding(bytes) should equal (encodedNoPadding)
-    Base32.encodeUpperNoPadding(bytes) should equal (encodedNoPadding.toUpperCase)
+    Base32.encodeNoPadding(bytes) shouldBe encodedNoPadding
+    Base32.encodeUpperNoPadding(bytes) shouldBe encodedNoPadding.toUpperCase
     
     // def decode(data: String)
-    Base32.decode(encoded) should equal (bytes)
-    Base32.decode(encoded.toCharArray) should equal (bytes)
-    Base32.decode(encoded.toCharArray) should equal (bytes)
+    Base32.decode(encoded) shouldBe bytes
+    Base32.decode(encoded.toCharArray) shouldBe bytes
+    Base32.decode(encoded.toCharArray) shouldBe bytes
     
-    Base32.decode(encodedNoPadding) should equal (bytes)
-    Base32.decode(encodedNoPadding.toCharArray) should equal (bytes)
+    Base32.decode(encodedNoPadding) shouldBe bytes
+    Base32.decode(encodedNoPadding.toCharArray) shouldBe bytes
 
     // def decode(data: Array[Char])
-    Base32.decode(encoded.toCharArray) should equal (bytes)
-    Base32.decode(encoded.toLowerCase.toCharArray) should equal (bytes)
-    Base32.decode(encoded.toUpperCase.toCharArray) should equal (bytes)
+    Base32.decode(encoded.toCharArray) shouldBe bytes
+    Base32.decode(encoded.toLowerCase.toCharArray) shouldBe bytes
+    Base32.decode(encoded.toUpperCase.toCharArray) shouldBe bytes
 
-    Base32.decode(encodedNoPadding.toLowerCase.toCharArray) should equal (bytes)
-    Base32.decode(encodedNoPadding.toUpperCase.toCharArray) should equal (bytes)
+    Base32.decode(encodedNoPadding.toLowerCase.toCharArray) shouldBe bytes
+    Base32.decode(encodedNoPadding.toUpperCase.toCharArray) shouldBe bytes
   }
   
   private def stripPadding(s: String): String = s.replaceAll("=", "")

@@ -26,47 +26,47 @@ final class TestImmutableDate extends FunSuite with Matchers {
   private val instant: Instant = date.toInstant
 
   test("Basics") {
-    immutableDate.getTime should equal (date.getTime)
-    immutableDate.millis should equal (date.getTime)
+    immutableDate.getTime shouldBe date.getTime
+    immutableDate.millis shouldBe date.getTime
   }
 
   test("Date => ImmutableDate - non-null") {
-    (date: ImmutableDate) should equal (immutableDate)
+    (date: ImmutableDate) shouldBe immutableDate
   }
 
   test("ImmutableDate => Date - non-null") {
-    (immutableDate: Date) should equal (date)
+    (immutableDate: Date) shouldBe date
   }
 
   test("ImmutableDate => Instant - non-null") {
-    (immutableDate: Instant) should equal (instant)
+    (immutableDate: Instant) shouldBe instant
   }
 
   test("apply with non-null Date") {
-    (ImmutableDate(date)) should equal (immutableDate)
+    (ImmutableDate(date)) shouldBe immutableDate
   }
 
   test("apply with non-null Instant") {
-    (ImmutableDate(instant)) should equal (immutableDate)
+    (ImmutableDate(instant)) shouldBe immutableDate
   }
 
   test("ImmutableDate => Date Implicit - null") {
-    ((null: ImmutableDate): Date) should equal (null)
+    ((null: ImmutableDate): Date) shouldBe null
   }
 
   test("Date => ImmutableDate Implicit - null") {
-    ((null: Date): ImmutableDate) should equal (null)
+    ((null: Date): ImmutableDate) shouldBe null
   }
 
   test("ImmutableDate => Instant Implicit - null") {
-    ((null: ImmutableDate): Instant) should equal (null)
+    ((null: ImmutableDate): Instant) shouldBe null
   }
 
   test("apply with null Date") {
-    (ImmutableDate(null: Date)) should equal (null)
+    (ImmutableDate(null: Date)) shouldBe null
   }
 
   test("apply with null Instant") {
-    (ImmutableDate(null: Instant)) should equal (null)
+    (ImmutableDate(null: Instant)) shouldBe null
   }
 }

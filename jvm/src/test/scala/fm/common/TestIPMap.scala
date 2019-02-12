@@ -29,8 +29,8 @@ final class TestIPMap extends FunSuite with Matchers {
   }
   
   private def checkImpl[T](map: IPMap[T], ip: String, res: Option[T]): Unit = {
-    map.get(ip) should equal (res)
-    map.contains(ip) should equal (res.isDefined)
+    map.get(ip) shouldBe res
+    map.contains(ip) shouldBe res.isDefined
   }
   
   implicit class RichIPMapMutable(val map: IPMapMutable[String]) {

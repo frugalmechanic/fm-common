@@ -46,31 +46,31 @@ final class TestIPSubnet extends FunSuite with Matchers {
   }
   
   test("isValidMask") {
-    isValidMask(IP("255.255.255.255")) should equal (true)
-    isValidMask(IP("255.255.255.0")) should equal (true)
-    isValidMask(IP("255.255.0.0")) should equal (true)
-    isValidMask(IP("255.0.0.0")) should equal (true)
-    isValidMask(IP("0.0.0.0")) should equal (true)
+    isValidMask(IP("255.255.255.255")) shouldBe true
+    isValidMask(IP("255.255.255.0")) shouldBe true
+    isValidMask(IP("255.255.0.0")) shouldBe true
+    isValidMask(IP("255.0.0.0")) shouldBe true
+    isValidMask(IP("0.0.0.0")) shouldBe true
     
-    isValidMask(IP("0.0.0.255")) should equal (false)
-    isValidMask(IP("0.0.255.255")) should equal (false)
-    isValidMask(IP("0.255.255.255")) should equal (false)
+    isValidMask(IP("0.0.0.255")) shouldBe false
+    isValidMask(IP("0.0.255.255")) shouldBe false
+    isValidMask(IP("0.255.255.255")) shouldBe false
     
-    isValidMask(IP("0.0.0.2")) should equal (false)
-    isValidMask(IP("0.0.0.4")) should equal (false)
-    isValidMask(IP("0.4.0.0")) should equal (false)
+    isValidMask(IP("0.0.0.2")) shouldBe false
+    isValidMask(IP("0.0.0.4")) shouldBe false
+    isValidMask(IP("0.4.0.0")) shouldBe false
   }
   
   test("isValidRange") {
-    isValidRange(IP("192.168.0.0"), IP("192.168.0.255")) should equal (true)
-    isValidRange(IP("192.168.0.0"), IP("192.168.255.255")) should equal (true)
+    isValidRange(IP("192.168.0.0"), IP("192.168.0.255")) shouldBe true
+    isValidRange(IP("192.168.0.0"), IP("192.168.255.255")) shouldBe true
     
-    isValidRange(IP("192.168.0.255"), IP("192.168.0.0")) should equal (false)
-    isValidRange(IP("192.168.0.0"), IP("192.168.255.0")) should equal (false)
+    isValidRange(IP("192.168.0.255"), IP("192.168.0.0")) shouldBe false
+    isValidRange(IP("192.168.0.0"), IP("192.168.255.0")) shouldBe false
     
-    isValidRange(IP("192.168.0.0"), IP("192.168.255.0")) should equal (false)
-    isValidRange(IP("192.168.0.0"), IP("192.168.255.254")) should equal (false)
-    isValidRange(IP("192.168.0.0"), IP("192.168.254.255")) should equal (false)
+    isValidRange(IP("192.168.0.0"), IP("192.168.255.0")) shouldBe false
+    isValidRange(IP("192.168.0.0"), IP("192.168.255.254")) shouldBe false
+    isValidRange(IP("192.168.0.0"), IP("192.168.254.255")) shouldBe false
   }
   
   test("parse - 192.168.0.0/24") {
@@ -89,8 +89,8 @@ final class TestIPSubnet extends FunSuite with Matchers {
     net.isQuadZero should equal(false)
     net.isDefaultRoute should equal(false)
 
-    net.start should equal (IP("192.168.0.0"))
-    net.end should equal (IP("192.168.0.255"))
+    net.start shouldBe IP("192.168.0.0")
+    net.end shouldBe IP("192.168.0.255")
 
     net.contains(IP("192.168.0.0")) should equal(true)
     net.contains(IP("192.168.0.1")) should equal(true)
@@ -110,8 +110,8 @@ final class TestIPSubnet extends FunSuite with Matchers {
     net.isQuadZero should equal(false)
     net.isDefaultRoute should equal(false)
 
-    net.start should equal (IP("127.0.0.0"))
-    net.end should equal (IP("127.255.255.255"))
+    net.start shouldBe IP("127.0.0.0")
+    net.end shouldBe IP("127.255.255.255")
 
     net.contains(IP("127.0.0.0")) should equal(true)
     net.contains(IP("127.1.2.3")) should equal(true)
@@ -129,8 +129,8 @@ final class TestIPSubnet extends FunSuite with Matchers {
     net.isQuadZero should equal(true)
     net.isDefaultRoute should equal(true)
 
-    net.start should equal (IP("0.0.0.0"))
-    net.end should equal (IP("255.255.255.255"))
+    net.start shouldBe IP("0.0.0.0")
+    net.end shouldBe IP("255.255.255.255")
 
     net.contains(IP("0.0.0.0")) should equal(true)
     net.contains(IP("1.2.3.4")) should equal(true)

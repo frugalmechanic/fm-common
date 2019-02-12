@@ -120,7 +120,7 @@ final class TestClassUtil extends FunSuite with Matchers {
     }.map{ new File(_) }
 
 
-    ClassUtil.findClasspathFiles("test.classutil") should equal (expectedFiles)
+    ClassUtil.findClasspathFiles("test.classutil") shouldBe expectedFiles
 
     // Empty Paths
     ClassUtil.findClasspathFiles("") should not be empty

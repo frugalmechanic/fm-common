@@ -24,11 +24,11 @@ final class TestXMLUtil extends FunSuite with Matchers {
   test("isXml()") {
     def isXML(s: String): Boolean = XMLUtil.isXML(new ByteArrayInputStream(s.getBytes(UTF_8))) 
     
-    isXML("foo") should equal (false)
-    isXML("foo<hello>") should equal (false)
+    isXML("foo") shouldBe false
+    isXML("foo<hello>") shouldBe false
     
-    isXML("<hello>") should equal (true) // This looks like XML which is why it's true
-    isXML("<!-- foo --><hello>") should equal (true)
-    isXML("""<?xml version="1.0" encoding="ISO-8859-1"?><ACES version="2.0">""") should equal (true)
+    isXML("<hello>") shouldBe true // This looks like XML which is why it's true
+    isXML("<!-- foo --><hello>") shouldBe true
+    isXML("""<?xml version="1.0" encoding="ISO-8859-1"?><ACES version="2.0">""") shouldBe true
   }
 }

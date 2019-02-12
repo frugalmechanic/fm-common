@@ -51,24 +51,24 @@ final class TestRichURI extends FunSuite with Matchers {
   
   def check[T](s: String, scheme: Option[String] = None, userInfo: Option[String] = None, host: Option[String] = None, port: Option[Int] = None, path: Option[String] = None, query: Option[String] = None, fragment: Option[String] = None, queryParamsToCheck: Seq[(String,String)] = Nil): Unit = {
     def checkFields[X](uri: RichURIBase[X]): Unit = {
-      uri.scheme should equal (scheme)
-      uri.userInfo should equal (userInfo)
-      uri.host should equal (host)
-      uri.port should equal (port)
-      uri.path should equal (path)
-      uri.query should equal (query)
-      uri.fragment should equal (fragment)
+      uri.scheme shouldBe scheme
+      uri.userInfo shouldBe userInfo
+      uri.host shouldBe host
+      uri.port shouldBe port
+      uri.path shouldBe path
+      uri.query shouldBe query
+      uri.fragment shouldBe fragment
       
       queryParamsToCheck.foreach { case (k,v) =>
-        uri.queryParams.hasKey(k) should equal (true)
-        uri.queryParams.hasKeyWithValue(k) should equal (v.isNotNullOrBlank)
-        uri.queryParams.apply(k).head should equal (v)
+        uri.queryParams.hasKey(k) shouldBe true
+        uri.queryParams.hasKeyWithValue(k) shouldBe v.isNotNullOrBlank
+        uri.queryParams.apply(k).head shouldBe v
       }
     }
     
     def checkCopy[X](uri: RichURIBase[X]): Unit = {
-      uri.port should equal (Some(999))
-      uri.path should equal (Some("/new-path"))
+      uri.port shouldBe Some(999)
+      uri.path shouldBe Some("/new-path")
     }
 
     val richURI: RichURI = new RichURI(URI(s))

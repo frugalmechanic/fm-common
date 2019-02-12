@@ -44,25 +44,25 @@ final class TestOutputStreamResource extends FunSuite with Matchers {
   test("UTF-8-BOM Charset") {
     val bytes: Array[Byte] = writeBytes("foo.txt", UTF_8_BOM)
 
-    bytes(0) should equal (0xEF.toByte)
-    bytes(1) should equal (0xBB.toByte)
-    bytes(2) should equal (0xBF.toByte)
+    bytes(0) shouldBe 0xEF.toByte
+    bytes(1) shouldBe 0xBB.toByte
+    bytes(2) shouldBe 0xBF.toByte
 
-    readToString("foo.txt", UTF_8_BOM, bytes) should equal (testString)
-    readToString("foo.txt", StandardCharsets.UTF_8, bytes) should equal (testString)
-    new String(bytes, StandardCharsets.UTF_8).head should equal ('\uFEFF')
+    readToString("foo.txt", UTF_8_BOM, bytes) shouldBe testString
+    readToString("foo.txt", StandardCharsets.UTF_8, bytes) shouldBe testString
+    new String(bytes, StandardCharsets.UTF_8).head shouldBe '\uFEFF'
   }
 
   test("UTF-8-BOM Encoding") {
     val bytes: Array[Byte] = writeBytes("foo.txt", "UTF-8-BOM")
 
-    bytes(0) should equal (0xEF.toByte)
-    bytes(1) should equal (0xBB.toByte)
-    bytes(2) should equal (0xBF.toByte)
+    bytes(0) shouldBe 0xEF.toByte
+    bytes(1) shouldBe 0xBB.toByte
+    bytes(2) shouldBe 0xBF.toByte
 
-    readToString("foo.txt", "UTF-8-BOM", bytes) should equal (testString)
-    readToString("foo.txt", "UTF-8", bytes) should equal (testString)
-    new String(bytes, StandardCharsets.UTF_8).head should equal ('\uFEFF')
+    readToString("foo.txt", "UTF-8-BOM", bytes) shouldBe testString
+    readToString("foo.txt", "UTF-8", bytes) shouldBe testString
+    new String(bytes, StandardCharsets.UTF_8).head shouldBe '\uFEFF'
   }
 
   private val testString: String = "Hello World!\n oneByte: \u0024 twoByte: \u00A2 threeByte: \u20AC fourByteSupplementary: \uD83D\uDCA5"
@@ -103,6 +103,6 @@ final class TestOutputStreamResource extends FunSuite with Matchers {
   }
 
   private def checkString(s: String): Unit = {
-    s should equal (testString)
+    s shouldBe testString
   }
 }

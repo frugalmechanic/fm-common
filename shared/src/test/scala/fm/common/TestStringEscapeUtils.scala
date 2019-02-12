@@ -20,14 +20,14 @@ import org.scalatest.{FunSuite, Matchers}
 final class TestStringEscapeUtils extends FunSuite with Matchers {
   
   test("escapeHTML") {
-    h("<foo>") should equal ("&lt;foo&gt;")
-    h("<<<") should equal ("&lt;&lt;&lt;")
+    h("<foo>") shouldBe "&lt;foo&gt;"
+    h("<<<") shouldBe "&lt;&lt;&lt;"
   }
 
   test("escapeECMAScript") {
-    j("http://www.example.com/foo/bar") should equal ("""http:\/\/www.example.com\/foo\/bar""")
-    j("Hello\"World") should equal ("Hello\\\"World")
-    j("Multi\nLine") should equal ("Multi\\nLine")
+    j("http://www.example.com/foo/bar") shouldBe """http:\/\/www.example.com\/foo\/bar"""
+    j("Hello\"World") shouldBe "Hello\\\"World"
+    j("Multi\nLine") shouldBe "Multi\\nLine"
   }
   
   private def h(s: String): String = StringEscapeUtils.escapeHTML(s)

@@ -21,10 +21,10 @@ import org.scalatest.Matchers
 final class TestBitUtils extends FunSuite with Matchers {
 
   private def checkLong(a: Int, b: Int, res: Long): Unit = TestHelpers.withCallerInfo{
-    BitUtils.makeLong(a, b) should equal (res)
-    BitUtils.getUpper(res) should equal (a)
-    BitUtils.getLower(res) should equal (b)
-    BitUtils.splitLong(res) should equal ((a, b))
+    BitUtils.makeLong(a, b) shouldBe res
+    BitUtils.getUpper(res) shouldBe a
+    BitUtils.getLower(res) shouldBe b
+    BitUtils.splitLong(res) shouldBe (a, b)
   }
   
   test("makeLong") {
@@ -49,10 +49,10 @@ final class TestBitUtils extends FunSuite with Matchers {
 
 
   private def checkInt(a: Short, b: Short, res: Int): Unit = TestHelpers.withCallerInfo{
-    BitUtils.makeInt(a, b) should equal (res)
-    BitUtils.getUpper(res) should equal (a)
-    BitUtils.getLower(res) should equal (b)
-    BitUtils.splitInt(res) should equal ((a, b))
+    BitUtils.makeInt(a, b) shouldBe res
+    BitUtils.getUpper(res) shouldBe a
+    BitUtils.getLower(res) shouldBe b
+    BitUtils.splitInt(res) shouldBe (a, b)
   }
 
   test("makeInt") {

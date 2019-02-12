@@ -69,19 +69,19 @@ final class TestBase64 extends FunSuite with Matchers {
     val encodedNoPadding: String = stripPadding(encoded)
     val urlEncodedNoPadding: String = stripPadding(urlEncoded)
     
-    Base64.encode(bytes) should equal (encoded)
-    Base64.encodeBytes(bytes) should equal (encoded) // COMPAT
-    Base64Strict.encode(bytes) should equal (encoded)
+    Base64.encode(bytes) shouldBe encoded
+    Base64.encodeBytes(bytes) shouldBe encoded // COMPAT
+    Base64Strict.encode(bytes) shouldBe encoded
     
-    Base64.encodeNoPadding(bytes) should equal (encodedNoPadding)
-    Base64Strict.encodeNoPadding(bytes) should equal (encodedNoPadding)
+    Base64.encodeNoPadding(bytes) shouldBe encodedNoPadding
+    Base64Strict.encodeNoPadding(bytes) shouldBe encodedNoPadding
     
-    Base64.encodeURL(bytes) should equal (urlEncoded)
-    Base64.encodeBytes(bytes, Base64.URL_SAFE) should equal (urlEncoded) // COMPAT
-    Base64URL.encode(bytes) should equal (urlEncoded)
+    Base64.encodeURL(bytes) shouldBe urlEncoded
+    Base64.encodeBytes(bytes, Base64.URL_SAFE) shouldBe urlEncoded // COMPAT
+    Base64URL.encode(bytes) shouldBe urlEncoded
     
-    Base64.encodeURLNoPadding(bytes) should equal (urlEncodedNoPadding)
-    Base64URL.encodeNoPadding(bytes) should equal (urlEncodedNoPadding)
+    Base64.encodeURLNoPadding(bytes) shouldBe urlEncodedNoPadding
+    Base64URL.encodeNoPadding(bytes) shouldBe urlEncodedNoPadding
     
     Base64.decode(encoded) should equal(bytes)
     Base64.decode(encoded.toCharArray) should equal(bytes)
@@ -117,14 +117,14 @@ final class TestBase64 extends FunSuite with Matchers {
     Base64URL.decode(urlEncoded+"===") should equal(bytes)
     Base64URL.decode(urlEncoded+"====") should equal(bytes)
     
-    writeToOS(bytes){ new Base64.OutputStream(_) } should equal (encoded)
-    writeToOS(bytes){ new Base64Strict.OutputStream(_) } should equal (encoded)
-    writeToOS(bytes){ new Base64URL.OutputStream(_) } should equal (urlEncoded)
+    writeToOS(bytes){ new Base64.OutputStream(_) } shouldBe encoded
+    writeToOS(bytes){ new Base64Strict.OutputStream(_) } shouldBe encoded
+    writeToOS(bytes){ new Base64URL.OutputStream(_) } shouldBe urlEncoded
     
-    readUsingIS(encoded){ new Base64.InputStream(_) } should equal (bytes)
-    readUsingIS(urlEncoded){ new Base64.InputStream(_) } should equal (bytes)
-    readUsingIS(encoded){ new Base64Strict.InputStream(_) } should equal (bytes)
-    readUsingIS(urlEncoded){ new Base64URL.InputStream(_) } should equal (bytes)
+    readUsingIS(encoded){ new Base64.InputStream(_) } shouldBe bytes
+    readUsingIS(urlEncoded){ new Base64.InputStream(_) } shouldBe bytes
+    readUsingIS(encoded){ new Base64Strict.InputStream(_) } shouldBe bytes
+    readUsingIS(urlEncoded){ new Base64URL.InputStream(_) } shouldBe bytes
     
     if (Vector('+','-','/','_').exists{ encoded.indexOf(_) != -1 }) {
       an [IllegalArgumentException] should be thrownBy Base64URL.decode(encoded)
@@ -147,7 +147,7 @@ final class TestBase64 extends FunSuite with Matchers {
       ch = is.read()
     }
     
-    new String(os.toByteArray(), UTF_8) should equal (expected)
+    new String(os.toByteArray(), UTF_8) shouldBe expected
   }
   
   private def checkURLToStrictInputStreamReadArray(in: String, expected: String, size: Int): Unit = {
@@ -162,7 +162,7 @@ final class TestBase64 extends FunSuite with Matchers {
       len = is.read(b)
     }
     
-    new String(os.toByteArray(), UTF_8) should equal (expected)
+    new String(os.toByteArray(), UTF_8) shouldBe expected
   }
   
   private def checkURLToStrictInputStreamReadArrayOffLen(in: String, expected: String, off: Int, len: Int): Unit = {
@@ -178,7 +178,7 @@ final class TestBase64 extends FunSuite with Matchers {
       actual = is.read(b, off, len)
     }
     
-    new String(os.toByteArray(), UTF_8) should equal (expected)
+    new String(os.toByteArray(), UTF_8) shouldBe expected
   }
   
   private def makeURLToStrictInputStream(in: String): InputStream = new Base64.URLToStrictInputStream(new ByteArrayInputStream(in.getBytes(UTF_8)))

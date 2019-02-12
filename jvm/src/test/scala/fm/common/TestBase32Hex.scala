@@ -36,29 +36,29 @@ final class TestBase32Hex extends FunSuite with Matchers {
     val bytes: Array[Byte] = original.getBytes(UTF_8)
     val encodedNoPadding: String = stripPadding(encoded)
     
-    Base32Hex.encode(bytes) should equal (encoded)
-    Base32Hex.encodeUpper(bytes) should equal (encoded.toUpperCase)
+    Base32Hex.encode(bytes) shouldBe encoded
+    Base32Hex.encodeUpper(bytes) shouldBe encoded.toUpperCase
     
-    Base32Hex.encodeNoPadding(bytes) should equal (encodedNoPadding)
-    Base32Hex.encodeUpperNoPadding(bytes) should equal (encodedNoPadding.toUpperCase)
+    Base32Hex.encodeNoPadding(bytes) shouldBe encodedNoPadding
+    Base32Hex.encodeUpperNoPadding(bytes) shouldBe encodedNoPadding.toUpperCase
     
     // def decode(data: String)
-    Base32Hex.decode(encoded) should equal (bytes)
-    Base32Hex.decode(encoded.toCharArray) should equal (bytes)
-    Base32Hex.decode(encoded.toCharArray) should equal (bytes)
+    Base32Hex.decode(encoded) shouldBe bytes
+    Base32Hex.decode(encoded.toCharArray) shouldBe bytes
+    Base32Hex.decode(encoded.toCharArray) shouldBe bytes
     
-    Base32Hex.decode(encodedNoPadding) should equal (bytes)
-    Base32Hex.decode(encodedNoPadding.toCharArray) should equal (bytes)
-    Base32Hex.decode(encodedNoPadding.toCharArray) should equal (bytes)
+    Base32Hex.decode(encodedNoPadding) shouldBe bytes
+    Base32Hex.decode(encodedNoPadding.toCharArray) shouldBe bytes
+    Base32Hex.decode(encodedNoPadding.toCharArray) shouldBe bytes
     
     // def decode(data: Array[Char])
-    Base32Hex.decode(encoded.toCharArray) should equal (bytes)
-    Base32Hex.decode(encoded.toLowerCase.toCharArray) should equal (bytes)
-    Base32Hex.decode(encoded.toUpperCase.toCharArray) should equal (bytes)
+    Base32Hex.decode(encoded.toCharArray) shouldBe bytes
+    Base32Hex.decode(encoded.toLowerCase.toCharArray) shouldBe bytes
+    Base32Hex.decode(encoded.toUpperCase.toCharArray) shouldBe bytes
     
-    Base32Hex.decode(encodedNoPadding.toCharArray) should equal (bytes)
-    Base32Hex.decode(encodedNoPadding.toLowerCase.toCharArray) should equal (bytes)
-    Base32Hex.decode(encodedNoPadding.toUpperCase.toCharArray) should equal (bytes)
+    Base32Hex.decode(encodedNoPadding.toCharArray) shouldBe bytes
+    Base32Hex.decode(encodedNoPadding.toLowerCase.toCharArray) shouldBe bytes
+    Base32Hex.decode(encodedNoPadding.toUpperCase.toCharArray) shouldBe bytes
   }
   
   private def stripPadding(s: String): String = s.replaceAll("=", "")

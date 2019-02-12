@@ -21,8 +21,8 @@ final class TestRichJVMString extends FunSuite with Matchers {
   import fm.common.Implicits._
 
   test("toLocaleOption") {
-    "en-US".toLocaleOption should equal (Some(Locale.US))
-    "es-US".toLocaleOption should equal (Some(Locale.forLanguageTag("es-US")))
-    "foo bar".toLocaleOption should equal (None)
+    "en-US".toLocaleOption shouldBe Some(Locale.US)
+    "es-US".toLocaleOption shouldBe Some(Locale.forLanguageTag("es-US"))
+    "foo bar".toLocaleOption shouldBe None
   }
 }

@@ -39,7 +39,7 @@ final class TestIOUtils extends FunSuite with Matchers {
   
   private def checkDetectCharset(file: String, charsetName: String): Unit = {
     InputStreamResource.forResource(new File(s"encoding/$file")).flatMap { _.toBufferedInputStream }.foreach { bis: BufferedInputStream =>
-      IOUtils.detectCharset(bis, true) should equal (Some(CharsetUtil.forName(charsetName)))
+      IOUtils.detectCharset(bis, true) shouldBe Some(CharsetUtil.forName(charsetName))
     }
   } 
 }

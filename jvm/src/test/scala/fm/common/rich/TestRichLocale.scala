@@ -107,15 +107,15 @@ final class TestRichLocale extends FunSuite with Matchers {
 
   private def checkLocale(locale: Locale, isValid: Boolean = true, hasNonBlankValidLanguage: Boolean = true, hasNonBlankValidCountry: Boolean = true): Unit = {
     withClue(s"Locale: $locale   (Expected == Actual | isValid: $isValid == ${locale.isValid} | hasNonBlankValidLanguage: $hasNonBlankValidLanguage == ${locale.hasNonBlankValidLanguage} | hasNonBlankValidCountry: $hasNonBlankValidCountry == ${locale.hasNonBlankValidCountry})") {
-      locale.isValid should equal (isValid)
-      locale.hasNonBlankValidLanguage should equal (hasNonBlankValidLanguage)
-      locale.hasNonBlankValidCountry should equal (hasNonBlankValidCountry)
+      locale.isValid shouldBe isValid
+      locale.hasNonBlankValidLanguage shouldBe hasNonBlankValidLanguage
+      locale.hasNonBlankValidCountry shouldBe hasNonBlankValidCountry
     }
   }
 
   private def checkLanguageHelper(locales: Locale*)(f: Locale => Boolean): Unit = {
     locales.foreach{ locale: Locale =>
-      f(locale) should equal (true)
+      f(locale) shouldBe true
     }
   }
 

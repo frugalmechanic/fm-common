@@ -23,28 +23,28 @@ class TestRichBigDecimal extends FunSuite with Matchers {
   private def bd(s: String): BigDecimal = new BigDecimal(s)
   
   test("isZero") {
-    bd("0").isZero should equal (true)
-    bd("0.00").isZero should equal (true)
+    bd("0").isZero shouldBe true
+    bd("0.00").isZero shouldBe true
     
-    bd("0.001").isZero should equal (false)
-    bd("1").isZero should equal (false)
-    bd("123").isZero should equal (false)
+    bd("0.001").isZero shouldBe false
+    bd("1").isZero shouldBe false
+    bd("123").isZero shouldBe false
   }
   
   test("isNotZero") {
-    bd("0").isNotZero should equal (false)
-    bd("0.00").isNotZero should equal (false)
+    bd("0").isNotZero shouldBe false
+    bd("0.00").isNotZero shouldBe false
     
-    bd("0.001").isNotZero should equal (true)
-    bd("1").isNotZero should equal (true)
-    bd("123").isNotZero should equal (true) 
+    bd("0.001").isNotZero shouldBe true
+    bd("1").isNotZero shouldBe true
+    bd("123").isNotZero shouldBe true
   }
   
   test("isOne") {
-    bd("1").isOne should equal (true)
-    bd("1.00000").isOne should equal (true)
+    bd("1").isOne shouldBe true
+    bd("1.00000").isOne shouldBe true
     
-    bd("0").isOne should equal (false)
+    bd("0").isOne shouldBe false
   }
   
 }

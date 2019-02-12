@@ -54,13 +54,13 @@ final class TestBase58 extends FunSuite with Matchers {
     val bytes: Array[Byte] = Hex.decodeHex("010966776006953D5567439E5E39F86A0D273BEE".toArray)
     val encoded: String = "16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM"
 
-    Base58.encodeChecked(0, bytes) should equal (encoded)
-    Base58.decodeChecked(encoded) should equal (0.toByte +: bytes)
+    Base58.encodeChecked(0, bytes) shouldBe encoded
+    Base58.decodeChecked(encoded) shouldBe 0.toByte +: bytes
   }
 
   test("encodeChecked - examples with known values") {
-    Base58.encodeChecked(111, new Array[Byte](20)) should equal ("mfWxJ45yp2SFn7UciZyNpvDKrzbhyfKrY8")
-    Base58.encodeChecked(128, new Array[Byte](32)) should equal ("5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAbuatmU")
+    Base58.encodeChecked(111, new Array[Byte](20)) shouldBe "mfWxJ45yp2SFn7UciZyNpvDKrzbhyfKrY8"
+    Base58.encodeChecked(128, new Array[Byte](32)) shouldBe "5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAbuatmU"
   }
 
   test("decodeChecked - examples that should decode") {
@@ -70,16 +70,16 @@ final class TestBase58 extends FunSuite with Matchers {
 
   private def check(bytes: Array[Byte], encoded: String): Unit = {
 
-    Base58.encode(bytes) should equal (encoded)
-    Base58.encode(bytes, 0, bytes.length) should equal (encoded)
-    Base58.encode("foo".getBytes(UTF_8)++bytes++"bar".getBytes(UTF_8), 3, bytes.length) should equal (encoded)
+    Base58.encode(bytes) shouldBe encoded
+    Base58.encode(bytes, 0, bytes.length) shouldBe encoded
+    Base58.encode("foo".getBytes(UTF_8)++bytes++"bar".getBytes(UTF_8), 3, bytes.length) shouldBe encoded
 
     // def decode(data: String)
-    Base58.decode(encoded) should equal (bytes)
-    Base58.decode(encoded.toCharArray) should equal (bytes)
+    Base58.decode(encoded) shouldBe bytes
+    Base58.decode(encoded.toCharArray) shouldBe bytes
 
     // def decode(data: Array[Char])
-    Base58.decode(encoded.toCharArray) should equal (bytes)
+    Base58.decode(encoded.toCharArray) shouldBe bytes
 
     checkChecked(0, bytes)
     checkChecked(1, bytes)
@@ -90,7 +90,7 @@ final class TestBase58 extends FunSuite with Matchers {
     val checked: String = Base58.encodeChecked(version, bytes)
 
     // Note: the decodeChecked result includes the version
-    Base58.decodeChecked(checked) should equal (version.toByte +: bytes)
+    Base58.decodeChecked(checked) shouldBe version.toByte +: bytes
 
     // Also check without the version
     checkChecked(bytes)
@@ -100,6 +100,6 @@ final class TestBase58 extends FunSuite with Matchers {
     val checked: String = Base58.encodeChecked(bytes)
 
     // Note: the decodeChecked result includes the version
-    Base58.decodeChecked(checked) should equal (bytes)
+    Base58.decodeChecked(checked) shouldBe bytes
   }
 }

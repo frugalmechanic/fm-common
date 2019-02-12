@@ -148,8 +148,8 @@ final class TestMessageCrypto extends FunSuite with Matchers {
       plaintextOption should equal(Some(msg))
 
       c.decryptAndVerify("not_valid") should equal(None)
-      c.decryptAndVerify("has--but-still-not-valid") should equal (None)
-      c.decryptAndVerify("has--but--still--not--valid") should equal (None)
+      c.decryptAndVerify("has--but-still-not-valid") shouldBe None
+      c.decryptAndVerify("has--but--still--not--valid") shouldBe None
     }
   }
 
@@ -172,11 +172,11 @@ final class TestMessageCrypto extends FunSuite with Matchers {
     List(MessageCrypto(key), MessageCrypto(key, json = true)).foreach{ c =>
       val signed: String = c.sign(msg)
       val res: Option[String] = c.verify(signed)
-      res should equal (Some(msg))
+      res shouldBe Some(msg)
 
       c.verify("not_valid") should equal(None)
-      c.verify("has--but-still-not-valid") should equal (None)
-      c.verify("has--but--still--not--valid") should equal (None)
+      c.verify("has--but-still-not-valid") shouldBe None
+      c.verify("has--but--still--not--valid") shouldBe None
     }
   }
 }

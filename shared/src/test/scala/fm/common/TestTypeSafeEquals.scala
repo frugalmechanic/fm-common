@@ -21,11 +21,11 @@ import org.scalatest.{FunSuite, Matchers}
 final class TestTypeSafeEquals extends FunSuite with Matchers {
 
   test("Basics") {
-    1 ≡ 1 should equal (true)
-    1 ≠ 1 should equal (false)
+    1 ≡ 1 shouldBe true
+    1 ≠ 1 shouldBe false
 
-    "foo" ≡ "bar" should equal (false)
-    "foo" ≠ "bar" should equal (true)
+    "foo" ≡ "bar" shouldBe false
+    "foo" ≠ "bar" shouldBe true
     
     "1d ≡ 1" shouldNot compile
     "1 ≡ 1d" shouldNot compile
@@ -41,19 +41,19 @@ final class TestTypeSafeEquals extends FunSuite with Matchers {
     val nullStr: String = null
     val nonNullStr: String = "non-null"
 
-    nullStr ≡ null should equal (true)
-    nullStr ≠ null should equal (false)
+    nullStr ≡ null shouldBe true
+    nullStr ≠ null shouldBe false
 
-    nonNullStr ≡ null should equal (false)
-    nonNullStr ≠ null should equal (true)
+    nonNullStr ≡ null shouldBe false
+    nonNullStr ≠ null shouldBe true
 
     // Can't get the implicits to work for these to compile:
 
-//    null ≡ nullStr should equal (true)
-//    null ≠ nullStr should equal (false)
+//    null ≡ nullStr shouldBe true
+//    null ≠ nullStr shouldBe false
 
-//    null ≡ null should equal (true)
-//    null ≠ null should equal (false)
+//    null ≡ null shouldBe true
+//    null ≠ null shouldBe false
 
     """null ≡ 1""" shouldNot compile
     """null ≠ 1""" shouldNot compile
@@ -65,8 +65,8 @@ final class TestTypeSafeEquals extends FunSuite with Matchers {
     """1 ≡ Foo("foo")""" shouldNot compile
     """Foo("foo") ≡ 1""" shouldNot compile
     
-    Foo("foo") ≡ Foo("bar") should equal (false)
-    Foo("foo") ≠ Foo("bar") should equal (true)
+    Foo("foo") ≡ Foo("bar") shouldBe false
+    Foo("foo") ≠ Foo("bar") shouldBe true
     
     val fooAsBase: Base = Foo("foo")
     val foo: Foo = Foo("foo")
@@ -74,11 +74,11 @@ final class TestTypeSafeEquals extends FunSuite with Matchers {
     val barAsBase: Base = Bar(123)
     val bar: Bar = Bar(123)
     
-    fooAsBase ≡ foo should equal (true)
-    foo ≡ fooAsBase should equal (true)
+    fooAsBase ≡ foo shouldBe true
+    foo ≡ fooAsBase shouldBe true
     
-    fooAsBase ≠ barAsBase should equal (true)
-    fooAsBase ≠ bar should equal (true)
+    fooAsBase ≠ barAsBase shouldBe true
+    fooAsBase ≠ bar shouldBe true
     
     "foo ≡ bar" shouldNot compile
     "bar ≡ foo" shouldNot compile

@@ -34,7 +34,7 @@ final class TestEagerLoad extends FunSuite with Matchers {
   }
 
   test("eagerLoadNestedObjects") {
-    EagerOuter.value should equal ("nested_inner")
+    EagerOuter.value shouldBe "nested_inner"
   }
 
   object NonEagerOuter {
@@ -46,6 +46,6 @@ final class TestEagerLoad extends FunSuite with Matchers {
   }
 
   test("non eagerLoadNestedObjects") {
-    NonEagerOuter.value should equal ("outer")
+    NonEagerOuter.value shouldBe "outer"
   }
 }
