@@ -21,50 +21,84 @@ final class TestRichString extends FunSuite with Matchers {
   import fm.common.Implicits._
   
   test("toBlankOption - None") {
-    (null: String).toBlankOption should equal (None)
-    "".toBlankOption should equal (None)
-    "  ".toBlankOption should equal (None)
+    (null: String).toBlankOption shouldBe None
+    "".toBlankOption shouldBe None
+    "  ".toBlankOption shouldBe None
   }
   
   test("toBlankOption - Some") {
-    "asd".toBlankOption should equal (Some("asd"))
+    "asd".toBlankOption shouldBe Some("asd")
   }
   
   test("toIntOption") {
-    "123".toIntOption should equal (Some(123))
-    "-123".toIntOption should equal (Some(-123))
+    "123".toIntOption shouldBe Some(123)
+    "-123".toIntOption shouldBe Some(-123)
     
-    (null: String).toIntOption should equal (None)
-    "".toIntOption should equal (None)
-    "foo".toIntOption should equal (None)
-    "123.45".toIntOption should equal (None)
-    "1234567890000".toIntOption should equal (None) // Too big for Int
+    (null: String).toIntOption shouldBe None
+    "".toIntOption shouldBe None
+    "foo".toIntOption shouldBe None
+    "123.45".toIntOption shouldBe None
+    "1234567890000".toIntOption shouldBe None // Too big for Int
     
-    "123asd".toIntOption should equal (None)
+    "123asd".toIntOption shouldBe None
   }
   
   test("isInt") {
-    "123".isInt should equal (true)
-    "-123".isInt should equal (true)
+    "123".isInt shouldBe true
+    "-123".isInt shouldBe true
     
-    (null: String).isInt should equal (false)
-    "".isInt should equal (false)
-    "foo".isInt should equal (false)
-    "123.45".isInt should equal (false)
-    "1234567890000".isInt should equal (false) // Too big for Int
+    (null: String).isInt shouldBe false
+    "".isInt shouldBe false
+    "foo".isInt shouldBe false
+    "123.45".isInt shouldBe false
+    "1234567890000".isInt shouldBe false // Too big for Int
     
-    "123asd".isInt should equal (false)
+    "123asd".isInt shouldBe false
+  }
+
+  test("toBoolean") {
+    "true".toBoolean shouldBe true
+    "false".toBoolean shouldBe false
+
+    an [IllegalArgumentException] shouldBe thrownBy { (null: String).toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "t".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "f".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "yes".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "y".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "no".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "n".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "0".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "1".toBoolean }
+  }
+
+  test("parseBoolean") {
+    (null: String).parseBoolean shouldBe None
+    "".parseBoolean shouldBe None
+    "\n".parseBoolean shouldBe None
+
+    "t".parseBoolean shouldBe Some(true)
+    "true".parseBoolean shouldBe Some(true)
+    "1".parseBoolean shouldBe Some(true)
+    "y".parseBoolean shouldBe Some(true)
+    "yes".parseBoolean shouldBe Some(true)
+
+    "f".parseBoolean shouldBe Some(false)
+    "false".parseBoolean shouldBe Some(false)
+    "0".parseBoolean shouldBe Some(false)
+    "n".parseBoolean shouldBe Some(false)
+    "no".parseBoolean shouldBe Some(false)
   }
   
   test("capitalizeWords") {
-    "foo baR".capitalizeWords should equal ("Foo BaR")
+    "foo baR".capitalizeWords shouldBe "Foo BaR"
     
-    "foo_bAR".capitalizeWords('_') should equal ("Foo_BAR")
+    "foo_bAR".capitalizeWords('_') shouldBe "Foo_BAR"
   }
   
   test("capitalizeFully") {
-    "foo baR".capitalizeFully should equal ("Foo Bar")
+    "foo baR".capitalizeFully shouldBe "Foo Bar"
     
-    "foo_bar".capitalizeFully('_') should equal ("Foo_Bar")
+    "foo_bar".capitalizeFully('_') shouldBe "Foo_Bar"
   }
 }
