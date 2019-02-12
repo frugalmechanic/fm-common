@@ -1,4 +1,4 @@
 -Xms128m
 -Xmx2048m
 -Djava.net.preferIPv4Stack=true
-
+-XX:AutoBoxCacheMax=65536
