@@ -23,6 +23,7 @@ object ElementType {
   implicit case object Anchor extends ElementType[HTMLAnchorElement]("a")
   implicit case object Div extends ElementType[HTMLDivElement]("div")
   implicit case object IFrame extends ElementType[HTMLIFrameElement]("iframe")
+  implicit case object Input extends ElementType[HTMLInputElement]("input")
   implicit case object Option extends ElementType[HTMLOptionElement]("option")
   implicit case object Span extends ElementType[HTMLSpanElement]("span")
 //  implicit case object TH extends ElementType[HTMLTableHeaderCellElement]("th")
