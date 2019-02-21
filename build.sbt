@@ -84,7 +84,8 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     // Add JS-specific settings here
     libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.4",
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.6",
-    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.5"
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.5",
+    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
   )
   
 lazy val `fm-common-bench` = project.in(file("bench")).settings(

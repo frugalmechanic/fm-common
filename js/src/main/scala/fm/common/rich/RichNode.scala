@@ -31,7 +31,9 @@ final class RichNode[T <: Node](val self: T) extends AnyVal {
   
   /** Find the closest ancestor of the current element (or the current element itself) that matches a class. */
   def closest[A <: Node : ClassTag]: A = closestImpl(self)
-  
+
+  def hasNextSibling: Boolean = self.nextSibling.isNotNull
+
   @tailrec
   private def closestImpl[A <: Node : ClassTag](node: Node): A = {
     if (classTag[A].runtimeClass.isInstance(node)) node.asInstanceOf[A]
@@ -43,11 +45,17 @@ final class RichNode[T <: Node](val self: T) extends AnyVal {
   def prependChild(node: Node): Node = self.insertBefore(node, self.firstChild)
   
   /** Like insertBefore but insert after the passed in node */
-  def insertAfter(node: Node, refChild: Node): Node = refChild.parentNode.insertBefore(node, refChild.nextSibling)
+  def insertAfter(node: Node, refChild: Node): Node = {
+    if (refChild.hasNextSibling) self.insertBefore(node, refChild.nextSibling)
+    else self.appendChild(node)
+  }
   
   /** Insert the passed in node before the current node */
   def insertBefore(node: Node): Node = self.parentNode.insertBefore(node, self)
   
   /** Insert the passed in node after the current node */
-  def insertAfter(node: Node): Node = self.parentNode.insertBefore(node, self.nextSibling)
+  def insertAfter(node: Node): Node = {
+    if (self.hasNextSibling) self.parentNode.insertBefore(node, self.nextSibling)
+    else self.parentNode.appendChild(node)
+  }
 }
