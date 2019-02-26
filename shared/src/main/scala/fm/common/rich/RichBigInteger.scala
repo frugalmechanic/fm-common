@@ -15,6 +15,7 @@
  */
 package fm.common.rich
 
+import fm.common.Implicits.toRichSomeObject
 import java.math.BigInteger
 
 object RichBigInteger extends Ordering[BigInteger] {
@@ -45,7 +46,7 @@ final class RichBigInteger(val self: BigInteger) extends AnyVal with Ordered[Big
   }
   
   def intValueExactOption(): Option[Int] = try {
-    Some(intValueExact())
+    Some.cached(intValueExact())
   } catch {
     case _: ArithmeticException => None
   }
@@ -56,7 +57,7 @@ final class RichBigInteger(val self: BigInteger) extends AnyVal with Ordered[Big
   }
   
   def longValueExactOption(): Option[Long] = try {
-    Some(longValueExact())
+    Some.cached(longValueExact())
   } catch {
     case _: ArithmeticException => None
   }
