@@ -2,7 +2,7 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
-scalaVersion in ThisBuild := "2.12.7"
+scalaVersion in ThisBuild := "2.12.8"
 
 crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.7")
 
