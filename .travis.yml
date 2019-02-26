@@ -4,3 +4,5 @@ scala:
 jdk:
   - oraclejdk8
   - openjdk11
+install:
+  - npm install jsdom # We need JSDOM for some of the Scala.js tests
