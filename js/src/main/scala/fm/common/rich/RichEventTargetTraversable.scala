@@ -23,6 +23,6 @@ import scala.scalajs.js
 final class RichEventTargetTraversable(val self: Traversable[EventTarget]) extends AnyVal with EventTargetOrTargets {
   protected def jQueryElements: JQuery = jQuery(js.Array(self.toArray: _*))
   
-  def addEventListener[T <: Event](tpe: String)(f: js.Function1[T,Unit]): Unit = self.foreach{ _.addEventListener(tpe, f) }
-  def removeEventListener[T <: Event](tpe: String)(f: js.Function1[T,Unit]): Unit = self.foreach{ _.removeEventListener(tpe, f) }
+  def addEventListener[T <: Event](tpe: String)(f: js.Function1[T,_]): Unit = self.foreach{ _.addEventListener(tpe, f) }
+  def removeEventListener[T <: Event](tpe: String)(f: js.Function1[T,_]): Unit = self.foreach{ _.removeEventListener(tpe, f) }
 }
