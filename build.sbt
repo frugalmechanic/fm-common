@@ -6,6 +6,15 @@ scalaVersion in ThisBuild := "2.12.8"
 
 crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.7")
 
+val fatalWarnings = Seq(
+  // Enable -Xlint, but disable the default 'unused' so we can manually specify below
+  "-Xlint:-unused",
+  // Remove "params" since we often have method signatures that intentionally have the parameters, but may not be used in every implementation, also omit "patvars" since it isn't part of the default xlint:unused and isn't super helpful
+  "-Ywarn-unused:imports,privates,locals",
+  // Warnings become Errors
+  //"-Xfatal-warnings", // NOT ENABLED YET: EnumMacros.scala:87:31: method enclosingClass in trait Enclosures is deprecated (since 2.11.0)
+)
+
 lazy val `fm-common` = project.in(file(".")).
   aggregate(fmCommonJS, fmCommonJVM, `fm-common-bench`).
   settings(FMPublic ++ Seq(
@@ -39,7 +48,13 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       // Scala 2.12 specific compiler flags
       "-opt:l:inline",
       "-opt-inline-from:<sources>"
-    ) else Nil),
+    ) else Nil) ++ (if (scalaVersion.value.startsWith("2.12")) fatalWarnings else Nil),
+    
+    // -Ywarn-unused-import/-Xfatal-warnings casues issues in the REPL and also during doc generation
+    scalacOptions in (Compile, console) --= fatalWarnings,
+    scalacOptions in (Test, console) --= fatalWarnings,
+    scalacOptions in (Compile, doc) --= fatalWarnings,
+    
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     // include the macro classes and resources in the main jar
     mappings in (Compile, packageBin) ++= { mappings in (`fm-common-macros`, Compile, packageBin) }.value,
