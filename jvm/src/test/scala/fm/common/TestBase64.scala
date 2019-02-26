@@ -183,7 +183,7 @@ final class TestBase64 extends FunSuite with Matchers {
   
   private def makeURLToStrictInputStream(in: String): InputStream = new Base64.URLToStrictInputStream(new ByteArrayInputStream(in.getBytes(UTF_8)))
   
-  private def readToString(is: InputStream): String = new String(is.toByteArray, UTF_8)
+  //private def readToString(is: InputStream): String = new String(is.toByteArray, UTF_8)
   
   private def writeToOS(bytes: Array[Byte])(wrapOS: OutputStream => OutputStream): String = {
     val bos: ByteArrayOutputStream = new ByteArrayOutputStream()
@@ -199,6 +199,6 @@ final class TestBase64 extends FunSuite with Matchers {
   }
   
   private def toURL(s: String): String = s.replace('+', '-').replace('/', '_')
-  private def toStrict(s: String): String = s.replace('-', '+').replace('_', '/')
+  //private def toStrict(s: String): String = s.replace('-', '+').replace('_', '/')
   private def stripPadding(s: String): String = s.replaceAll("=", "")
 }

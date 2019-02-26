@@ -24,7 +24,7 @@ final class TestBitUtils extends FunSuite with Matchers {
     BitUtils.makeLong(a, b) shouldBe res
     BitUtils.getUpper(res) shouldBe a
     BitUtils.getLower(res) shouldBe b
-    BitUtils.splitLong(res) shouldBe (a, b)
+    BitUtils.splitLong(res) shouldBe ((a, b))
   }
   
   test("makeLong") {
@@ -52,7 +52,7 @@ final class TestBitUtils extends FunSuite with Matchers {
     BitUtils.makeInt(a, b) shouldBe res
     BitUtils.getUpper(res) shouldBe a
     BitUtils.getLower(res) shouldBe b
-    BitUtils.splitInt(res) shouldBe (a, b)
+    BitUtils.splitInt(res) shouldBe ((a, b))
   }
 
   test("makeInt") {

@@ -43,6 +43,7 @@ object EagerLoad {
 
     def makeTree(path: List[Symbol]): c.Tree = {
       path match {
+        case Nil => ???
         case head :: Nil => Ident(head)
         case head :: tail => Select(makeTree(tail), head)
       }

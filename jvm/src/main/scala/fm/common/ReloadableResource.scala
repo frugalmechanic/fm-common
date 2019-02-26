@@ -156,6 +156,5 @@ abstract class ReloadableResource[T] extends Logging {
   
   override def finalize(): Unit = {
     disableAutoUpdateCheck()
-    super.finalize()
   }
 }

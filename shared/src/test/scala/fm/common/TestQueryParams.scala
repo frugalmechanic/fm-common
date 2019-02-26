@@ -184,7 +184,7 @@ final class TestQueryParams extends FunSuite with Matchers {
     QueryParams(queryString).toString shouldBe queryString.replace("%20","+")
   }
   
-  private def check(queryString: String, expectedQueryString: String) {
-    QueryParams(queryString).toString shouldBe expectedQueryString
-  }
+//  private def check(queryString: String, expectedQueryString: String) {
+//    QueryParams(queryString).toString shouldBe expectedQueryString
+//  }
 }

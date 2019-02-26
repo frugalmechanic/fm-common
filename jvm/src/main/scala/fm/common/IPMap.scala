@@ -15,7 +15,7 @@
  */
 package fm.common
 
-import it.unimi.dsi.fastutil.ints.{AbstractIntComparator, Int2IntAVLTreeMap, IntComparator, IntIterator}
+import it.unimi.dsi.fastutil.ints.{Int2IntAVLTreeMap, IntComparator, IntIterator}
 import it.unimi.dsi.fastutil.longs.{LongIterator, Long2ObjectOpenHashMap}
 import scala.collection.mutable.Builder
 
@@ -26,7 +26,7 @@ object IPMap {
 
   def apply[T](ips: TraversableOnce[(IPOrSubnet, T)]): IPMapImmutable[T] = IPMapImmutable(ips)
 
-  private[common] val leadingBitsFirstComparator: IntComparator = new AbstractIntComparator() {
+  private[common] val leadingBitsFirstComparator: IntComparator = new IntComparator() {
     def compare(a: Int, b: Int): Int = {
       // Note:
       //  - masks should only have leading ones so Integer.bitCount should be fine

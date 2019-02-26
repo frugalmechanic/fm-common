@@ -26,7 +26,7 @@ object RichFuture {
   /**
    * Similar to Future.find but instead of returning a Future[Option[T]] it just returns a Future[Boolean]
    */
-  @inline def exists[T](futuretravonce: TraversableOnce[Future[T]])(predicate: T => Boolean)(implicit executor: ExecutionContext): Future[Boolean] = {
+  @inline def exists[T](futuretravonce: scala.collection.immutable.Iterable[Future[T]])(predicate: T => Boolean)(implicit executor: ExecutionContext): Future[Boolean] = {
     // TODO: copy the Future.find implementation to avoid the extra wrapping of Future?
     val f: Future[Option[T]] = Future.find(futuretravonce)(predicate)
     f.map{ _.isDefined }

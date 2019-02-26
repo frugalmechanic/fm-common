@@ -66,7 +66,14 @@ object Logging {
    *
    * Note: Private to avoid exposing org.slf4j.Logger which causes ProGuard issues
    */
-  private def capture[T](logger: org.slf4j.Logger, pattern: String = """%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n""", file: File, overwrite: Boolean)(fun: => T): T = FileUtil.writeFile(file, overwrite){ os => capture(logger.asInstanceOf[ch.qos.logback.classic.Logger], pattern, os)(fun) }
+  private def capture[T](
+    logger: org.slf4j.Logger,
+    pattern: String, // = """%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n""",
+    file: File,
+    overwrite: Boolean
+  )(fun: => T): T = {
+    FileUtil.writeFile(file, overwrite){ os => capture(logger.asInstanceOf[ch.qos.logback.classic.Logger], pattern, os)(fun) }
+  }
   
   /**
    * Capture logging based on a LoggingCaptureConfig
