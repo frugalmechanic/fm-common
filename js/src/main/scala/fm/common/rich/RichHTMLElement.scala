@@ -59,7 +59,7 @@ final class RichHTMLElement(val elem: HTMLElement) extends AnyVal {
   def hide(): Unit = {
     val display: String = elem.style.display
     
-    if (display !== "none") {
+    if (display =!= "none") {
       elem.style.display = "none"
       elem.data(RichHTMLElement.SavedDisplayKey) = display
     }
