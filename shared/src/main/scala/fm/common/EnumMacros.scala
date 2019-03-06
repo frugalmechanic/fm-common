@@ -25,20 +25,15 @@
  */
 package fm.common
 
+import fm.common.{EnumContextUtils => ContextUtils}
+
+import ContextUtils.Context
+
+import scala.collection.immutable._
 import scala.util.control.NonFatal
 
 object EnumMacros {
-  type Context = scala.reflect.macros.blackbox.Context
-  
-  object ContextUtils {
-    /**
-     * Returns a TermName
-     */
-    def termName(c: Context)(name: String): c.universe.TermName = {
-      c.universe.TermName(name)
-    }
-  }
-  
+
   /**
    * Finds any [A] in the current scope and returns an expression for a list of them
    */
@@ -48,6 +43,50 @@ object EnumMacros {
     validateType(c)(typeSymbol)
     val subclassSymbols = enclosedSubClasses(c)(typeSymbol)
     buildSeqExpr[A](c)(subclassSymbols)
+  }
+
+  /**
+   * Given an A, provides its companion
+   */
+  def materializeEnumImpl[A: c.WeakTypeTag](c: Context) = {
+    import c.universe._
+    val symbol          = weakTypeOf[A].typeSymbol
+    val companionSymbol = ContextUtils.companion(c)(symbol)
+    if (companionSymbol == NoSymbol) {
+      c.abort(
+        c.enclosingPosition,
+        s"""
+           |
+           |  Could not find the companion object for type $symbol.
+           |
+           |  If you're sure the companion object exists, you might be able to fix this error by annotating the
+           |  value you're trying to find the companion object for with a parent type (e.g. Light.Red: Light).
+           |
+           |  This error usually happens when trying to find the companion object of a hard-coded enum member, and
+           |  is caused by Scala inferring the type to be the member's singleton type (e.g. Light.Red.type instead of
+           |  Light).
+           |
+           |  To illustrate, given an enum:
+           |
+           |  sealed abstract class Light extends EnumEntry
+           |  case object Light extends Enum[Light] {
+           |    val values = findValues
+           |    case object Red   extends Light
+           |    case object Blue  extends Light
+           |    case object Green extends Light
+           |  }
+           |
+           |  and a method:
+           |
+           |  def indexOf[A <: EnumEntry: Enum](entry: A): Int = implicitly[Enum[A]].indexOf(entry)
+           |
+           |  Instead of calling like so: indexOf(Light.Red)
+           |                Call like so: indexOf(Light.Red: Light)
+         """.stripMargin
+      )
+    } else {
+      c.Expr[A](Ident(companionSymbol))
+    }
   }
 
   /**
@@ -71,57 +110,73 @@ object EnumMacros {
    * - the implementations are not all objects
    * - the current scope is not an object
    */
-  private[common] def enclosedSubClassTrees(c: Context)(typeSymbol: c.universe.Symbol): Seq[c.universe.Tree] = {
+  private[common] def enclosedSubClassTrees(c: Context)(
+    typeSymbol: c.universe.Symbol
+  ): Seq[c.universe.ModuleDef] = {
     import c.universe._
     val enclosingBodySubClassTrees: List[Tree] = try {
-      /*
-          When moving beyond 2.11, we should use this instead, because enclosingClass will be deprecated.
-
-          val enclosingModuleMembers = c.internal.enclosingOwner.owner.typeSignature.decls.toList
-          enclosingModuleMembers.filter { x =>
-            try (x.asModule.moduleClass.asClass.baseClasses.contains(typeSymbol)) catch { case _: Throwable => false }
-          }
-
-          Unfortunately, 2.10.x does not support .enclosingOwner :P
-        */
       val enclosingModule = c.enclosingClass match {
         case md @ ModuleDef(_, _, _) => md
-        case _ => c.abort(
-          c.enclosingPosition,
-          "The enum (i.e. the class containing the case objects and the call to `findValues`) must be an object"
-        )
+        case _ =>
+          c.abort(
+            c.enclosingPosition,
+            "The enum (i.e. the class containing the case objects and the call to `findValues`) must be an object"
+          )
       }
       enclosingModule.impl.body.filter { x =>
         try {
-          Option(x.symbol) match {
-            case Some(sym) if sym.isModule => sym.asModule.moduleClass.asClass.baseClasses.contains(typeSymbol)
-            case _ => false
-          }
+          x.symbol.isModule &&
+            x.symbol.asModule.moduleClass.asClass.baseClasses.contains(typeSymbol)
         } catch {
           case NonFatal(e) =>
-            c.warning(c.enclosingPosition, s"Got an exception, indicating a possible bug in Enumeratum. Message: ${e.getMessage}")
+            c.warning(
+              c.enclosingPosition,
+              s"Got an exception, indicating a possible bug in Enumeratum. Message: ${e.getMessage}"
+            )
             false
         }
       }
-    } catch { case NonFatal(e) => c.abort(c.enclosingPosition, s"Unexpected error: ${e.getMessage}") }
-    if (!enclosingBodySubClassTrees.forall(x => x.symbol.isModule))
-      c.abort(c.enclosingPosition, "All subclasses must be objects.")
-    else enclosingBodySubClassTrees
+    } catch {
+      case NonFatal(e) =>
+        c.abort(c.enclosingPosition, s"Unexpected error: ${e.getMessage}")
+    }
+    if (isDocCompiler(c))
+      enclosingBodySubClassTrees.flatMap {
+        /*
+         DocDef isn't available without pulling in scala-compiler as a dependency.
+
+         That said, DocDef *should* be the only thing that passes the prior filter
+         */
+        case docDef if isDocDef(c)(docDef) => {
+          docDef.children.collect {
+            case m: ModuleDef => m
+          }
+        }
+        case moduleDef: ModuleDef => List(moduleDef)
+      } else
+      enclosingBodySubClassTrees.collect {
+        case m: ModuleDef => m
+      }
   }
 
   /**
    * Returns a sequence of symbols for objects that implement the given type
    */
-  private[common] def enclosedSubClasses(c: Context)(typeSymbol: c.universe.Symbol): Seq[c.universe.Symbol] = {
+  private[common] def enclosedSubClasses(c: Context)(
+    typeSymbol: c.universe.Symbol
+  ): Seq[c.universe.Symbol] = {
     enclosedSubClassTrees(c)(typeSymbol).map(_.symbol)
   }
 
   /**
    * Builds and returns an expression for an IndexedSeq containing the given symbols
    */
-  private[common] def buildSeqExpr[A: c.WeakTypeTag](c: Context)(subclassSymbols: Seq[c.universe.Symbol]) = {
+  @SuppressWarnings(Array("org.wartremover.warts.AsInstanceOf"))
+  private[common] def buildSeqExpr[A: c.WeakTypeTag](c: Context)(
+    subclassSymbols: Seq[c.universe.Symbol]
+  ) = {
     import c.universe._
-    val resultType = implicitly[c.WeakTypeTag[A]].tpe
+    val resultType = weakTypeOf[A]
     if (subclassSymbols.isEmpty) {
       c.Expr[IndexedSeq[A]](reify(IndexedSeq.empty[A]).tree)
     } else {
@@ -135,5 +190,24 @@ object EnumMacros {
         )
       )
     }
+  }
+
+  /**
+   * Returns whether or not we are in doc mode.
+   *
+   * It's a bit of a hack, but I don't think it's much worse than pulling in scala-compiler
+   * for the sake of getting access to this class and doing an `isInstanceOf`
+   */
+  private[this] def isDocCompiler(c: Context): Boolean = {
+    c.universe.getClass.toString.contains("doc.DocFactory")
+  }
+
+  /**
+   * Returns whether or not a given tree is a DocDef
+   *
+   * DocDefs are not part of the public API, so we try to hack around it here.
+   */
+  private[this] def isDocDef(c: Context)(t: c.universe.Tree): Boolean = {
+    t.getClass.toString.contains("DocDef")
   }
 }

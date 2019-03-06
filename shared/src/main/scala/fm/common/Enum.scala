@@ -25,8 +25,8 @@
  */
 package fm.common
 
+import scala.collection.immutable._
 import scala.language.experimental.macros
-import scala.language.postfixOps
 
 /**
  * All the cool kids have their own Enumeration implementation, most of which try to
@@ -34,26 +34,27 @@ import scala.language.postfixOps
  *
  * This is yet another one.
  *
- * How to use:
+ * Example:
  *
  * {{{
- * sealed trait DummyEnum
+ * scala> import enumeratum._
  *
- * object DummyEnum extends Enum[DummyEnum] {
+ * scala> sealed trait DummyEnum extends EnumEntry
  *
- * val values = findValues
+ * scala> object DummyEnum extends Enum[DummyEnum] {
+ *      |   val values = findValues
+ *      |   case object Hello   extends DummyEnum
+ *      |   case object GoodBye extends DummyEnum
+ *      |   case object Hi      extends DummyEnum
+ *      | }
  *
- * case object Hello extends DummyEnum
- * case object GoodBye extends DummyEnum
- * case object Hi extends DummyEnum
+ * scala> DummyEnum.withNameOption("Hello")
+ * res0: Option[DummyEnum] = Some(Hello)
  *
- * }
- *
- *
- * DummyEnum.values should be(Set(Hello, GoodBye, Hi))
- *
- * DummyEnum.withName("Hello") should be(Hello)
+ * scala> DummyEnum.withNameOption("Nope")
+ * res1: Option[DummyEnum] = None
  * }}}
+ *
  * @tparam A The sealed trait
  */
 trait Enum[A <: EnumEntry] {
@@ -61,11 +62,21 @@ trait Enum[A <: EnumEntry] {
   /**
    * Map of [[A]] object names to [[A]]s
    */
-  lazy final val namesToValuesMap: Map[String, A] = values map (v => v.entryName -> v) toMap
+  lazy val namesToValuesMap: Map[String, A] =
+    values.map(v => v.entryName -> v).toMap
+
   /**
    * Map of [[A]] object names in lower case to [[A]]s for case-insensitive comparison
    */
-  lazy final val lowerCaseNamesToValuesMap: Map[String, A] = values map (v => v.entryName.toLowerCase -> v) toMap
+  lazy final val lowerCaseNamesToValuesMap: Map[String, A] =
+    namesToValuesMap.map { case (k, v) => k.toLowerCase -> v }
+
+  /**
+   * Map of [[A]] object names in upper case to [[A]]s for case-insensitive comparison
+   */
+  lazy final val upperCaseNameValuesToMap: Map[String, A] =
+    namesToValuesMap.map { case (k, v) => k.toUpperCase() -> v }
+
   /**
    * Map of [[A]] to their index in the values sequence.
    *
@@ -81,7 +92,7 @@ trait Enum[A <: EnumEntry] {
    * Feel free to implement this however you'd like (including messing around with ordering, etc) if that
    * fits your needs better.
    */
-  def values: IndexedSeq[A]
+  def values: scala.IndexedSeq[A] // Note: Changed back (by Eluvio) to using scala.collection.IndexedSeq instead of immutable.IndexedSeq
 
   /**
    * Tries to get an [[A]] by the supplied name. The name corresponds to the .name
@@ -90,14 +101,14 @@ trait Enum[A <: EnumEntry] {
    * Like [[Enumeration]]'s `withName`, this method will throw if the name does not match any of the values'
    * .entryName values.
    */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def withName(name: String): A =
-    withNameOption(name) getOrElse
-      (throw new NoSuchElementException(buildNotFoundMessage(name)))
+    withNameOption(name).getOrElse(throw new NoSuchElementException(buildNotFoundMessage(name)))
 
   /**
    * Optionally returns an [[A]] for a given name.
    */
-  def withNameOption(name: String): Option[A] = namesToValuesMap get name
+  def withNameOption(name: String): Option[A] = namesToValuesMap.get(name)
 
   /**
    * Tries to get an [[A]] by the supplied name. The name corresponds to the .name
@@ -106,14 +117,52 @@ trait Enum[A <: EnumEntry] {
    * Like [[Enumeration]]'s `withName`, this method will throw if the name does not match any of the values'
    * .entryName values.
    */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def withNameInsensitive(name: String): A =
-    withNameInsensitiveOption(name) getOrElse
-      (throw new NoSuchElementException(buildNotFoundMessage(name)))
+    withNameInsensitiveOption(name).getOrElse(
+      throw new NoSuchElementException(buildNotFoundMessage(name)))
+
+  /**
+   * Tries to get an [[A]] by the supplied name. The name corresponds to the .name
+   * of the case objects implementing [[A]] transformed to upper case
+   *
+   * Like [[Enumeration]]'s `withName`, this method will throw if the name does not match any of the values'
+   * .entryName values.
+   */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  def withNameUppercaseOnly(name: String): A =
+    withNameUppercaseOnlyOption(name).getOrElse(
+      throw new NoSuchElementException(buildNotFoundMessage(name)))
+
+  /**
+   * Tries to get an [[A]] by the supplied name. The name corresponds to the .name
+   * of the case objects implementing [[A]] transformed to lower case
+   *
+   * Like [[Enumeration]]'s `withName`, this method will throw if the name does not match any of the values'
+   * .entryName values.
+   */
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  def withNameLowercaseOnly(name: String): A =
+    withNameLowercaseOnlyOption(name).getOrElse(
+      throw new NoSuchElementException(buildNotFoundMessage(name)))
 
   /**
    * Optionally returns an [[A]] for a given name, disregarding case
    */
-  def withNameInsensitiveOption(name: String): Option[A] = lowerCaseNamesToValuesMap get name.toLowerCase
+  def withNameInsensitiveOption(name: String): Option[A] =
+    lowerCaseNamesToValuesMap.get(name.toLowerCase)
+
+  /**
+   * Optionally returns an [[A]] for a given name assuming the value is upper case
+   */
+  def withNameUppercaseOnlyOption(name: String): Option[A] =
+    upperCaseNameValuesToMap.get(name)
+
+  /**
+   * Optionally returns an [[A]] for a given name assuming the value is lower case
+   */
+  def withNameLowercaseOnlyOption(name: String): Option[A] =
+    lowerCaseNamesToValuesMap.get(name)
 
   /**
    * Returns the index number of the member passed in the values picked up by this enum
@@ -135,6 +184,16 @@ trait Enum[A <: EnumEntry] {
     s"$notFoundName is not a member of Enum ($existingEntriesString)"
   }
 
-  private lazy val existingEntriesString = values.map(_.entryName).mkString(", ")
+  private lazy val existingEntriesString =
+    values.map(_.entryName).mkString(", ")
+
+}
+
+object Enum {
+
+  /**
+   * Finds the Enum companion object for a particular EnumEntry
+   */
+  implicit def materializeEnum[A <: EnumEntry]: Enum[A] = macro EnumMacros.materializeEnumImpl[A]
 
 }
