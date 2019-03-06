@@ -1,4 +1,4 @@
-package test.classutil
+package fm.common.test.classutil
 
 trait TestTrait {
   def foo: String
