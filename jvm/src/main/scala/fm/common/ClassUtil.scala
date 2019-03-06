@@ -20,8 +20,9 @@ import java.lang.reflect.{Method, Modifier}
 import java.net.{URLConnection, URLDecoder}
 import java.io.{File, InputStream}
 import java.nio.file.Path
-import java.util.jar.{JarFile, JarEntry}
+import java.util.jar.{JarEntry, JarFile}
 import scala.collection.JavaConverters._
+import scala.reflect.{ClassTag, classTag}
 
 /**
  * This contains utility methods for scanning Classes or Files on the classpath.
@@ -39,24 +40,272 @@ object ClassUtil extends Logging {
   //   http://docs.oracle.com/javase/8/docs/api/java/lang/ClassLoader.html#getResource-java.lang.String-
   private def classpathSeparator: String = "/"
 
+  def classForName(cls: String): Class[_] = classForName(cls, defaultClassLoader)
+  def classForName(cls: String, classLoader: ClassLoader): Class[_] = Class.forName(cls, true, classLoader)
+
+  def getClassForName(cls: String): Option[Class[_]] = getClassForName(cls, defaultClassLoader)
+
+  def getClassForName(cls: String, classLoader: ClassLoader): Option[Class[_]] = {
+    try {
+      Option(Class.forName(cls, true, classLoader))
+    } catch {
+      case _: ClassNotFoundException => None
+    }
+  }
+
+  def companionObject(cls: Class[_]): AnyRef = companionObjectAs[AnyRef](cls)
+
+  def companionObjectAs[T <: AnyRef : ClassTag](cls: Class[_]): T = {
+    companionObjectAs(cls, classTag[T].runtimeClass.asInstanceOf[Class[T]])
+  }
+
+  def companionObjectAs[T <: AnyRef](cls: Class[_], asCls: Class[T]): T = {
+    val objectCls: Class[_] = companionObjectClass(cls)
+    require(asCls.isAssignableFrom(objectCls), s"objectCls: $objectCls is not a asCls: $asCls")
+    scalaObject(objectCls).asInstanceOf[T]
+  }
+
+  def getCompanionObject(cls: Class[_]): Option[AnyRef] = getCompanionObjectAs[AnyRef](cls)
+
+  def getCompanionObjectAs[T <: AnyRef : ClassTag](cls: Class[_]): Option[T] = {
+    getCompanionObjectAs(cls, classTag[T].runtimeClass.asInstanceOf[Class[T]])
+  }
+
+  def getCompanionObjectAs[T <: AnyRef](cls: Class[_], asCls: Class[T]): Option[T] = {
+    val objectCls: Option[Class[_]] = getCompanionObjectClass(cls)
+
+    if (objectCls.isEmpty || !asCls.isAssignableFrom(objectCls.get)) None
+    else getScalaObjectAs(objectCls.get, asCls)
+  }
+
+  /**
+   * Lookup the companion object class for a class
+   */
+  def companionObjectClass(cls: String): Class[_] = {
+    companionObjectClass(cls, defaultClassLoader)
+  }
+
+  /**
+   * Lookup the companion object class for a class
+   */
+  def companionObjectClass(cls: String, classLoader: ClassLoader): Class[_] = {
+    getCompanionObjectClass(cls, classLoader).getOrElse{ throw new ClassNotFoundException(s"No companion object class for $cls") }
+  }
+
+  /**
+   * Lookup the companion object class for a class
+   */
+  def companionObjectClass(cls: Class[_]): Class[_] = {
+    getCompanionObjectClass(cls).getOrElse{ throw new ClassNotFoundException(s"No companion object class for $cls") }
+  }
+
+  /**
+   * Lookup the companion object class for a class
+   */
+  def getCompanionObjectClass(cls: String): Option[Class[_]] = {
+    getCompanionObjectClass(cls, defaultClassLoader)
+  }
+
+  /**
+   * Lookup the companion object class for a class
+   */
+  def getCompanionObjectClass(cls: String, classLoader: ClassLoader): Option[Class[_]] = {
+    getClassForName(cls, classLoader).flatMap{ getCompanionObjectClass }
+  }
+
+  def getCompanionObjectClass(cls: Class[_]): Option[Class[_]] = {
+    if (isScalaObject(cls)) Some(cls)
+    else if (!cls.getName.endsWith("$")) getCompanionObjectClass(cls.getName+"$", cls.getClassLoader)
+    else None
+  }
+
+  /**
+   * Does this class represent a Scala object
+   * @param cls The fully qualified name of the class to check (Note: should end with a '$' character)
+   * @return
+   */
+  def isScalaObject(cls: String): Boolean = {
+    isScalaObject(cls, defaultClassLoader)
+  }
+
+  /**
+   * Does this class represent a Scala object
+   * @param cls The fully qualified name of the class to check (Note: should end with a '$' character)
+   * @return
+   */
+  def isScalaObject(cls: String, classLoader: ClassLoader): Boolean = {
+    try {
+      val c: Class[_] = classForName(cls, classLoader)
+      isScalaObject(c)
+    } catch {
+      case _: ClassNotFoundException => false // Class does not exist
+    }
+  }
+
+  /**
+   * Is this the class for a Scala Object?
+   */
+  def isScalaObject(cls: Class[_]): Boolean = {
+    try {
+      cls.getField("MODULE$")
+      true
+    } catch {
+      case _: NoSuchFieldException => false
+    }
+  }
+
+  /**
+   * Returns the Scala object instance for this class
+   */
+  def scalaObject(objectCls: Class[_]): AnyRef = scalaObjectAs[AnyRef](objectCls)
+
+  /**
+   * Returns the Scala object instance for this class
+   */
+  def scalaObjectAs[T <: AnyRef : ClassTag](objectCls: Class[_]): T = {
+    scalaObjectAs(objectCls, classTag[T].runtimeClass.asInstanceOf[Class[T]])
+  }
+
+  /**
+   * Returns the Scala object instance for this class
+   */
+  def scalaObjectAs[T <: AnyRef](objectCls: Class[_], asCls: Class[T]): T = {
+    require(asCls.isAssignableFrom(objectCls), s"objectCls: $objectCls is not a asCls: $asCls")
+    objectCls.getField("MODULE$").get(objectCls).asInstanceOf[T]
+  }
+
+  /**
+   * Returns the Scala object instance for this class (if it is the class of a Scala object)
+   */
+  def getScalaObject(objectCls: Class[_]): Option[AnyRef] = getScalaObjectAs[AnyRef](objectCls)
+
+  /**
+   * Returns the Scala object instance for this class (if it is the class of a Scala object)
+   */
+  def getScalaObjectAs[T <: AnyRef : ClassTag](objectCls: Class[_]): Option[T] = {
+    getScalaObjectAs(objectCls, classTag[T].runtimeClass.asInstanceOf[Class[T]])
+  }
+
+  /**
+   * Returns the Scala object instance for this class (if it is the class of a Scala object)
+   */
+  def getScalaObjectAs[T <: AnyRef](objectCls: Class[_], asCls: Class[T]): Option[T] = {
+    try {
+      val res: AnyRef = objectCls.getField("MODULE$").get(objectCls)
+      if (res.isNotNull && asCls.isAssignableFrom(res.getClass)) Some(res.asInstanceOf[T]) else None
+    } catch {
+      case _: NoSuchFieldException => None   // No MODULE$ field.  Not a Scala object?
+      case _: ClassNotFoundException => None // Object does not exist
+      case _: ClassCastException => None     // Object is not an instance of T
+    }
+  }
+
+  /**
+   * Can an instance of this class be created using a zero-args constructor?
+   */
+  def canCreateInstanceOf(cls: Class[_]): Boolean = {
+    try {
+      cls.getDeclaredConstructor()
+      true
+    } catch {
+      case _: NoSuchMethodException => false
+    }
+  }
+
+  /**
+   * Can an instance of this class be created using a zero-args constructor?
+   */
+  def canCreateInstanceOfOrIsObject(cls: Class[_]): Boolean = {
+    if (isScalaObject(cls)) true
+    else canCreateInstanceOf(cls)
+  }
+
+  /**
+   * Creates a new instance of a class using a 0-args constructor or returns the Scala object instance of this class
+   */
+  def newInstanceOrObject[T <: AnyRef](cls: Class[T]): T = {
+    if (isScalaObject(cls)) scalaObjectAs(cls, cls)
+    else cls.getDeclaredConstructor().newInstance()
+  }
+
+  /**
+   * Creates a new instance of a class using a 0-args constructor or returns the Scala object instance of this class
+   */
+  def newInstanceOrObjectAs[T <: AnyRef : ClassTag](cls: Class[_]): T = {
+    newInstanceOrObjectAs(cls, classTag[T].runtimeClass.asInstanceOf[Class[T]])
+  }
+
+  /**
+   * Creates a new instance of a class using a 0-args constructor or returns the Scala object instance of this class
+   */
+  def newInstanceOrObjectAs[T <: AnyRef](cls: Class[_], asCls: Class[T]): T = {
+    require(asCls.isAssignableFrom(cls), s"cls: $cls is not a asCls: $asCls")
+
+    if (isScalaObject(cls)) scalaObjectAs(cls, asCls)
+    else cls.getDeclaredConstructor().newInstance().asInstanceOf[T]
+  }
+
+  /**
+   * Creates a new instance of a class using a 0-args constructor or returns the Scala object instance of this class
+   */
+  def getNewInstanceOrObject[T <: AnyRef](cls: Class[T]): Option[T] = {
+    getNewInstanceOrObjectAs(cls, cls)
+  }
+
+  def getNewInstanceOrObjectAs[T <: AnyRef : ClassTag](cls: Class[_]): Option[T] = {
+    getNewInstanceOrObjectAs(cls, classTag[T].runtimeClass.asInstanceOf[Class[T]])
+  }
+
+  /**
+   * Creates a new instance of a class using a 0-args constructor or returns the Scala object instance of this class
+   * @param cls The class to create an instance of (or to get the Object instance for)
+   * @param asCls The return type
+   * @tparam T
+   * @return
+   */
+  def getNewInstanceOrObjectAs[T <: AnyRef](cls: Class[_], asCls: Class[T]): Option[T] = {
+    if (isScalaObject(cls)) {
+      getScalaObjectAs(cls, asCls)
+    } else {
+      try {
+        if (!asCls.isAssignableFrom(cls)) None
+        else Option(cls.getDeclaredConstructor().newInstance().asInstanceOf[T])
+      } catch {
+        case _: IllegalAccessException => None // Private Constructor
+        case _: InstantiationException => None // No 0-args Constructor
+        case _: NoSuchMethodException => None  // No 0-args Constructor
+      }
+    }
+  }
+
   /**
    * Check if a class is loaded
    */
-  def isClassLoaded(cls: String, classLoader: ClassLoader = defaultClassLoader): Boolean = {
-    findLoadedClass(cls, classLoader).isDefined
-  }
-  
-  def findLoadedClass(cls: String, classLoader: ClassLoader = defaultClassLoader): Option[Class[_]] = {
+  def isClassLoaded(cls: String): Boolean = isClassLoaded(cls, defaultClassLoader)
+
+  /**
+   * Check if a class is loaded
+   */
+  def isClassLoaded(cls: String, classLoader: ClassLoader): Boolean = findLoadedClass(cls, classLoader).isDefined
+
+  def findLoadedClass(cls: String): Option[Class[_]] = findLoadedClass(cls, defaultClassLoader)
+
+  def findLoadedClass(cls: String, classLoader: ClassLoader): Option[Class[_]] = {
     val findLoadedClass: Method = classOf[ClassLoader].getDeclaredMethod("findLoadedClass", classOf[String])
     findLoadedClass.setAccessible(true)
     val res: Object = findLoadedClass.invoke(classLoader, cls)
     if (null == res) None else Some(res.asInstanceOf[Class[_]])
   }
-  
+
   /**
    * Check if a class exists.
    */
-  def classExists(cls: String, classLoader: ClassLoader = defaultClassLoader): Boolean = try {
+  def classExists(cls: String): Boolean = classExists(cls, defaultClassLoader)
+
+  /**
+   * Check if a class exists.
+   */
+  def classExists(cls: String, classLoader: ClassLoader): Boolean = try {
     classLoader.loadClass(cls)
     true
   } catch {
@@ -67,7 +316,9 @@ object ClassUtil extends Logging {
   def classpathFileExists(file: String): Boolean = classpathFileExists(file, defaultClassLoader)
   
   /** Check if a file exists on the classpath */
-  def classpathFileExists(file: String, classLoader: ClassLoader): Boolean = classpathFileExists(new File(file), classLoader)
+  def classpathFileExists(file: String, classLoader: ClassLoader): Boolean = {
+    classpathFileExists(new File(file), classLoader)
+  }
     
   /** Check if a file exists on the classpath */
   def classpathFileExists(file: File): Boolean = classpathFileExists(file, defaultClassLoader)
@@ -87,7 +338,9 @@ object ClassUtil extends Logging {
   def classpathDirExists(file: String): Boolean = classpathDirExists(file, defaultClassLoader)
   
   /** Check if a directory exists on the classpath */
-  def classpathDirExists(file: String, classLoader: ClassLoader): Boolean = classpathDirExists(new File(file), classLoader)
+  def classpathDirExists(file: String, classLoader: ClassLoader): Boolean = {
+    classpathDirExists(new File(file), classLoader)
+  }
     
   /** Check if a directory exists on the classpath */
   def classpathDirExists(file: File): Boolean = classpathDirExists(file, defaultClassLoader)
@@ -107,7 +360,9 @@ object ClassUtil extends Logging {
   def classpathLastModified(file: String): Long = classpathLastModified(file, defaultClassLoader)
   
   /** Lookup the lastModified timestamp for a resource on the classpath */
-  def classpathLastModified(file: String, classLoader: ClassLoader): Long = classpathLastModified(new File(file), classLoader)
+  def classpathLastModified(file: String, classLoader: ClassLoader): Long = {
+    classpathLastModified(new File(file), classLoader)
+  }
   
   /** Lookup the lastModified timestamp for a resource on the classpath */
   def classpathLastModified(file: File): Long = classpathLastModified(file, defaultClassLoader)
@@ -121,7 +376,9 @@ object ClassUtil extends Logging {
   def classpathContentLength(file: String): Long = classpathContentLength(file, defaultClassLoader)
   
   /** Lookup the legnth for a resource on the classpath */
-  def classpathContentLength(file: String, classLoader: ClassLoader): Long = classpathContentLength(new File(file), classLoader)
+  def classpathContentLength(file: String, classLoader: ClassLoader): Long = {
+    classpathContentLength(new File(file), classLoader)
+  }
   
   /** Lookup the legnth for a resource on the classpath */
   def classpathContentLength(file: File): Long = classpathContentLength(file, defaultClassLoader)
@@ -157,23 +414,65 @@ object ClassUtil extends Logging {
       try{ is.close() } catch { case _: Exception => }
     }
   }
-  
+
   /**
    * Check if a class exists.  If it does not then a ClassNotFoundException is thrown.
    */
-  def requireClass(cls: String, msg: => String, classLoader: ClassLoader = defaultClassLoader): Unit = {
+  def requireClass(cls: String, msg: => String): Unit = requireClass(cls, msg, defaultClassLoader)
+
+  /**
+   * Check if a class exists.  If it does not then a ClassNotFoundException is thrown.
+   */
+  def requireClass(cls: String, msg: => String, classLoader: ClassLoader): Unit = {
     if (!classExists(cls, classLoader)) throw new ClassNotFoundException(s"Missing Class: $cls - $msg")
   }
-  
+
+  /**
+   * Find all classes annotated with a Java Annotation.
+   *
+   * Note: This loads ALL classes under the basePackage!
+   */
+  def findAnnotatedClasses[T <: Annotation](basePackage: String, annotationClass: Class[T]): Set[Class[_]] = {
+    findAnnotatedClasses(basePackage, annotationClass, defaultClassLoader)
+  }
+
   /**
    * Find all classes annotated with a Java Annotation.
    * 
    * Note: This loads ALL classes under the basePackage!
    */
-  def findAnnotatedClasses[T <: Annotation](basePackage: String, annotationClass: Class[T], classLoader: ClassLoader = defaultClassLoader): Set[Class[_]] = {
-    findClassNames(basePackage, classLoader).filterNot { _.contains("$") }.map{ classLoader.loadClass }.filter { c: Class[_] =>
+  def findAnnotatedClasses[T <: Annotation](basePackage: String, annotationClass: Class[T], classLoader: ClassLoader): Set[Class[_]] = {
+    findClassNames(basePackage, classLoader)/*.filterNot { _.contains("$") }*/.map{ classLoader.loadClass }.filter { c: Class[_] =>
       c.getAnnotation(annotationClass) != null
     }
+  }
+
+  /**
+   * Finds all Scala Objects that extends a trait/interface/class.
+   *
+   * Note: This loads ALL classes under the basePackage and uses Class.isAssignableFrom for checking.
+   */
+  def findImplementingObjects[T <: AnyRef](basePackage: String, clazz: Class[T]): Set[T] = {
+    findImplementingObjects(basePackage, clazz, defaultClassLoader)
+
+  }
+
+  /**
+   * Finds all Scala Objects that extends a trait/interface/class.
+   *
+   * Note: This loads ALL classes under the basePackage and uses Class.isAssignableFrom for checking.
+   */
+  def findImplementingObjects[T <: AnyRef](basePackage: String, clazz: Class[T], classLoader: ClassLoader): Set[T] = {
+    findImplementingClasses(basePackage, clazz, classLoader).filter{ isScalaObject }.map{ scalaObjectAs(_, clazz) }
+  }
+
+  /**
+   * Find all concrete classes that extend a trait/interface/class.
+   *
+   * Note: This loads ALL classes under the basePackage and uses Class.isAssignableFrom for checking.
+   */
+  def findImplementingClasses[T](basePackage: String, clazz: Class[T]): Set[Class[_ <: T]] = {
+    findImplementingClasses(basePackage, clazz, defaultClassLoader)
   }
 
   /**
@@ -181,19 +480,24 @@ object ClassUtil extends Logging {
    * 
    * Note: This loads ALL classes under the basePackage and uses Class.isAssignableFrom for checking.
    */
-  def findImplementingClasses[T](basePackage: String, clazz: Class[T], classLoader: ClassLoader = defaultClassLoader): Set[Class[_ <: T]] = {    
-    findClassNames(basePackage, classLoader).filterNot { _.contains("$") }.map{ classLoader.loadClass }.filter { c: Class[_] =>
+  def findImplementingClasses[T](basePackage: String, clazz: Class[T], classLoader: ClassLoader): Set[Class[_ <: T]] = {
+    findClassNames(basePackage, classLoader)/*.filterNot{ _.contains("$") }*/.map{ classLoader.loadClass }.filter { c: Class[_] =>
       clazz.isAssignableFrom(c)
     }.filterNot{ c: Class[_] => 
       val mods: Int = c.getModifiers()
       Modifier.isAbstract(mods) || Modifier.isInterface(mods)
     }.map{ _.asInstanceOf[Class[_ <: T]] }
   }
-  
+
   /**
    * Find all class names under the base package (includes anonymous/inner/objects etc...)
    */
-  def findClassNames(basePackage: String, classLoader: ClassLoader = defaultClassLoader): Set[String] = {
+  def findClassNames(basePackage: String): Set[String] = findClassNames(basePackage, defaultClassLoader)
+
+  /**
+   * Find all class names under the base package (includes anonymous/inner/objects etc...)
+   */
+  def findClassNames(basePackage: String, classLoader: ClassLoader): Set[String] = {
     findClasspathFiles(basePackage, classLoader).filter{ f: File =>
       f.getName.endsWith(".class")
     }.map{ f: File =>
@@ -201,11 +505,16 @@ object ClassUtil extends Logging {
       name.substring(0, name.length - ".class".length).replace(File.separator, ".")
     }
   }
-  
+
   /**
    * Similar to File.listFiles() (i.e. a non-recursive findClassPathFiles)
    */
-  def listClasspathFiles(basePackage: String, classLoader: ClassLoader = defaultClassLoader): Set[File] = {
+  def listClasspathFiles(basePackage: String): Set[File] = listClasspathFiles(basePackage, defaultClassLoader)
+
+  /**
+   * Similar to File.listFiles() (i.e. a non-recursive findClassPathFiles)
+   */
+  def listClasspathFiles(basePackage: String, classLoader: ClassLoader): Set[File] = {
     val packageDirPath: Path = new File(getPackageDirPath(basePackage)).toPath
 
     // An empty Path("") will still return 1 for packageDirPath.getNameCount(), which will lead to an exception
@@ -214,11 +523,16 @@ object ClassUtil extends Logging {
 
     findClasspathFiles(basePackage, classLoader).map{ _.toPath.subpath(0, subPathLength).toFile }
   }
-  
+
   /**
    * Recursively Find files on the classpath given a base package.
    */
-  def findClasspathFiles(basePackage: String, classLoader: ClassLoader = defaultClassLoader): Set[File] = {
+  def findClasspathFiles(basePackage: String): Set[File] = findClasspathFiles(basePackage, defaultClassLoader)
+
+  /**
+   * Recursively Find files on the classpath given a base package.
+   */
+  def findClasspathFiles(basePackage: String, classLoader: ClassLoader): Set[File] = {
     val packageDirPath: String = getPackageDirPath(basePackage)
     val urls: Set[URL] = classLoader.getResources(packageDirPath).asScala.toSet
     
@@ -271,7 +585,9 @@ object ClassUtil extends Logging {
     builder.result
   }
 
-  private def getPackageDirPath(basePackage: String): String = basePackage.stripLeading(classpathSeparator).replace(".", classpathSeparator)
+  private def getPackageDirPath(basePackage: String): String = {
+    basePackage.stripLeading(classpathSeparator).replace(".", classpathSeparator)
+  }
   
   private def defaultClassLoader: ClassLoader = {
     val cl: ClassLoader = Thread.currentThread.getContextClassLoader
