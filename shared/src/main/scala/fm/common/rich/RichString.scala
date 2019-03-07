@@ -20,7 +20,6 @@ import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import java.text.{DecimalFormat, NumberFormat, ParseException}
 import java.util.Locale
-import java.util.function.IntConsumer
 import scala.util.matching.Regex
 
 object RichString {
@@ -232,36 +231,6 @@ final class RichString(val s: String) extends AnyVal {
   
   def stripAccents: String = Normalize.stripAccents(s)
 
-  def toUnicodeEscapedJavaString: String = {
-    if (null == s) return ""
-
-    val sb: java.lang.StringBuilder = new java.lang.StringBuilder()
-
-    // Using "new IntConsumer ..." maintains Scala 2.11.x compatibility
-    s.codePoints().forEach(new IntConsumer {
-      override def accept(i: Int): Unit = {
-        sb.append("\\u"+String.format("%04X", i: Integer))
-      }
-    })
-
-    sb.toString()
-  }
-
-  def toUnicodeEscapedJavaStringExceptASCII: String = {
-    if (null == s) return ""
-
-    val sb: java.lang.StringBuilder = new java.lang.StringBuilder()
-
-    // Using "new IntConsumer ..." maintains Scala 2.11.x compatibility
-    s.codePoints().forEach(new IntConsumer {
-      override def accept(i: Int): Unit = {
-        if (i < 128 && !Character.isISOControl(i)) sb.appendCodePoint(i)
-        else sb.append("\\u"+String.format("%04X", i: Integer))
-      }
-    })
-
-    sb.toString()
-  }
   
 //  /**
 //   * The plural form of the string

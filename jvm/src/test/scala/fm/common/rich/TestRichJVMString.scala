@@ -25,4 +25,18 @@ final class TestRichJVMString extends FunSuite with Matchers {
     "es-US".toLocaleOption shouldBe Some(Locale.forLanguageTag("es-US"))
     "foo bar".toLocaleOption shouldBe None
   }
+
+  test("toUnicodeEscapedJavaString") {
+    "\u0048\u0065\u006C\u006C\u006F\u002D\u0041\u006E\u006F\u0074\u0068\u0065\u0072\u002D\u0057\u0061\u0079\u002D\u305D\u308C\u305E\u308C\u306E\u5834\u6240".toUnicodeEscapedJavaString shouldBe "\\u0048\\u0065\\u006C\\u006C\\u006F\\u002D\\u0041\\u006E\\u006F\\u0074\\u0068\\u0065\\u0072\\u002D\\u0057\\u0061\\u0079\\u002D\\u305D\\u308C\\u305E\\u308C\\u306E\\u5834\\u6240"
+    "\uD83D\uDCA5".toUnicodeEscapedJavaString shouldBe "\\uD83D\\uDCA5" // 💥
+    "\uD83D\uDE00\uD83D\uDE3A\uD83E\uDDD7\uD83C\uDDFA\uD83C\uDDF8".toUnicodeEscapedJavaString shouldBe "\\uD83D\\uDE00\\uD83D\\uDE3A\\uD83E\\uDDD7\\uD83C\\uDDFA\\uD83C\\uDDF8" // "😀😺🧗🇺🇸"
+  }
+
+  test("toUnicodeEscapedJavaStringExceptASCII") {
+    "abc123".toUnicodeEscapedJavaStringExceptASCII shouldBe "abc123"
+    "\u0048\u0065\u006C\u006C\u006F\u002D\u0041\u006E\u006F\u0074\u0068\u0065\u0072\u002D\u0057\u0061\u0079\u002D\u305D\u308C\u305E\u308C\u306E\u5834\u6240".toUnicodeEscapedJavaStringExceptASCII shouldBe "Hello-Another-Way-\\u305D\\u308C\\u305E\\u308C\\u306E\\u5834\\u6240"
+    "\uD83D\uDCA5abc\uD83D\uDCA5123\uD83D\uDCA5".toUnicodeEscapedJavaStringExceptASCII shouldBe "\\uD83D\\uDCA5abc\\uD83D\\uDCA5123\\uD83D\\uDCA5"
+    "\uD83D\uDCA5".toUnicodeEscapedJavaStringExceptASCII shouldBe "\\uD83D\\uDCA5" // 💥
+    "\uD83D\uDE00\uD83D\uDE3A\uD83E\uDDD7\uD83C\uDDFA\uD83C\uDDF8".toUnicodeEscapedJavaStringExceptASCII shouldBe "\\uD83D\\uDE00\\uD83D\\uDE3A\\uD83E\\uDDD7\\uD83C\\uDDFA\\uD83C\\uDDF8" // "😀😺🧗🇺🇸"
+  }
 }
