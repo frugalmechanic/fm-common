@@ -29,7 +29,9 @@ final class TestBase64 extends FunSuite with Matchers {
     new String((0 to 127).map{ _.toByte }.toArray, UTF_8) -> "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn8=",
     new String((0 to 1024).flatMap{ Character.toChars(_).toSeq }.toArray) -> "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn/CgMKBwoLCg8KEwoXChsKHwojCicKKwovCjMKNwo7Cj8KQwpHCksKTwpTClcKWwpfCmMKZwprCm8Kcwp3CnsKfwqDCocKiwqPCpMKlwqbCp8KowqnCqsKrwqzCrcKuwq/CsMKxwrLCs8K0wrXCtsK3wrjCucK6wrvCvMK9wr7Cv8OAw4HDgsODw4TDhcOGw4fDiMOJw4rDi8OMw43DjsOPw5DDkcOSw5PDlMOVw5bDl8OYw5nDmsObw5zDncOew5/DoMOhw6LDo8Okw6XDpsOnw6jDqcOqw6vDrMOtw67Dr8Oww7HDssOzw7TDtcO2w7fDuMO5w7rDu8O8w73DvsO/xIDEgcSCxIPEhMSFxIbEh8SIxInEisSLxIzEjcSOxI/EkMSRxJLEk8SUxJXElsSXxJjEmcSaxJvEnMSdxJ7En8SgxKHEosSjxKTEpcSmxKfEqMSpxKrEq8SsxK3ErsSvxLDEscSyxLPEtMS1xLbEt8S4xLnEusS7xLzEvcS+xL/FgMWBxYLFg8WExYXFhsWHxYjFicWKxYvFjMWNxY7Fj8WQxZHFksWTxZTFlcWWxZfFmMWZxZrFm8WcxZ3FnsWfxaDFocWixaPFpMWlxabFp8WoxanFqsWrxazFrcWuxa/FsMWxxbLFs8W0xbXFtsW3xbjFucW6xbvFvMW9xb7Fv8aAxoHGgsaDxoTGhcaGxofGiMaJxorGi8aMxo3GjsaPxpDGkcaSxpPGlMaVxpbGl8aYxpnGmsabxpzGncaexp/GoMahxqLGo8akxqXGpsanxqjGqcaqxqvGrMatxq7Gr8awxrHGssazxrTGtca2xrfGuMa5xrrGu8a8xr3Gvsa/x4DHgceCx4PHhMeFx4bHh8eIx4nHiseLx4zHjceOx4/HkMeRx5LHk8eUx5XHlseXx5jHmceax5vHnMedx57Hn8egx6HHosejx6THpcemx6fHqMepx6rHq8esx63Hrsevx7DHsceyx7PHtMe1x7bHt8e4x7nHuse7x7zHvce+x7/IgMiByILIg8iEyIXIhsiHyIjIiciKyIvIjMiNyI7Ij8iQyJHIksiTyJTIlciWyJfImMiZyJrIm8icyJ3InsifyKDIociiyKPIpMilyKbIp8ioyKnIqsiryKzIrciuyK/IsMixyLLIs8i0yLXItsi3yLjIuci6yLvIvMi9yL7Iv8mAyYHJgsmDyYTJhcmGyYfJiMmJyYrJi8mMyY3JjsmPyZDJkcmSyZPJlMmVyZbJl8mYyZnJmsmbyZzJncmeyZ/JoMmhyaLJo8mkyaXJpsmnyajJqcmqyavJrMmtya7Jr8mwybHJssmzybTJtcm2ybfJuMm5ybrJu8m8yb3Jvsm/yoDKgcqCyoPKhMqFyobKh8qIyonKisqLyozKjcqOyo/KkMqRypLKk8qUypXKlsqXypjKmcqaypvKnMqdyp7Kn8qgyqHKosqjyqTKpcqmyqfKqMqpyqrKq8qsyq3KrsqvyrDKscqyyrPKtMq1yrbKt8q4yrnKusq7yrzKvcq+yr/LgMuBy4LLg8uEy4XLhsuHy4jLicuKy4vLjMuNy47Lj8uQy5HLksuTy5TLlcuWy5fLmMuZy5rLm8ucy53Lnsufy6DLocuiy6PLpMuly6bLp8uoy6nLqsury6zLrcuuy6/LsMuxy7LLs8u0y7XLtsu3y7jLucu6y7vLvMu9y77Lv8yAzIHMgsyDzITMhcyGzIfMiMyJzIrMi8yMzI3MjsyPzJDMkcySzJPMlMyVzJbMl8yYzJnMmsybzJzMncyezJ/MoMyhzKLMo8ykzKXMpsynzKjMqcyqzKvMrMytzK7Mr8ywzLHMssyzzLTMtcy2zLfMuMy5zLrMu8y8zL3Mvsy/zYDNgc2CzYPNhM2FzYbNh82IzYnNis2LzYzNjc2OzY/NkM2RzZLNk82UzZXNls2XzZjNmc2azZvNnM2dzZ7Nn82gzaHNos2jzaTNpc2mzafNqM2pzarNq82sza3Nrs2vzbDNsc2yzbPNtM21zbbNt824zbnNus27zbzNvc2+zb/OgM6BzoLOg86EzoXOhs6HzojOic6KzovOjM6Nzo7Oj86QzpHOks6TzpTOlc6WzpfOmM6ZzprOm86czp3Ons6fzqDOoc6izqPOpM6lzqbOp86ozqnOqs6rzqzOrc6uzq/OsM6xzrLOs860zrXOts63zrjOuc66zrvOvM69zr7Ov8+Az4HPgs+Dz4TPhc+Gz4fPiM+Jz4rPi8+Mz43Pjs+Pz5DPkc+Sz5PPlM+Vz5bPl8+Yz5nPms+bz5zPnc+ez5/PoM+hz6LPo8+kz6XPps+nz6jPqc+qz6vPrM+tz67Pr8+wz7HPss+zz7TPtc+2z7fPuM+5z7rPu8+8z73Pvs+/0IA="
   )
-  
+
+  private[this] val invalid: Vector[String] = Vector("aGV%sb-G8sIHdvcmxkIQ==")
+
   test("Basic Encoding and Decoding") {
     data.foreach{ case (original, encoded) => check(original, encoded) }
   }
@@ -60,6 +62,14 @@ final class TestBase64 extends FunSuite with Matchers {
       } {
         checkURLToStrictInputStreamReadArrayOffLen(in, expected, off, len)
       }
+    }
+  }
+
+  test("Invalid Exception Handling") {
+    invalid.foreach { original: String =>
+      assertThrows[BaseEncoding.DecodingException](Base64.decode(original))
+      assertThrows[BaseEncoding.DecodingException](Base64Strict.decode(original))
+      assertThrows[BaseEncoding.DecodingException](Base64URL.decode(original))
     }
   }
   
@@ -127,10 +137,10 @@ final class TestBase64 extends FunSuite with Matchers {
     readUsingIS(urlEncoded){ new Base64URL.InputStream(_) } shouldBe bytes
     
     if (Vector('+','-','/','_').exists{ encoded.indexOf(_) != -1 }) {
-      an [IllegalArgumentException] should be thrownBy Base64URL.decode(encoded)
-      an [IllegalArgumentException] should be thrownBy Base64URL.decode(encoded.toCharArray)
-      an [IllegalArgumentException] should be thrownBy Base64Strict.decode(urlEncoded)
-      an [IllegalArgumentException] should be thrownBy Base64Strict.decode(urlEncoded.toCharArray)
+      an [BaseEncoding.DecodingException] should be thrownBy Base64URL.decode(encoded)
+      an [BaseEncoding.DecodingException] should be thrownBy Base64URL.decode(encoded.toCharArray)
+      an [BaseEncoding.DecodingException] should be thrownBy Base64Strict.decode(urlEncoded)
+      an [BaseEncoding.DecodingException] should be thrownBy Base64Strict.decode(urlEncoded.toCharArray)
       
       an [IOException] should be thrownBy readUsingIS(urlEncoded){ new Base64Strict.InputStream(_) }
       an [IOException] should be thrownBy readUsingIS(encoded){ new Base64URL.InputStream(_) }
@@ -201,4 +211,6 @@ final class TestBase64 extends FunSuite with Matchers {
   private def toURL(s: String): String = s.replace('+', '-').replace('/', '_')
   //private def toStrict(s: String): String = s.replace('-', '+').replace('_', '/')
   private def stripPadding(s: String): String = s.replaceAll("=", "")
+
+
 }

@@ -215,10 +215,15 @@ object BaseEncoding {
       this
     }
   }
-  
-  private val exceptionHandler: PartialFunction[Throwable,Nothing] = { 
-    case ex: GuavaBaseEncoding.DecodingException => throw new DecodingException(ex.getMessage, ex.getCause, ex.getStackTrace)
-    case other => throw other
+
+  // The Guava Exceptions are wrapped in an IllegalArgument Exception:
+  //   https://google.github.io/guava/releases/16.0/api/docs/com/google/common/io/BaseEncoding.html#decode(java.lang.CharSequence)
+  private val exceptionHandler: PartialFunction[Throwable,Nothing] = {
+    case ex: Exception =>
+      ex.getCause match {
+        case cause: GuavaBaseEncoding.DecodingException => throw new DecodingException(cause.getMessage, cause.getCause, cause.getStackTrace)
+        case other => throw ex
+      }
   }
 }
 
