@@ -15,7 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.Implicits.toRichSomeObject
+import fm.common.Implicits.{toRichSomeObject, toAnyRefNullChecks}
 import java.math.BigInteger
 
 object RichBigInteger extends Ordering[BigInteger] {
@@ -45,7 +45,7 @@ final class RichBigInteger(val self: BigInteger) extends AnyVal with Ordered[Big
     self.intValue()
   }
   
-  def intValueExactOption(): Option[Int] = try {
+  def intValueExactOption(): Option[Int] = if (self.isNull) None else try {
     Some.cached(intValueExact())
   } catch {
     case _: ArithmeticException => None
