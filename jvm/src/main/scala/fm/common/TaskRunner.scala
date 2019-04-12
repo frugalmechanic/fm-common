@@ -19,14 +19,20 @@ import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue, LinkedBlockingQu
 import java.util.concurrent.{RejectedExecutionException, RejectedExecutionHandler, ThreadPoolExecutor, TimeUnit}
 
 object TaskRunner extends Logging {
+  val defaultThreads: Int = Runtime.getRuntime().availableProcessors()
+  val defaultQueueSize: Int = Int.MinValue
+  val defaultCoreThreads: Int = Int.MinValue
+  val defaultMaxThreads: Int = Int.MinValue
+  val defaultBlockOnFullQueue: Boolean = false
 
-  def apply(name: String, threads: Int = Runtime.getRuntime().availableProcessors(), queueSize: Int = Int.MinValue, coreThreads: Int = Int.MinValue, maxThreads: Int = Int.MinValue, blockOnFullQueue: Boolean = true): TaskRunner = {
+  def apply(name: String, threads: Int = defaultThreads, queueSize: Int = defaultQueueSize, coreThreads: Int = defaultCoreThreads, maxThreads: Int = defaultMaxThreads, blockOnFullQueue: Boolean = defaultBlockOnFullQueue): TaskRunner = {
     val _coreThreads: Int = if (coreThreads == Int.MinValue) threads else coreThreads
     val _maxThreads:  Int = if (maxThreads == Int.MinValue) threads else maxThreads
     val _queueSize:   Int = if (queueSize == Int.MinValue) threads * 2 else queueSize
     new TaskRunner(name, _coreThreads, _maxThreads, _queueSize, blockOnFullQueue)
   }
 
+  def newBuilder: TaskRunnerBuilder = new TaskRunnerBuilder
 }
 
 final class TaskRunner(val name: String, val coreThreads: Int, val maxThreads: Int, val queueSize: Int, val blockOnFullQueue: Boolean = true) extends TaskRunnerBase(name) {
