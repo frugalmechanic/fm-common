@@ -48,6 +48,9 @@ class TestRichBigInteger extends FunSuite with Matchers {
     bi("123").intValueExactOption shouldBe Some(123)
     null.asInstanceOf[BigInteger].intValueExactOption shouldBe None
 
+    BigInteger.valueOf(Int.MaxValue).intValueExactOption shouldBe Some(Int.MaxValue)
+    BigInteger.valueOf(Int.MinValue).intValueExactOption shouldBe Some(Int.MinValue)
+
     BigInteger.valueOf(Long.MaxValue).intValueExactOption shouldBe None
     BigInteger.valueOf(Long.MinValue).intValueExactOption shouldBe None
   }
