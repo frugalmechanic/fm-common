@@ -23,9 +23,16 @@ object TaskRunner extends Logging {
   val defaultQueueSize: Int = Int.MinValue
   val defaultCoreThreads: Int = Int.MinValue
   val defaultMaxThreads: Int = Int.MinValue
-  val defaultBlockOnFullQueue: Boolean = false
+  val defaultBlockOnFullQueue: Boolean = true
 
-  def apply(name: String, threads: Int = defaultThreads, queueSize: Int = defaultQueueSize, coreThreads: Int = defaultCoreThreads, maxThreads: Int = defaultMaxThreads, blockOnFullQueue: Boolean = defaultBlockOnFullQueue): TaskRunner = {
+  def apply(
+    name: String,
+    threads: Int = defaultThreads,
+    queueSize: Int = defaultQueueSize,
+    coreThreads: Int = defaultCoreThreads,
+    maxThreads: Int = defaultMaxThreads,
+    blockOnFullQueue: Boolean = defaultBlockOnFullQueue
+  ): TaskRunner = {
     val _coreThreads: Int = if (coreThreads == Int.MinValue) threads else coreThreads
     val _maxThreads:  Int = if (maxThreads == Int.MinValue) threads else maxThreads
     val _queueSize:   Int = if (queueSize == Int.MinValue) threads * 2 else queueSize
