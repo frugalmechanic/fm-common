@@ -18,7 +18,11 @@ package fm.common.rich
 import fm.common.{ImmutableArray, Interner, LoadingCache}
 
 object RichImmutableArray {
-  private val interners: LoadingCache[Class[_], Interner[ImmutableArray[_]]] = LoadingCache(){ cls: Class[_] => Interner[ImmutableArray[_]]() }
+  private val interners: LoadingCache[Class[_], Interner[ImmutableArray[_]]] = LoadingCache(
+    weakKeys = true,
+  ){ _: Class[_] =>
+    Interner[ImmutableArray[_]]()
+  }
 }
 
 final class RichImmutableArray[A](val arr: ImmutableArray[A]) extends AnyVal {
