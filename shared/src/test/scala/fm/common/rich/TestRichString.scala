@@ -101,4 +101,53 @@ final class TestRichString extends FunSuite with Matchers {
     
     "foo_bar".capitalizeFully('_') shouldBe "Foo_Bar"
   }
+
+  test("lPad") {
+    "".lPad(0, ' ') shouldBe ""
+    "".lPad(1, ' ') shouldBe " "
+    "".lPad(2, ' ') shouldBe "  "
+    "".lPad(3, ' ') shouldBe "   "
+    "".lPad(4, ' ') shouldBe "    "
+    "".lPad(5, ' ') shouldBe "     "
+
+    "A".lPad(0, 'B') shouldBe "A"
+    "A".lPad(1, 'B') shouldBe "A"
+    "A".lPad(2, 'B') shouldBe "BA"
+    "A".lPad(3, 'B') shouldBe "BBA"
+    "A".lPad(4, 'B') shouldBe "BBBA"
+    "A".lPad(5, 'B') shouldBe "BBBBA"
+  }
+
+  test("rPad") {
+    "".rPad(0, ' ') shouldBe ""
+    "".rPad(1, ' ') shouldBe " "
+    "".rPad(2, ' ') shouldBe "  "
+    "".rPad(3, ' ') shouldBe "   "
+    "".rPad(4, ' ') shouldBe "    "
+    "".rPad(5, ' ') shouldBe "     "
+
+    "A".rPad(0, 'B') shouldBe "A"
+    "A".rPad(1, 'B') shouldBe "A"
+    "A".rPad(2, 'B') shouldBe "AB"
+    "A".rPad(3, 'B') shouldBe "ABB"
+    "A".rPad(4, 'B') shouldBe "ABBB"
+    "A".rPad(5, 'B') shouldBe "ABBBB"
+  }
+
+  // Alias of rPad
+  test("pad") {
+    "".pad(0, ' ') shouldBe ""
+    "".pad(1, ' ') shouldBe " "
+    "".pad(2, ' ') shouldBe "  "
+    "".pad(3, ' ') shouldBe "   "
+    "".pad(4, ' ') shouldBe "    "
+    "".pad(5, ' ') shouldBe "     "
+
+    "A".pad(0, 'B') shouldBe "A"
+    "A".pad(1, 'B') shouldBe "A"
+    "A".pad(2, 'B') shouldBe "AB"
+    "A".pad(3, 'B') shouldBe "ABB"
+    "A".pad(4, 'B') shouldBe "ABBB"
+    "A".pad(5, 'B') shouldBe "ABBBB"
+  }
 }

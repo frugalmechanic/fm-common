@@ -20,6 +20,7 @@ import java.io.File
 import java.math.{BigDecimal, BigInteger}
 import java.text.{DecimalFormat, NumberFormat, ParseException}
 import java.util.Locale
+import scala.annotation.switch
 import scala.util.matching.Regex
 
 object RichString {
@@ -54,7 +55,7 @@ final class RichString(val s: String) extends AnyVal {
   /**
    * If the string is blank returns None else Some(string)
    */
-  def toBlankOption: Option[String] = if(new RichCharSequence(s).isNotNullOrBlank) Some(s) else None
+  def toBlankOption: Option[String] = if (new RichCharSequence(s).isNotNullOrBlank) Some(s) else None
   
   /**
    * If this string starts with the lead param then return a new string with lead stripped from the start
@@ -102,7 +103,7 @@ final class RichString(val s: String) extends AnyVal {
   
   def toBigDecimalOption: Option[BigDecimal] = {
     try {
-      if(s == null) None
+      if (s == null) None
       else Some(new BigDecimal(s))
     } catch {
       case ex: NumberFormatException => None
@@ -210,19 +211,24 @@ final class RichString(val s: String) extends AnyVal {
   def pad(length: Int, c: Char = ' '): String = rPad(length, c)
 
   def lPad(length: Int, c: Char = ' '): String = {
-    val target = length - s.length
-    if(target <= 0) s else repeat(c, target)+s
+    val target: Int = length - s.length
+    if (target <= 0) s else repeat(c, target)+s
   }
 
   def rPad(length: Int, c: Char = ' '): String = {
-    val target = length - s.length
-    if(target <= 0) s else s+repeat(c, target)
+    val target: Int = length - s.length
+    if (target <= 0) s else s+repeat(c, target)
   }
   
   private def repeat(c: Char, times: Int): String = {
-    val arr = new Array[Char](times)
-    java.util.Arrays.fill(arr, c)
-    new String(arr)
+    (times: @switch) match {
+      case 0 => ""
+      case 1 => String.valueOf(c)
+      case _ =>
+        val arr = new Array[Char](times)
+        java.util.Arrays.fill(arr, c)
+        new String(arr)
+    }
   }
   
   def replaceAll(regex: Regex, replacement: String): String = regex.replaceAllIn(s, replacement)
