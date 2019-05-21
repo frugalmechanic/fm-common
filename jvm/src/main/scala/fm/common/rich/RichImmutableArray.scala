@@ -19,7 +19,7 @@ import fm.common.{ImmutableArray, Interner, LoadingCache}
 
 object RichImmutableArray {
   private val interners: LoadingCache[Class[_], Interner[ImmutableArray[_]]] = LoadingCache(
-    weakKeys = true,
+    weakKeys = true
   ){ _: Class[_] =>
     Interner[ImmutableArray[_]]()
   }
