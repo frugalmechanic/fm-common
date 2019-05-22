@@ -59,14 +59,22 @@ object ASCIIUtil {
     // calling stripAccentCharImpl()
     if (c < '\u0080') c else stripAccentCharImpl(c)
   }
-  
+
   /**
    * Converts Accented Characters to the Non-Accented Equivalent String (or null if already ASCII or no conversion exists).
    */
   def toASCIICharsOrNull(c: Char): String = {
-    if (c < '\u0080') null else stripAccentStringImplOrNull(c)
+    toASCIICharsOrNull(c, Set.empty)
   }
-  
+
+  /**
+   * Like toASCIICharsOrNull except any characters in the whitelist will also return null
+   */
+  def toASCIICharsOrNull(c: Char, whitelist: Set[Char]): String = {
+    if (c < '\u0080' || whitelist.contains(c)) null
+    else stripAccentStringImplOrNull(c)
+  }
+
   /**
    * Converts Accented Characters to the Non-Accented Equivalent String.
    *

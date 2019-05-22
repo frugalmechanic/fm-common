@@ -19,11 +19,17 @@ import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
 class TestNormalize extends FunSuite with Matchers {
-  
+  private val whitelistCharacters: Set[Char] = Set(
+    'Ö',
+    'ö',
+    '*',
+    '$',
+  )
+
   test("lowerAlphanumericWithSpaces") {
-    def t(pair: (String,String)): Unit = TestHelpers.withCallerInfo {
-      val (str, urlName) = pair
-      Normalize.lowerAlphanumericWithSpaces(str) shouldBe urlName
+    def t(pair: (String,String), whitelist: Set[Char] = Set.empty): Unit = TestHelpers.withCallerInfo {
+      val (str, expected) = pair
+      Normalize.lowerAlphanumericWithSpaces(str, whitelist) shouldBe expected
     }
 
     t((null: String) -> "")
@@ -47,12 +53,17 @@ class TestNormalize extends FunSuite with Matchers {
     t("Foo \u00F1 Bar" -> "foo n bar")
     t("Foo \u006E\u0303 Bar" -> "foo n bar") // unicode normalization converts "\u006E\u0303" to "\u00F1" which ASCII folding converts to "n"
     t("\uD83D\uDCA5" -> "") // "💥"
+
+    // Verify the whitelist characters are ignored
+    whitelistCharacters.foreach { ch: Char =>
+      t(s"Foo  Æ ${ch}   Bar" -> s"foo ae ${ch} bar", whitelistCharacters)
+    }
   }
   
   test("lowerAlphanumeric") {
     def t(pair: (String,String)): Unit = TestHelpers.withCallerInfo{
-      val (str, urlName) = pair
-      Normalize.lowerAlphanumeric(str) shouldBe urlName
+      val (str, expected) = pair
+      Normalize.lowerAlphanumeric(str) shouldBe expected
     }
 
     t((null: String) -> "")
@@ -138,8 +149,8 @@ class TestNormalize extends FunSuite with Matchers {
   }
   
   test("lowerAlphanumericWithPositions") {
-    def t(str: String, normalized: String, positions: Array[Int]): Unit = TestHelpers.withCallerInfo {
-      val res: (String,Array[Int]) = Normalize.lowerAlphanumericWithPositions(str)
+    def t(str: String, normalized: String, positions: Array[Int], whitelist: Set[Char] = Set.empty): Unit = TestHelpers.withCallerInfo {
+      val res: (String,Array[Int]) = Normalize.lowerAlphanumericWithPositions(str, whitelist)
       
       (res._1, res._2.toIndexedSeq) shouldBe ((normalized, positions.toIndexedSeq))
     }
@@ -175,17 +186,25 @@ class TestNormalize extends FunSuite with Matchers {
 
     // Supplementary characters should only count as a single character position
     t("\uD83D\uDCA5 Foo \u006E\u0303 Æ Bar \u006E\u0303 \uD83D\uDCA5", "foonaebarn", Array(3,4,5,7,9,9,11,12,13,15)) // Note: positions are only accurate against the normalized unicode input
+
+    // Verify the whitelist characters are ignored
+    whitelistCharacters.foreach { ch: Char =>
+      t(s"Foo Æ ${ch} Bar", s"fooae${ch}bar", Array(0,1,2,4,4,6,8,9, 10), whitelistCharacters)
+    }
   }
   
   test("lowerAlphanumeric - Already Normalized - Should eq the original string") {
-    def t(str: String): Unit = TestHelpers.withCallerInfo {
-      Normalize.lowerAlphanumeric(str) should be theSameInstanceAs(str)
+    def t(str: String, whitelist: Set[Char] = Set.empty): Unit = TestHelpers.withCallerInfo {
+      Normalize.lowerAlphanumeric(str, whitelist) should be theSameInstanceAs(str)
     }
     
     t("")
     t("foo")
     t("dormanhelp")
     t("dorman123help")
+    t("lemförder", whitelistCharacters)
+    t("lemfÖrder", whitelistCharacters)
+    t("lemf*rder", whitelistCharacters)
   }
   
   test("reverseLowerAlphanumeric") {
@@ -235,7 +254,13 @@ class TestNormalize extends FunSuite with Matchers {
     Normalize.reverseLowerAlphanumeric("\uD83D\uDCA5 - Æ \uD83D\uDCA5 \u006E\u0303 \uD83D\uDCA5 \uD83D\uDCA5 Æ \uD83D\uDCA5 - ", "aenae") shouldBe Some("Æ \uD83D\uDCA5 \u00F1 \uD83D\uDCA5 \uD83D\uDCA5 Æ")
     Normalize.reverseLowerAlphanumeric("\uD83D\uDCA5 - Æ \u006E\u0303 \uD83D\uDCA5 Æ\uD83D\uDCA5 - ", "aenae") shouldBe Some("Æ \u00F1 \uD83D\uDCA5 Æ\uD83D\uDCA5")
   }
-  
+
+  test("reverseLowerAlphanumeric w/Whitelist") {
+    whitelistCharacters.foreach { ch: Char =>
+      Normalize.reverseLowerAlphanumeric(s"Foo B.${ch}.S.Æ.C.H.", s"b${ch}saech", whitelistCharacters) shouldBe Some(s"B.${ch}.S.Æ.C.H.")
+    }
+  }
+
   test("urlname") {
     def t(pair: (String,String)): Unit = TestHelpers.withCallerInfo {
       val (str, urlName) = pair

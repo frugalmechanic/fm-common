@@ -44,6 +44,14 @@ final class TestASCIIUtil extends FunSuite with Matchers {
     ASCIIUtil.toASCIICharsOrNull('Æ') shouldBe "AE"
   }
 
+  test("toASCIICharsOrNull - accents - ignore whitelist") {
+    val whitelist: Set[Char] = Set('\u204E', 'Æ', '\u2052')
+
+    whitelist.foreach { c: Char =>
+      ASCIIUtil.toASCIICharsOrNull(c, whitelist) shouldBe null
+    }
+  }
+
   test("convertToASCII - ascii") {
     ASCIIUtil.convertToASCII(ascii) shouldBe theSameInstanceAs (ascii)
     ASCIIUtil.convertToASCII("foobar") shouldBe theSameInstanceAs ("foobar")

@@ -25,6 +25,10 @@ object Normalize {
    * Replaces any non-alphanumeric characters with collapsed spaces
    */
   def lowerAlphanumericWithSpaces(s: String): String = {
+    lowerAlphanumericWithSpaces(s, Set.empty)
+  }
+
+  def lowerAlphanumericWithSpaces(s: String, whitelist: Set[Char]): String = {
     if (null == s) return ""
 
     val normalized: String = unicodeNormalization(s)
@@ -34,7 +38,10 @@ object Normalize {
     var prevCh: Char = 0
 
     def handleChar(ch: Char): Unit = {
-      if (Character.isLetterOrDigit(ch)) {
+      if (whitelist.contains(ch)) {
+        sb.append(ch)
+        prevCh = ch
+      } else if (Character.isLetterOrDigit(ch)) {
         sb.append(Character.toLowerCase(ch))
         prevCh = ch
       } else if (prevCh != ' ') {
@@ -45,7 +52,7 @@ object Normalize {
 
     while (i < normalized.length) {
       val rawCh: Char = normalized.charAt(i)
-      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh)
+      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh, whitelist)
 
       if (null == expandedChars) {
         handleChar(rawCh)
@@ -68,19 +75,30 @@ object Normalize {
    * 
    * Note: This logic should match reverseLowerAlphanumeric() -- EXCEPT that this implementation now only allocates if it needs to
    */
-  def lowerAlphanumeric(s: String): String = lowerAlphanumericWithPositionsImpl(s, false)._1
+  def lowerAlphanumeric(s: String): String = lowerAlphanumeric(s, Set.empty)
+
+  /**
+   * Like lowerAlphanumeric, except pass in a whitelist of Characters that won't be altered (e.g. Set('*') would ignore asterix characters
+   */
+  def lowerAlphanumeric(s: String, whitelist: Set[Char]): String = lowerAlphanumericWithPositionsImpl(s, false, whitelist)._1
   
   /**
    * Removes any non-alphanumeric characters and strips accents (when it can be converted to a single character) - Only allocates a new string if the passed in string is not already normalized
-   * 
-   * Note: This logic should match reverseLowerAlphanumeric() -- EXCEPT that this implementation now only allocates if it needs to
    */
-  def lowerAlphanumericWithPositions(s: String): (String, Array[Int]) = lowerAlphanumericWithPositionsImpl(s, true)
-  
+  def lowerAlphanumericWithPositions(s: String): (String, Array[Int]) = lowerAlphanumericWithPositions(s, Set.empty)
+
+  /**
+   * Like lowerAlphanumericWithPositions, except pass in a whitelist of Characters that will be ignored (e.g. Set('*') would ignore asterix characters
+   *
+   */
+  def lowerAlphanumericWithPositions(s: String, whitelist: Set[Char]): (String, Array[Int]) = {
+    lowerAlphanumericWithPositionsImpl(s, true, whitelist)
+  }
+
   /**
    * The implementation for both lowerAlphanumeric and lowerAlphanumericWithPositions
    */
-  private def lowerAlphanumericWithPositionsImpl(s: String, includePositions: Boolean): (String, Array[Int]) = {
+  private def lowerAlphanumericWithPositionsImpl(s: String, includePositions: Boolean, whitelist: Set[Char]): (String, Array[Int]) = {
     if (null == s) return ("", Array())
 
     val normalized: String = unicodeNormalization(s)
@@ -91,7 +109,9 @@ object Normalize {
     var i: Int = 0
 
     def handleChar(ch: Char): Unit = {
-      if (null == res && (!Character.isLetterOrDigit(ch) || ch != Character.toLowerCase(ch))) {
+      val isWhitelistCharacter: Boolean = whitelist.contains(ch)
+
+      if (null == res && !isWhitelistCharacter && (!Character.isLetterOrDigit(ch) || ch != Character.toLowerCase(ch))) {
         // The original string is not normalized so we need to initialize arr and copy over everything so far
         res = new JavaStringBuilder(s.length)
         if (includePositions) pos = makePositionsArray(normalized.length, i)
@@ -104,8 +124,10 @@ object Normalize {
 
       // Normal case of building up our new string
       if (null != res) {
-        if (Character.isLetterOrDigit(ch)) {
-          res.append(Character.toLowerCase(ch))
+        if (Character.isLetterOrDigit(ch) || isWhitelistCharacter) {
+          if (isWhitelistCharacter) res.append(ch)
+          else res.append(Character.toLowerCase(ch))
+
           if (includePositions) pos += i
         }
       }
@@ -113,7 +135,7 @@ object Normalize {
 
     while (i < normalized.length) {
       val rawCh: Char = normalized.charAt(i)
-      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh)
+      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh, whitelist)
 
       if (null == expandedChars) {
         handleChar(rawCh)
@@ -164,10 +186,14 @@ object Normalize {
    * Note: This logic should match lowerAlphanumeric
    */
   def reverseLowerAlphanumeric(original: String, normalized: String): Option[String] = {
+    reverseLowerAlphanumeric(original, normalized, Set.empty)
+  }
+
+  def reverseLowerAlphanumeric(original: String, normalized: String, whitelist: Set[Char]): Option[String] = {
     if (original.isNullOrBlank || normalized.isNullOrBlank) return None
 
     val unicodeNormalizedOriginal: String = unicodeNormalization(original)
-    val (lowerAlphaNumericOriginal: String, positions: Array[Int]) = lowerAlphanumericWithPositions(unicodeNormalizedOriginal)
+    val (lowerAlphaNumericOriginal: String, positions: Array[Int]) = lowerAlphanumericWithPositions(unicodeNormalizedOriginal, whitelist)
     
     val matchIdx: Int = lowerAlphaNumericOriginal.indexOf(normalized)
     
@@ -186,13 +212,19 @@ object Normalize {
     }
   }
   
-  def lowerAlphaNumericWords(s: String): Array[String] = {
+  def lowerAlphaNumericWords(s: String): Array[String] = lowerAlphaNumericWords(s, Set.empty)
+
+  def lowerAlphaNumericWords(s: String, whitelist: Set[Char]): Array[String] = {
     val buf: ArrayBuffer[String] = new ArrayBuffer()
-    lowerAlphaNumericWords(s, buf)
+    lowerAlphaNumericWords(s, buf, whitelist)
     buf.toArray
   }
-  
+
   def lowerAlphaNumericWords(s: String, buf: Builder[String,_]): Unit = {
+    lowerAlphaNumericWords(s, buf, Set.empty)
+  }
+
+  def lowerAlphaNumericWords(s: String, buf: Builder[String,_], whitelist: Set[Char]): Unit = {
     if (null == s) return
 
     val normalized: String = unicodeNormalization(s)
@@ -201,8 +233,12 @@ object Normalize {
     var sb: JavaStringBuilder = new JavaStringBuilder()
 
     def handleChar(ch: Char): Unit = {
+      val isWhitelistCharacter: Boolean = whitelist.contains(ch)
+
       // If its a valid character (alphanumeric or a dot) add it to the StringBuilder
-      if (Character.isLetterOrDigit(ch) || ch == '.') {
+      if (ch == '.' || isWhitelistCharacter) {
+        sb.append(ch)
+      } else if (Character.isLetterOrDigit(ch)) {
         sb.append(Character.toLowerCase(ch))
       } else if (sb.length > 0) {
         // Otherwise we have a complete word, add it to the result buffer
@@ -213,7 +249,7 @@ object Normalize {
 
     while (i < normalized.length) {
       val rawCh: Char = normalized.charAt(i)
-      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh)
+      val expandedChars: String = ASCIIUtil.toASCIICharsOrNull(rawCh, whitelist)
 
       if (null == expandedChars) {
         handleChar(rawCh)
