@@ -74,4 +74,54 @@ final class TestBitUtils extends FunSuite with Matchers {
     checkInt(-1, 1, -65535)
     checkInt(1, -1, 131071)
   }
+
+  private def checkIntWithUpper24Bits(a: Int, b: Short, res: Int): Unit = TestHelpers.withCallerInfo{
+    BitUtils.makeIntWithUpper24Bits(a, b) shouldBe res
+    BitUtils.getUpper24Bits(res) shouldBe a
+    BitUtils.getLower8Bits(res) shouldBe b
+  }
+
+  test("makeIntWithUpper24Bits") {
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithUpper24Bits(0xffffff + 1, 0)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithUpper24Bits(Int.MaxValue, 0)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithUpper24Bits(Int.MinValue, 0)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithUpper24Bits(0, (0xff + 1).toShort)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithUpper24Bits(0, Short.MaxValue)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithUpper24Bits(0, Short.MinValue)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithUpper24Bits(-1, 0)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithUpper24Bits(0, -1)
+
+    checkIntWithUpper24Bits(0, 0, 0)
+    checkIntWithUpper24Bits(0xffffff, 0, 0xffffff00)
+    checkIntWithUpper24Bits(0xffffff, 0xff.toShort, 0xffffffff)
+    checkIntWithUpper24Bits(0, 0xff.toShort, 0xff)
+    checkIntWithUpper24Bits(1, 0, 0x100)
+    checkIntWithUpper24Bits(1, 1, 0x101)
+    checkIntWithUpper24Bits(0, 1, 1)
+  }
+
+  private def checkIntWithLower24Bits(a: Short, b: Int, res: Int): Unit = TestHelpers.withCallerInfo{
+    BitUtils.makeIntWithLower24Bits(a, b) shouldBe res
+    BitUtils.getUpper8Bits(res) shouldBe a
+    BitUtils.getLower24Bits(res) shouldBe b
+  }
+
+  test("makeIntWithLower24Bits") {
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithLower24Bits((0xff + 1).toShort, 0)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithLower24Bits(Short.MaxValue, 0)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithLower24Bits(Short.MinValue, 0)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithLower24Bits(0, 0xffffff + 1)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithLower24Bits(0, Int.MaxValue)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithLower24Bits(0, Int.MinValue)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithLower24Bits(-1, 0)
+    an [IllegalArgumentException] should be thrownBy BitUtils.makeIntWithLower24Bits(0, -1)
+
+    checkIntWithLower24Bits(0, 0, 0)
+    checkIntWithLower24Bits(0, 0xffffff, 0xffffff)
+    checkIntWithLower24Bits(0xff.toShort, 0xffffff, 0xffffffff)
+    checkIntWithLower24Bits(0xff.toShort, 0, 0xff000000)
+    checkIntWithLower24Bits(1, 0, 0x1000000)
+    checkIntWithLower24Bits(1, 1, 0x1000001)
+    checkIntWithLower24Bits(0, 1, 1)
+  }
 }

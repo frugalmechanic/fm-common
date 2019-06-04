@@ -56,4 +56,48 @@ object BitUtils {
    */
   def getLower(int: Int): Short = int.toShort
 
+  /**
+   * Get the upper 24 bits of the int
+   */
+  def getUpper24Bits(int: Int): Int = (int >> 8) & 0xffffff
+
+  /**
+   * Get the upper 8 bits of the int
+   */
+  def getUpper8Bits(int: Int): Short = ((int >> 24) & 0xff).toShort
+
+  /**
+   * Get the lower 24 bits of the int
+   */
+  def getLower24Bits(int: Int): Int = int & 0xffffff
+
+  /**
+   * Get the lower 8 bits of the int
+   */
+  def getLower8Bits(int: Int): Short = (int & 0xff).toShort
+
+  /**
+   * Makes an int that combines an upper 24 bits (from an int) with the lower 8 bits (from a short)
+   * @param a The upper 24 bits
+   * @param b The lower 8 bits
+   * @return The combined int
+   */
+  def makeIntWithUpper24Bits(a: Int, b: Short): Int = {
+    if (!isWithin24Bits(a) || !isWithin8Bits(b)) throw new IllegalArgumentException("Arguments out of range")
+    (a << 8) | ((b: Int) & 0xff)
+  }
+
+  /**
+   * Makes an int that combines an upper 8 bits (from a short) with the lower 24 bits (from an int)
+   * @param a The upper 8 bits
+   * @param b The lower 24 bits
+   * @return The combined int
+   */
+  def makeIntWithLower24Bits(a: Short, b: Int): Int = {
+    if (!isWithin8Bits(a) || !isWithin24Bits(b)) throw new IllegalArgumentException("Arguments out of range")
+    ((a: Int) << 24) | (b & 0xffffff)
+  }
+
+  private def isWithin24Bits(a: Int): Boolean = (a & 0xffffff) == a
+  private def isWithin8Bits(a: Short): Boolean = (a & 0xff) == a
 }
