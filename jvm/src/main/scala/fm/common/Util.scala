@@ -16,6 +16,8 @@
 package fm.common
 
 import java.util.Date
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.duration.FiniteDuration
 
 object Util extends Logging {
   @inline def time(f: => Unit): Long = timeOnly(f)
@@ -47,6 +49,12 @@ object Util extends Logging {
     val (total,result) = time(f)
     logger.info("[BENCHMARK] "+name+": "+total+"ms")
     result
+  }
+
+  @inline def timeout[T](duration: FiniteDuration)(f: => T)(implicit executionContext: ExecutionContext = ExecutionContext.global): T = {
+    val future: Future[T] = Future { f }
+
+    Await.result(future, duration)
   }
   
   def logAppStats[T](logger: Logger = logger)(f: => T): T = appStatsImpl(logger.info(_))(f)
