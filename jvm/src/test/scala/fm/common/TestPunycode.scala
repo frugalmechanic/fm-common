@@ -179,7 +179,7 @@ final class TestPunycode extends FunSuite with Matchers {
   }
 
   ignore("Low-Surrogate Code Point: 56322 - Not valid by itself") {
-    checkWithoutJVMIDN(56068)
+    checkWithoutJVMIDN(56322)
   }
 
   private def ignoreCodePoint(codepoint: Int): Boolean = {
