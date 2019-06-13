@@ -237,6 +237,38 @@ final class RichString(val s: String) extends AnyVal {
   
   def stripAccents: String = Normalize.stripAccents(s)
 
+  def toCodePointArray: Array[Int] = {
+    if (null == s) throw new NullPointerException()
+
+    val arr: Array[Int] = new Array(s.codePointCount(0, s.length))
+
+    var arrIdx: Int = 0
+    var strIdx: Int = 0
+    val len: Int = s.length
+
+    while(strIdx < len) {
+      val ch: Char = s.charAt(strIdx)
+
+      if (Character.isHighSurrogate(ch)) {
+        if (strIdx + 1 < len && Character.isLowSurrogate(s.charAt(strIdx + 1))) {
+          arr(arrIdx) = Character.toCodePoint(ch, s.charAt(strIdx + 1))
+          strIdx += 1
+        } else {
+          // Output the un-paired high surrogate as-is
+          arr(arrIdx) = ch
+        }
+      } else {
+        // Output as-is (includes un-paired low surrogates)
+        arr(arrIdx) = ch
+      }
+
+      strIdx += 1
+      arrIdx += 1
+    }
+
+    arr
+  }
+
   
 //  /**
 //   * The plural form of the string
