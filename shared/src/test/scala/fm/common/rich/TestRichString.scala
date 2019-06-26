@@ -58,10 +58,14 @@ final class TestRichString extends FunSuite with Matchers {
 
   test("toBoolean") {
     "true".toBoolean shouldBe true
+    "TrUe".toBoolean shouldBe true
     "false".toBoolean shouldBe false
+    "fAlSe".toBoolean shouldBe false
 
     an [IllegalArgumentException] shouldBe thrownBy { (null: String).toBoolean }
     an [IllegalArgumentException] shouldBe thrownBy { "".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { " true".toBoolean }
+    an [IllegalArgumentException] shouldBe thrownBy { "false ".toBoolean }
     an [IllegalArgumentException] shouldBe thrownBy { "t".toBoolean }
     an [IllegalArgumentException] shouldBe thrownBy { "f".toBoolean }
     an [IllegalArgumentException] shouldBe thrownBy { "yes".toBoolean }
@@ -76,15 +80,21 @@ final class TestRichString extends FunSuite with Matchers {
     (null: String).parseBoolean shouldBe None
     "".parseBoolean shouldBe None
     "\n".parseBoolean shouldBe None
+    "\t".parseBoolean shouldBe None
+    " ".parseBoolean shouldBe None
+    " foo ".parseBoolean shouldBe None
+    " bar ".parseBoolean shouldBe None
 
     "t".parseBoolean shouldBe Some(true)
     "true".parseBoolean shouldBe Some(true)
+    " \nTrUe\n ".parseBoolean shouldBe Some(true)
     "1".parseBoolean shouldBe Some(true)
     "y".parseBoolean shouldBe Some(true)
     "yes".parseBoolean shouldBe Some(true)
 
     "f".parseBoolean shouldBe Some(false)
     "false".parseBoolean shouldBe Some(false)
+    " \tfALSe\t ".parseBoolean shouldBe Some(false)
     "0".parseBoolean shouldBe Some(false)
     "n".parseBoolean shouldBe Some(false)
     "no".parseBoolean shouldBe Some(false)

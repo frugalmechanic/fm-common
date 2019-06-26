@@ -33,6 +33,7 @@ object RichString {
     lower match {
       case "true" | "t" | "yes" | "y" | "1" => OptionCache.valueOf(true)
       case "false" | "f" | "no" | "n" | "0" => OptionCache.valueOf(false)
+      case _ => None
     }
   }
 
