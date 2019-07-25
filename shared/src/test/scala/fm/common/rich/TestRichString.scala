@@ -160,4 +160,54 @@ final class TestRichString extends FunSuite with Matchers {
     "A".pad(4, 'B') shouldBe "ABBB"
     "A".pad(5, 'B') shouldBe "ABBBB"
   }
+
+  test("startsWithIgnoreCase") {
+    (null: String).startsWithIgnoreCase(null) shouldBe false
+    (null: String).startsWithIgnoreCase("") shouldBe false
+    (null: String).startsWithIgnoreCase("foo") shouldBe false
+    "".startsWithIgnoreCase(null) shouldBe false
+    "foo".startsWithIgnoreCase(null) shouldBe false
+
+    "".startsWithIgnoreCase("foo") shouldBe false
+    "bar".startsWithIgnoreCase("foo") shouldBe false
+    "foo".startsWithIgnoreCase("foobar") shouldBe false
+
+    "".startsWithIgnoreCase("") shouldBe true
+    "foo".startsWithIgnoreCase("") shouldBe true
+    "foo".startsWithIgnoreCase("f") shouldBe true
+    "foo".startsWithIgnoreCase("fo") shouldBe true
+    "foo".startsWithIgnoreCase("foo") shouldBe true
+    "foobar".startsWithIgnoreCase("foo") shouldBe true
+
+    "FoO".startsWithIgnoreCase("") shouldBe true
+    "FoO".startsWithIgnoreCase("f") shouldBe true
+    "FoO".startsWithIgnoreCase("fO") shouldBe true
+    "FoO".startsWithIgnoreCase("fOo") shouldBe true
+    "FoObar".startsWithIgnoreCase("fOo") shouldBe true
+  }
+
+  test("endsWithIgnoreCase") {
+    (null: String).endsWithIgnoreCase(null) shouldBe false
+    (null: String).endsWithIgnoreCase("") shouldBe false
+    (null: String).endsWithIgnoreCase("foo") shouldBe false
+    "".endsWithIgnoreCase(null) shouldBe false
+    "foo".endsWithIgnoreCase(null) shouldBe false
+
+    "".endsWithIgnoreCase("foo") shouldBe false
+    "bar".endsWithIgnoreCase("foo") shouldBe false
+    "foo".endsWithIgnoreCase("foobar") shouldBe false
+
+    "".endsWithIgnoreCase("") shouldBe true
+    "foo".endsWithIgnoreCase("") shouldBe true
+    "foo".endsWithIgnoreCase("o") shouldBe true
+    "foo".endsWithIgnoreCase("oo") shouldBe true
+    "foo".endsWithIgnoreCase("foo") shouldBe true
+    "foobar".endsWithIgnoreCase("bar") shouldBe true
+
+    "FoO".endsWithIgnoreCase("") shouldBe true
+    "FoO".endsWithIgnoreCase("O") shouldBe true
+    "FoO".endsWithIgnoreCase("oO") shouldBe true
+    "FoO".endsWithIgnoreCase("fOo") shouldBe true
+    "FoObar".endsWithIgnoreCase("bar") shouldBe true
+  }
 }

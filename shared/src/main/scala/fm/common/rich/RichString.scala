@@ -270,6 +270,18 @@ final class RichString(val s: String) extends AnyVal {
     arr
   }
 
+  def startsWithIgnoreCase(other: String): Boolean = {
+    if (null == s || null == other) return false
+
+    s.regionMatches(true, 0, other, 0, other.length)
+  }
+
+  def endsWithIgnoreCase(other: String): Boolean = {
+    if (null == s || null == other || s.length < other.length) return false
+
+    s.regionMatches(true, s.length - other.length, other, 0, other.length)
+  }
+
   
 //  /**
 //   * The plural form of the string
