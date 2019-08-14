@@ -86,7 +86,7 @@ object SevenZipUtils {
       while (entry =!= null) {
         if (!entry.isDirectory && entry.getName === entryName) {
           // Note: File is NOT closed.  The caller is responsible for closing.
-          return Some(new InputStreamWrapper(file))
+          return Some(new InputStreamWrapper(file, closeUnderlying = true))
         }
 
         entry = file.getNextEntry()
@@ -127,10 +127,18 @@ object SevenZipUtils {
     }
   }
 
-  private class InputStreamWrapper(file: SevenZFile) extends InputStream {
+  /**
+   * This is to support the various inputStreamForEntry, getInputStreamForEntry, etc. methods that work
+   * on a single entry within a 7-Zip file.  This class just exposes the SevenZArchiveEntry in the
+   * SevenZFile as an InputStream.  Calling close() will close the SevenZFile.
+   *
+   * @param file The SevenZFile to wrap
+   * @param closeUnderlying Should calling close() close the underlying SevenZFile?
+   */
+  private class InputStreamWrapper(file: SevenZFile, closeUnderlying: Boolean) extends InputStream {
     override def read(): Int = file.read()
     override def read(b: Array[Byte]): Int = file.read(b)
     override def read(b: Array[Byte], off: Int, len: Int): Int = file.read(b, off, len)
-    override def close(): Unit = file.close()
+    override def close(): Unit = if (closeUnderlying) file.close()
   }
 }
