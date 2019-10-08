@@ -25,6 +25,11 @@ class TestRichLocalDate extends FunSuite with Matchers {
     checkYYYYMMDD(0, 1, 1, Some("00000101"), Some(101))
     checkYYYYMMDD(9999, 12, 31, Some("99991231"), Some(99991231))
 
+    checkYYYYMMDD(9, 9, 9, Some("00090909"), Some(90909))
+    checkYYYYMMDD(99, 9, 9, Some("00990909"), Some(990909))
+    checkYYYYMMDD(999, 9, 9, Some("09990909"), Some(9990909))
+    checkYYYYMMDD(9999, 9, 9, Some("99990909"), Some(99990909))
+
     checkYYYYMMDD(2019, 5, 17, Some("20190517"), Some(20190517))
 
     checkYYYYMMDD(-1, 1, 1, None, None)

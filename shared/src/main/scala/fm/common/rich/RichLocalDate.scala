@@ -34,15 +34,15 @@ final class RichLocalDate(val date: LocalDate) extends AnyVal with Ordered[Local
 
     val sb: java.lang.StringBuilder = new java.lang.StringBuilder(8)
 
-    if (year < 9) sb.append('0')
-    if (year < 99) sb.append('0')
-    if (year < 999) sb.append('0')
+    if (year <= 9) sb.append('0')
+    if (year <= 99) sb.append('0')
+    if (year <= 999) sb.append('0')
     sb.append(year)
 
-    if (month < 9) sb.append('0')
+    if (month <= 9) sb.append('0')
     sb.append(month)
 
-    if (day < 9) sb.append('0')
+    if (day <= 9) sb.append('0')
     sb.append(day)
 
     sb.toString()
