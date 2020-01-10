@@ -18,6 +18,7 @@ package fm.common
 import fm.common.rich._
 import java.math.{BigDecimal => JavaBigDecimal, BigInteger => JavaBigInteger}
 import java.time.{Instant, LocalDate}
+import java.util.Optional
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
 
@@ -44,6 +45,7 @@ protected trait ImplicitsBase extends OrderingImplicits {
 
   implicit def toRichSomeObject(some: Some.type): RichSomeObject = new RichSomeObject(some)
   implicit def toRichOption[T](opt: Option[T]): RichOption[T] = new RichOption[T](opt)
+  implicit def toRichOptional[T](opt: Optional[T]): RichOptional[T] = new RichOptional[T](opt)
 
   implicit def toTypeSafeEquals[L](left: L): TypeSafeEquals[L] = new TypeSafeEquals(left)
   

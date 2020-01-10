@@ -15,6 +15,7 @@
  */
 package fm.common.rich
 
+import java.util.Optional
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
@@ -36,4 +37,9 @@ final class RichOption[A](val self: Option[A]) extends AnyVal {
       case None    => Future.successful(None)
     }
   }
+
+  /**
+   * Implements asJava method similar to collection.JavaConverters._ for scala Option class
+   */
+  def asJava: Optional[A] = Optional.ofNullable(self.getOrElse(null).asInstanceOf[A])
 }
