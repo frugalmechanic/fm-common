@@ -72,6 +72,27 @@ final class TestIPSubnet extends FunSuite with Matchers {
     isValidRange(IP("192.168.0.0"), IP("192.168.255.254")) shouldBe false
     isValidRange(IP("192.168.0.0"), IP("192.168.254.255")) shouldBe false
   }
+
+  test("isValidCIDR") {
+    IPSubnet.isValidCIDR(IP("0.0.0.0"), 0) shouldBe true
+
+    IPSubnet.isValidCIDR(IP("0.0.0.0"), 8) shouldBe true
+    IPSubnet.isValidCIDR(IP("0.0.0.0"), 16) shouldBe true
+    IPSubnet.isValidCIDR(IP("0.0.0.0"), 24) shouldBe true
+    IPSubnet.isValidCIDR(IP("0.0.0.0"), 32) shouldBe true
+
+    IPSubnet.isValidCIDR(IP("128.0.0.0"), 1) shouldBe true
+    IPSubnet.isValidCIDR(IP("128.0.0.0"), 2) shouldBe true
+    IPSubnet.isValidCIDR(IP("128.0.0.0"), 32) shouldBe true
+
+    IPSubnet.isValidCIDR(IP("255.255.255.255"), 0) shouldBe false
+    IPSubnet.isValidCIDR(IP("255.255.255.255"), 24) shouldBe false
+    IPSubnet.isValidCIDR(IP("255.255.255.255"), 32) shouldBe true
+  }
+
+  test("Invalid Subnets") {
+    an [IllegalArgumentException] should be thrownBy IPSubnet("34.215.149.214/0")
+  }
   
   test("parse - 192.168.0.0/24") {
     def check(subnet: IPSubnet): Unit = TestHelpers.withCallerInfo{ subnet.toString should equal("192.168.0.0/24") }
@@ -86,55 +107,55 @@ final class TestIPSubnet extends FunSuite with Matchers {
     
     val net = IPSubnet.parse("192.168.0.0/24")
     
-    net.isQuadZero should equal(false)
-    net.isDefaultRoute should equal(false)
+    net.isQuadZero shouldBe false
+    net.isDefaultRoute shouldBe false
 
     net.start shouldBe IP("192.168.0.0")
     net.end shouldBe IP("192.168.0.255")
 
-    net.contains(IP("192.168.0.0")) should equal(true)
-    net.contains(IP("192.168.0.1")) should equal(true)
-    net.contains(IP("192.168.0.254")) should equal(true)
-    net.contains(IP("192.168.0.255")) should equal(true)
-    net.contains(IP("192.168.0.128")) should equal(true)
+    net.contains(IP("192.168.0.0")) shouldBe true
+    net.contains(IP("192.168.0.1")) shouldBe true
+    net.contains(IP("192.168.0.254")) shouldBe true
+    net.contains(IP("192.168.0.255")) shouldBe true
+    net.contains(IP("192.168.0.128")) shouldBe true
     
-    net.contains(IP("192.168.1.0")) should equal(false)
-    net.contains(IP("192.168.255.0")) should equal(false)
-    net.contains(IP("191.168.0.0")) should equal(false)
-    net.contains(IP("193.168.0.0")) should equal(false)
+    net.contains(IP("192.168.1.0")) shouldBe false
+    net.contains(IP("192.168.255.0")) shouldBe false
+    net.contains(IP("191.168.0.0")) shouldBe false
+    net.contains(IP("193.168.0.0")) shouldBe false
   }
 
   test("127.0.0.0/8") {
     val net = IPSubnet.parse("127.0.0.0/8")
 
-    net.isQuadZero should equal(false)
-    net.isDefaultRoute should equal(false)
+    net.isQuadZero shouldBe false
+    net.isDefaultRoute shouldBe false
 
     net.start shouldBe IP("127.0.0.0")
     net.end shouldBe IP("127.255.255.255")
 
-    net.contains(IP("127.0.0.0")) should equal(true)
-    net.contains(IP("127.1.2.3")) should equal(true)
-    net.contains(IP("127.255.255.255")) should equal(true)
+    net.contains(IP("127.0.0.0")) shouldBe true
+    net.contains(IP("127.1.2.3")) shouldBe true
+    net.contains(IP("127.255.255.255")) shouldBe true
 
-    net.contains(IP("0.0.0.0")) should equal(false)
-    net.contains(IP("1.2.3.4")) should equal(false)
-    net.contains(IP("128.128.128.128")) should equal(false)
-    net.contains(IP("255.255.255.255")) should equal(false)
+    net.contains(IP("0.0.0.0")) shouldBe false
+    net.contains(IP("1.2.3.4")) shouldBe false
+    net.contains(IP("128.128.128.128")) shouldBe false
+    net.contains(IP("255.255.255.255")) shouldBe false
   }
 
   test("0.0.0.0/0") {
     val net = IPSubnet.parse("0.0.0.0/0")
     
-    net.isQuadZero should equal(true)
-    net.isDefaultRoute should equal(true)
+    net.isQuadZero shouldBe true
+    net.isDefaultRoute shouldBe true
 
     net.start shouldBe IP("0.0.0.0")
     net.end shouldBe IP("255.255.255.255")
 
-    net.contains(IP("0.0.0.0")) should equal(true)
-    net.contains(IP("1.2.3.4")) should equal(true)
-    net.contains(IP("128.128.128.128")) should equal(true)
-    net.contains(IP("255.255.255.255")) should equal(true)
+    net.contains(IP("0.0.0.0")) shouldBe true
+    net.contains(IP("1.2.3.4")) shouldBe true
+    net.contains(IP("128.128.128.128")) shouldBe true
+    net.contains(IP("255.255.255.255")) shouldBe true
   }
 }

@@ -29,11 +29,11 @@ object IPSubnet {
     val dashes: Int = subnet.countOccurrences('-')
     
     if (slashes == 1) {
-      val Array(ip, bits) = subnet.split('/')
-      apply(IP(ip), bits.toInt)
+      val Array(ip: String, prefix: String) = subnet.split('/')
+      forCIDR(IP(ip), prefix.toInt)
     } else if (dashes == 1) {
-      val Array(from, to) = subnet.split('-')
-      forRangeOrMask(IP(from), IP(to))
+      val Array(fromStr, toStr) = subnet.split('-')
+      forRangeOrMask(IP(fromStr), IP(toStr))
     } else if (IP.isValid(subnet)) {
       apply(IP(subnet), 32)
     } else throw new InvalidIPException("Not sure how to parse subnet: "+subnet)
@@ -61,6 +61,11 @@ object IPSubnet {
     require(from < to, s"""Expected from "$from" to be less than to "$to"""")
     apply(from, commonPrefixBitCount(from.intValue, to.intValue))
   }
+
+  def forCIDR(ip: IP, prefix: Int): IPSubnet = {
+    require(isValidCIDR(ip, prefix), s"Invalid Subnet - ip: $ip  prefix: $prefix")
+    apply(ip, prefix)
+  }
   
   //def apply(ip: IP, bits: Int): IPSubnet = IPSubnet(ip.intValue, bits)
   
@@ -73,6 +78,19 @@ object IPSubnet {
     val trailingZeros: Int = Integer.numberOfTrailingZeros(ip)
     val leadingOnes: Int = numberOfLeadingOnes(ip)
     trailingZeros + leadingOnes == 32
+  }
+
+  /**
+   *
+   * @param ip The IP Address (e.g. 10.10.123.0)
+   * @param prefix The mask bits (e.g. 24)
+   * @return Whether or not this is a valid subnet
+   */
+  def isValidCIDR(ip: IP, prefix: Int): Boolean = {
+    if (prefix < 0 || prefix > 32) return false
+
+    val trailingZeros: Int = Integer.numberOfTrailingZeros(ip.intValue)
+    trailingZeros >= 32 - prefix // All of the mask bits in the IP address should be zero
   }
   
   def isValidRange(from: IP, to: IP): Boolean = isValidRangeImpl(from.intValue, to.intValue)
