@@ -2,9 +2,9 @@
 // Note: fm-common is setup to cross build with Scala.js
 //
 
-scalaVersion in ThisBuild := "2.12.8"
+scalaVersion in ThisBuild := "2.12.11"
 
-crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.7")
+crossScalaVersions in ThisBuild := Seq("2.11.12", "2.12.11")
 
 val fatalWarnings = Seq(
   // Enable -Xlint, but disable the default 'unused' so we can manually specify below
