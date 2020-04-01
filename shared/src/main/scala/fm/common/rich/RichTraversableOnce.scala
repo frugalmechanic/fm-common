@@ -21,6 +21,24 @@ import scala.concurrent.{ExecutionContext, Future}
 
 final class RichTraversableOnce[A](val self: TraversableOnce[A]) extends AnyVal {
 
+  def foreachWithIndex[U](f: (A, Int) => U): Unit = {
+    var i: Int = 0
+
+    self.foreach{ elem: A =>
+      f(elem, i)
+      i += 1
+    }
+  }
+
+  def foreachWithLongIndex[U](f: (A, Long) => U): Unit = {
+    var i: Long = 0L
+
+    self.foreach{ elem: A =>
+      f(elem, i)
+      i += 1
+    }
+  }
+
   def minOption[B >: A](implicit cmp: Ordering[B]): Option[A] = {
     if (self.isEmpty) None
     else Some(self.min[B])

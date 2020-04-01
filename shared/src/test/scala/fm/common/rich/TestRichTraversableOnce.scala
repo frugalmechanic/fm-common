@@ -20,7 +20,29 @@ import org.scalatest.concurrent.ScalaFutures
 import fm.common.Implicits._
 
 class TestRichTraversableOnce extends FunSuite with Matchers with ScalaFutures {
-  
+
+  test("foreachWithIndex") {
+    var count: Int = 0
+
+    Vector("0","1","2","3","4","5").foreachWithIndex{ (elem: String, idx: Int) =>
+      idx shouldBe elem.toInt
+      count += 1
+    }
+
+    count shouldBe 6
+  }
+
+  test("foreachWithLongIndex") {
+    var count: Int = 0
+
+    Vector("0","1","2","3","4","5").foreachWithLongIndex{ (elem: String, idx: Long) =>
+      idx shouldBe elem.toLong
+      count += 1
+    }
+
+    count shouldBe 6
+  }
+
   test("minOption") {
     Vector.empty[Int].minOption shouldBe None
     Vector(1,2,3).minOption shouldBe Some(1)
