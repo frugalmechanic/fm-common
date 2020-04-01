@@ -92,6 +92,10 @@ object TaskRunnerBase extends Logging {
       t
     }
   }
+
+  private[common] def newTaskRunnerThreadFactory(name: String): TaskRunnerThreadFactory = {
+    new TaskRunnerThreadFactory(name)
+  }
   
 }
 
@@ -114,8 +118,6 @@ abstract class TaskRunnerBase(name: String) extends Closeable with Logging {
     logger.warn(s"$name - TaskRunner is shutting down, rejected task submission")
     true
   }
-  
-  protected def newTaskRunnerThreadFactory(): TaskRunnerThreadFactory = new TaskRunnerThreadFactory(name)
 
   /**
    * Attempt to submit this job to the queue.  Returns true if successful or false if the queue is full

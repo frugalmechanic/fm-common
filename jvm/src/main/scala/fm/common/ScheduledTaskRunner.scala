@@ -38,17 +38,22 @@ object ScheduledTaskRunner {
    * `ExecutionContext` explicitly.
    */
   def global: ScheduledTaskRunner = Implicits.global
+
+  def apply(name: String): ScheduledTaskRunner = apply(name, Runtime.getRuntime().availableProcessors())
+
+  def apply(name: String, threads: Int): ScheduledTaskRunner = {
+    val executor: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(threads,TaskRunnerBase. newTaskRunnerThreadFactory(name))
+    ScheduledTaskRunner(name, executor)
+  }
 }
 
 @implicitNotFound("""Cannot find an implicit ScheduledTaskRunner. You might pass
 an (implicit st: ScheduledTaskRunner) parameter to your method
 or import fm.common.ScheduledTaskRunner.Implicits.global.""")
-final case class ScheduledTaskRunner(name: String, threads: Int = Runtime.getRuntime().availableProcessors()) extends TaskRunnerBase(name) {
+final case class ScheduledTaskRunner(name: String, protected val executor: ScheduledThreadPoolExecutor) extends TaskRunnerBase(name) {
   import ScheduledTaskRunner.RunnableWrapper
   import TaskRunnerBase.ClearingBlockRunnableWithResult
-  
-  protected val executor: ScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(threads, newTaskRunnerThreadFactory())
-  
+
   // We want tasks removed as soon as they are cancelled since the common case for this class
   // is handling http/service timeouts where we will normally cancel the task
   executor.setRemoveOnCancelPolicy(true)

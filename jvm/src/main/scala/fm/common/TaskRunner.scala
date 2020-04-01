@@ -44,7 +44,11 @@ object TaskRunner extends Logging {
 
 final class TaskRunner(val name: String, val coreThreads: Int, val maxThreads: Int, val queueSize: Int, val blockOnFullQueue: Boolean = true) extends TaskRunnerBase(name) {
   
-  private[this] val queue: BlockingQueue[Runnable] = if(queueSize > 0) new ArrayBlockingQueue[Runnable](queueSize) else if(queueSize == 0) new SynchronousQueue[Runnable]() else new LinkedBlockingQueue[Runnable]()
+  private[this] val queue: BlockingQueue[Runnable] = {
+    if(queueSize > 0) new ArrayBlockingQueue[Runnable](queueSize)
+    else if (queueSize == 0) new SynchronousQueue[Runnable]()
+    else new LinkedBlockingQueue[Runnable]()
+  }
   
   private class BlockRejectExecutionHandler() extends RejectedExecutionHandler {
     def rejectedExecution(r: Runnable, executor: ThreadPoolExecutor) {
@@ -73,7 +77,7 @@ final class TaskRunner(val name: String, val coreThreads: Int, val maxThreads: I
 
   protected val executor: ThreadPoolExecutor = {
     val rejectedHandler: RejectedExecutionHandler = if (blockOnFullQueue) new BlockRejectExecutionHandler() else new StandardRejectExecutionHandler()
-    val exec = new ThreadPoolExecutor(coreThreads, maxThreads, 60, TimeUnit.SECONDS, queue, newTaskRunnerThreadFactory(), rejectedHandler)
+    val exec: ThreadPoolExecutor = new ThreadPoolExecutor(coreThreads, maxThreads, 60, TimeUnit.SECONDS, queue, TaskRunnerBase.newTaskRunnerThreadFactory(name), rejectedHandler)
     exec.allowCoreThreadTimeOut(true)
     exec
   }
