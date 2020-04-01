@@ -19,6 +19,7 @@ import java.util.concurrent.{RejectedExecutionException, ThreadFactory, ThreadPo
 import java.util.concurrent.atomic.AtomicInteger
 import java.io.Closeable
 import scala.concurrent.{Future, Promise}
+import scala.util.control.NonFatal
 
 object TaskRunnerBase extends Logging {
 
@@ -44,10 +45,10 @@ object TaskRunnerBase extends Logging {
     private[this] var fun: () => T = () => f
     
     def run(): Unit = try {
-      if(null == fun) throw new AssertionError("Callable has already been called and cannot be called again since it's reference was cleared")
+      if (null == fun) throw new AssertionError("Callable has already been called and cannot be called again since it's reference was cleared")
       promise.success(fun())
     } catch {
-      case ex: Throwable => promise.failure(ex)
+      case NonFatal(ex) => promise.failure(ex)
     } finally {
       fun = null
     }
@@ -63,10 +64,10 @@ object TaskRunnerBase extends Logging {
     private[this] var fun: () => Unit = () => f
     
     def run(): Unit = try {
-      if(null == fun) throw new AssertionError("Runnable has already been run and cannot be run again since it's reference was cleared")
+      if (null == fun) throw new AssertionError("Runnable has already been run and cannot be run again since it's reference was cleared")
       fun()
     } catch {
-      case ex: Throwable => handleUncaughtException(Thread.currentThread, ex)
+      case NonFatal(ex) => handleUncaughtException(Thread.currentThread, ex)
     } finally {
       fun = null
     }
