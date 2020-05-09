@@ -33,7 +33,7 @@ lazy val `fm-common-macros` = project.in(file("macro")).settings(
   libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
 )
 
-lazy val `fm-common-` = crossProject.in(file(".")).
+lazy val `fm-common-` = crossProject(JSPlatform, JVMPlatform).in(file(".")).
   settings((FMPublic ++ Seq( // Note: FMPublic needs to be here for sbt-release to work
     name := "fm-common",
     description := "Common Scala classes that we use at Frugal Mechanic / Eluvio",
@@ -61,7 +61,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     // include the macro sources in the main source jar
     mappings in (Compile, packageSrc) ++= { mappings in (`fm-common-macros`, Compile, packageSrc) }.value,
     
-    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.0.5" % "provided,test"
+    libraryDependencies += "org.scalatest" %%% "scalatest" % "3.1.1" % "provided,test"
   )):_*).
   jvmSettings(Seq(
     // Add JVM-specific settings here
@@ -82,9 +82,9 @@ lazy val `fm-common-` = crossProject.in(file(".")).
   ):_*).
   jsSettings(
     // Add JS-specific settings here
-    libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.4",
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.6",
-    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.5",
+    libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "1.0.0",
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "1.0.0",
+    libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "1.0.0",
     jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
   )
   

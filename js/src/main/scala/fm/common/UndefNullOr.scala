@@ -25,6 +25,6 @@ object UndefNullOr {
   implicit def toUndefOrOps[A](self: UndefNullOr[A]): js.UndefOrOps[A] = {
     val undef: js.UndefOr[A] = if (self.isNull || js.isUndefined(self)) js.undefined else self.asInstanceOf[js.UndefOr[A]]
 
-    new js.UndefOrOps(undef)
+    undef: js.UndefOrOps[A]
   }
 }

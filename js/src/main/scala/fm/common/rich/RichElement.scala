@@ -45,7 +45,6 @@ object RichJSElement {
 }
 
 final class RichElement(val elem: Element) extends AnyVal {
-  import RichJSElement._
   /**
    * Helpers for accessing the "user-" attributes
    * 
