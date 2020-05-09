@@ -17,7 +17,6 @@ package fm.common
 
 import it.unimi.dsi.fastutil.ints.{IntAVLTreeSet, IntIterator}
 import it.unimi.dsi.fastutil.longs.{LongIterator, LongOpenHashSet}
-import scala.collection.mutable.Builder
 
 object IPSet {
   def newBuilder: IPSetMutable = IPSetMutable()
@@ -67,7 +66,7 @@ object IPSetMutable {
   def apply(): IPSetMutable = new IPSetMutable()
 }
 
-final class IPSetMutable extends IPSet with Builder[IPOrSubnet, IPSetImmutable] {
+final class IPSetMutable extends IPSet with IPSetMutableBase {
   private[common] val ipsWithMask: LongOpenHashSet = new LongOpenHashSet()
   private[common] val masks: IntAVLTreeSet = new IntAVLTreeSet()
   
@@ -75,8 +74,11 @@ final class IPSetMutable extends IPSet with Builder[IPOrSubnet, IPSetImmutable] 
   def toMutable: IPSetMutable = this
   
   def +=(ip: String): this.type = +=(IPSubnet.parse(ip))
-  
-  def +=(ip: IPOrSubnet): this.type = {
+
+  // Note: Growable trait changed += to final, and addOne() as implementation method in 2.13,
+  //       implement correct one in IPSetMutableBase
+  // def +=(ip: IPOrSubnet): this.type = {
+  protected def addOneImpl(ip: IPOrSubnet): this.type = {
     ipsWithMask.add(makeIPWithMask(ip.start.intValue, ip.mask))
     masks.add(ip.mask)
     this

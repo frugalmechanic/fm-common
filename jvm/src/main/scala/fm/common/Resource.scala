@@ -146,7 +146,7 @@ trait Resource[+A] {
  * An empty resource
  */
 object UnitResource extends Resource[Unit] {
-  def use[T](f: Unit => T): T = f(Unit)
+  def use[T](f: Unit => T): T = f(())
   
   def isUsable: Boolean = true
   def isMultiUse: Boolean = true

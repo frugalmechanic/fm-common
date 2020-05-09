@@ -28,7 +28,7 @@ object RichLocale {
 
   private def DefaultCacheSize: Int = 256
   
-  private val LocaleCacheSize: Int = System.getProperty("fm.common.LocaleCacheSize").toIntOption.getOrElse(DefaultCacheSize)
+  private val LocaleCacheSize: Int = System.getProperty("fm.common.LocaleCacheSize").toIntOptionCached.getOrElse(DefaultCacheSize)
 
   private val comparatorCache: LoadingCache[Locale, Comparator[String]] = {
     LoadingCache(maxSize = LocaleCacheSize){ locale: Locale =>

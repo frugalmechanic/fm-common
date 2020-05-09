@@ -23,7 +23,7 @@ final class RichMap[A, B, This <: MapLike[A,B,This] with scala.collection.Map[A,
   /**
    * The normal Map.mapValues method produces a view which is not what we usually want.
    * This is a strict version of it.
-   * 
+   *
    * https://issues.scala-lang.org/browse/SI-4776
    */
   @inline def mapValuesStrict[C, That <: scala.collection.Map[A, C]](f: B => C)(implicit bf: CanBuildFrom[This, (A, C), That]): That = {
@@ -31,7 +31,7 @@ final class RichMap[A, B, This <: MapLike[A,B,This] with scala.collection.Map[A,
     self.foreach{ case (k,v) => builder += k -> f(v) }
     builder.result
   }
-  
+
   def toSortedMap(implicit ord: Ordering[A]): SortedMap[A, B] = self match {
     case sorted: SortedMap[_,_] => sorted.asInstanceOf[SortedMap[A,B]]
     case _ =>
@@ -39,6 +39,6 @@ final class RichMap[A, B, This <: MapLike[A,B,This] with scala.collection.Map[A,
       builder ++= self
       builder.result
   }
-  
+
   def toReverseSortedMap(implicit ord: Ordering[A]): SortedMap[A, B] = toSortedMap(ord.reverse)
 }

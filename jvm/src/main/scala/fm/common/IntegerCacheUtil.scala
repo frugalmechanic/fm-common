@@ -22,16 +22,16 @@ package fm.common
  */
 protected[common] object IntegerCacheUtil {
   val low: Int = {
-    System.getProperty("fm.common.IntegerCache.low").toIntOption.getOrElse{ -128 }
+    System.getProperty("fm.common.IntegerCache.low").toIntOptionCached.getOrElse{ -128 }
   }
 
   // Note: Ideally we would use the java.lang.Integer.IntegerCache.high property to get this value but the JVM removes
   //       that property from public access.  So we use brute force to determine the value instead
   //
   // Original code that does not work:
-  //    System.getProperty("java.lang.Integer.IntegerCache.high").toIntOption.getOrElse(127)
+  //    System.getProperty("java.lang.Integer.IntegerCache.high").toIntOptionCached.getOrElse(127)
   val high: Int = {
-    System.getProperty("fm.common.IntegerCache.high").toIntOption.getOrElse{ determineIntegerCacheHighValue() }
+    System.getProperty("fm.common.IntegerCache.high").toIntOptionCached.getOrElse{ determineIntegerCacheHighValue() }
   }
 
   require(low <= high, s"Expected low ($low) to be <= high ($high)")

@@ -17,12 +17,11 @@ package fm.common
 
 import java.util.concurrent.{ConcurrentHashMap => JavaConcurrentHashMap}
 import scala.collection.JavaConverters._
-import scala.collection.mutable.Map
 
 /**
  * EXPERIMENTAL - A Scala mutable map that wraps a java ConcurrentHashMap and allows null values
  */
-final class ConcurrentHashMap[A,B](map: JavaConcurrentHashMap[A,Option[B]]) extends Map[A,B] {
+final class ConcurrentHashMap[A,B](map: JavaConcurrentHashMap[A,Option[B]]) extends ConcurrentHashMapBase[A, B] {
   def this(initialCapacity: Int, loadFactor: Float, concurrencyLevel: Int) = this(new JavaConcurrentHashMap[A,Option[B]](initialCapacity, loadFactor, concurrencyLevel))
   def this(initialCapacity: Int, loadFactor: Float) = this(initialCapacity, loadFactor, 16)
   def this(initialCapacity: Int) = this(initialCapacity, 0.75f)
@@ -34,13 +33,19 @@ final class ConcurrentHashMap[A,B](map: JavaConcurrentHashMap[A,Option[B]]) exte
   }
   
   def iterator: Iterator[(A,B)] = map.entrySet.iterator.asScala.map{ e => (e.getKey, e.getValue.getOrElse{ null.asInstanceOf[B] }) }
-  
-  def +=(kv: (A, B)): this.type = {
+
+  // Note: Growable trait changed += to final, and addOne() as implementation method in 2.13,
+  //       implement correct one in ConcurrentHashMapBase
+  //def +=(kv: (A, B)): this.type = {
+  protected def addOneImpl(kv: (A, B)): this.type = {
     update(kv._1, kv._2)
     this
   }
-  
-  def -=(key: A): this.type = {
+
+  // Note: Shrinkable trait changed -= to final, and removeOne() as implementation method in 2.13,
+  //       implement correct one in IPSetMutableBase
+  //def -=(key: A): this.type = {
+  protected def subtractOneImpl(key: A): this.type = {
     map.remove(key)
     this
   }

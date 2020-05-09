@@ -25,7 +25,7 @@
  */
 package fm.common
 
-object EnumContextUtils {
+object EnumContextUtils extends EnumContextUtilsBase {
 
   type Context = scala.reflect.macros.blackbox.Context
 
@@ -62,9 +62,4 @@ object EnumContextUtils {
   def constructorName(c: Context): c.universe.TermName = {
     c.universe.termNames.CONSTRUCTOR
   }
-
-  /**
-   * Returns a named arg extractor
-   */
-  def namedArg(c: Context) = c.universe.AssignOrNamedArg
 }

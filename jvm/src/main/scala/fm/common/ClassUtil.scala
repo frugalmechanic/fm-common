@@ -477,7 +477,7 @@ object ClassUtil extends Logging {
    * Note: This loads ALL classes under the basePackage and uses Class.isAssignableFrom for checking.
    */
   def findImplementingClasses[T](basePackage: String, clazz: Class[T]): Set[Class[_ <: T]] = {
-    findImplementingClasses(basePackage, clazz, defaultClassLoader)
+    findImplementingClasses[T](basePackage, clazz, defaultClassLoader)
   }
 
   /**

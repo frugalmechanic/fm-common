@@ -185,11 +185,11 @@ object Normalize {
       Some(unicodeNormalizedOriginal.substring(startIdx, endIdx))
     }
   }
-  
+
   def lowerAlphaNumericWords(s: String): Array[String] = {
-    val buf: ArrayBuffer[String] = new ArrayBuffer()
-    lowerAlphaNumericWords(s, buf)
-    buf.toArray
+    val builder: Builder[String, ArrayBuffer[String]] = ArrayBuffer.newBuilder[String]
+    lowerAlphaNumericWords(s, builder)
+    builder.result.toArray
   }
   
   def lowerAlphaNumericWords(s: String, buf: Builder[String,_]): Unit = {

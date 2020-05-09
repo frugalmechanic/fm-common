@@ -15,7 +15,7 @@
  */
 package fm.common
 
-protected abstract class OptionCacheBase {
+protected[common] trait OptionCacheBase {
   private[this] val True: Some[Boolean] = Some(true)
   private[this] val False: Some[Boolean] = Some(false)
 

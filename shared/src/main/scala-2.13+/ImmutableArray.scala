@@ -16,8 +16,8 @@
 package fm.common
 
 import scala.annotation.unchecked.uncheckedVariance
+import scala.collection.{BuildFrom, Factory, IndexedSeqOps, mutable}
 import scala.reflect.ClassTag
-import scala.collection.IndexedSeqOptimized
 import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.IndexedSeq
 import scala.collection.mutable.Builder
@@ -26,13 +26,13 @@ object ImmutableArray {
   def apply[@specialized A: ClassTag](elems: A*): ImmutableArray[A] = {
     if (elems.isEmpty) empty[A]
     else copy[A](elems)
-  }  
-  
+  }
+
   /**
    * Create a new ImmutableArray by creating a copy of the passed in collection
    */
-  def copy[@specialized A: ClassTag](col: TraversableOnce[A]): ImmutableArray[A] = copy[A](col.toArray[A])
-  
+  def copy[@specialized A: ClassTag](col: IterableOnce[A]): ImmutableArray[A] = copy[A](col.iterator.toArray[A])
+
   /**
    * Create a new Immutable Array by creating a copy of the passed in array
    */
@@ -43,7 +43,7 @@ object ImmutableArray {
       new ImmutableArray[A](dst)
     }
   }
-  
+
   /**
    * Wrap an existing array in an ImmutableArray.  The passed in array must not be changed after calling this!
    */
@@ -52,26 +52,33 @@ object ImmutableArray {
   }
 
   private type Coll = ImmutableArray[_]
-  
-  implicit val canBuildFromChar: CanBuildFrom[Coll, Char, ImmutableArray[Char]] = new CBF(builderForChar)
-  implicit val canBuildFromShort: CanBuildFrom[Coll, Short, ImmutableArray[Short]] = new CBF(builderForShort)
-  implicit val canBuildFromFloat: CanBuildFrom[Coll, Float, ImmutableArray[Float]] = new CBF(builderForFloat)
-  implicit val canBuildFromDouble: CanBuildFrom[Coll, Double, ImmutableArray[Double]] = new CBF(builderForDouble)
-  implicit val canBuildFromInt: CanBuildFrom[Coll, Int, ImmutableArray[Int]] = new CBF(builderForInt)
-  implicit val canBuildFromLong: CanBuildFrom[Coll, Long, ImmutableArray[Long]] = new CBF(builderForLong)
-  
-  implicit def canBuildFrom[A]: CanBuildFrom[Coll, A, ImmutableArray[A]] = new CBF[A](builderForAnyRef.asInstanceOf[ImmutableArrayBuilder[A]])
-  
-  private class CBF[Elem](makeBuilder: => ImmutableArrayBuilder[Elem]) extends CanBuildFrom[Coll, Elem, ImmutableArray[Elem]] {
+
+  implicit val canBuildFromChar: BuildFrom[Coll, Char, ImmutableArray[Char]] = new CBF(builderForChar)
+  implicit val canBuildFromShort: BuildFrom[Coll, Short, ImmutableArray[Short]] = new CBF(builderForShort)
+  implicit val canBuildFromFloat: BuildFrom[Coll, Float, ImmutableArray[Float]] = new CBF(builderForFloat)
+  implicit val canBuildFromDouble: BuildFrom[Coll, Double, ImmutableArray[Double]] = new CBF(builderForDouble)
+  implicit val canBuildFromInt: BuildFrom[Coll, Int, ImmutableArray[Int]] = new CBF(builderForInt)
+  implicit val canBuildFromLong: BuildFrom[Coll, Long, ImmutableArray[Long]] = new CBF(builderForLong)
+
+  implicit def canBuildFrom[A]: BuildFrom[Coll, A, ImmutableArray[A]] = new CBF[A](builderForAnyRef.asInstanceOf[ImmutableArrayBuilder[A]])
+
+  private class CBF[Elem](makeBuilder: => ImmutableArrayBuilder[Elem]) extends BuildFrom[Coll, Elem, ImmutableArray[Elem]] {
     def apply(): ImmutableArrayBuilder[Elem] = makeBuilder
-    def apply(from: Coll): ImmutableArrayBuilder[Elem] = makeBuilder
+
+    override def fromSpecific(from: Coll)(it: IterableOnce[Elem]): ImmutableArray[Elem] = {
+      val builder: ImmutableArrayBuilder[Elem] = makeBuilder
+      it.iterator.foreach { builder += _ }
+      builder.result
+    }
+
+    override def newBuilder(from: Coll): mutable.Builder[Elem, ImmutableArray[Elem]] = makeBuilder
   }
-  
+
   def empty[A]: ImmutableArray[A] = _empty.asInstanceOf[ImmutableArray[A]]
-  
+
   def newBuilder[@specialized A: ClassTag]: ImmutableArrayBuilder[A] = new ImmutableArrayBuilder[A](0)
   def newBuilder[@specialized A: ClassTag](initialSize: Int): ImmutableArrayBuilder[A] = new ImmutableArrayBuilder[A](initialSize)
-  
+
   def builderForChar: ImmutableArrayBuilder[Char] = new ImmutableArrayBuilder[Char](0)
   def builderForShort: ImmutableArrayBuilder[Short] = new ImmutableArrayBuilder[Short](0)
   def builderForFloat: ImmutableArrayBuilder[Float] = new ImmutableArrayBuilder[Float](0)
@@ -79,17 +86,17 @@ object ImmutableArray {
   def builderForInt: ImmutableArrayBuilder[Int] = new ImmutableArrayBuilder[Int](0)
   def builderForLong: ImmutableArrayBuilder[Long] = new ImmutableArrayBuilder[Long](0)
   def builderForAnyRef: ImmutableArrayBuilder[AnyRef] = new ImmutableArrayBuilder[AnyRef](0)
-  
+
   private val _empty: ImmutableArray[Nothing] = new ImmutableArray(new Array[AnyRef](0)).asInstanceOf[ImmutableArray[Nothing]]
 }
 
-final class ImmutableArray[@specialized +A: ClassTag] (arr: Array[A]) extends IndexedSeq[A] with IndexedSeqOptimized[A, ImmutableArray[A]] {
+final class ImmutableArray[@specialized +A: ClassTag] (arr: Array[A]) extends IndexedSeq[A] {
   def apply(idx: Int): A = arr(idx)
   def length: Int = arr.length
-  override def newBuilder: ImmutableArrayBuilder[A @uncheckedVariance] = new ImmutableArrayBuilder[A](0)
+  //def newBuilder: ImmutableArrayBuilder[A @uncheckedVariance] = new ImmutableArrayBuilder[A](0)
 }
 
-final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) extends Builder[A, ImmutableArray[A]] {
+final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) extends mutable.Builder[A, ImmutableArray[A]] {
   //
   // Note: DO NOT make these private[this] since that doesn't play well with @specialized
   //
@@ -103,7 +110,7 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
   def size: Int = _length
   def length: Int = _length
 
-  def +=(elem: A): this.type = {
+  def addOne(elem: A): this.type = {
     ensureCapacity(_length + 1)
     arr(_length) = elem
     _length += 1
@@ -142,22 +149,22 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
     System.arraycopy(arr, 0, buf, 0, _length)
     buf
   }
-  
+
   def result: ImmutableArray[A] = {
     if (_length == 0) return ImmutableArray.empty
     else new ImmutableArray[A](toArray)
   }
-  
+
   def clear(): Unit = {
     arr = null
     capacity = 0
     _length = 0
   }
-  
+
   override def sizeHint(size: Int): Unit = {
     if (capacity < size) resize(size)
   }
-  
+
   private def ensureCapacity(size: Int): Unit = {
     if (capacity < size) {
       var newSize: Int = if (capacity == 0) 16 else capacity * 2
@@ -165,7 +172,7 @@ final class ImmutableArrayBuilder[@specialized A: ClassTag] (initialSize: Int) e
       resize(newSize)
     }
   }
-  
+
   private def resize(size: Int): Unit = {
     val buf: Array[A] = new Array[A](size)
     if (_length > 0 && null != arr) System.arraycopy(arr, 0, buf, 0, _length)

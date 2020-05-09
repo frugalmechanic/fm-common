@@ -17,7 +17,6 @@ package fm.common
 
 import it.unimi.dsi.fastutil.ints.{Int2IntAVLTreeMap, IntComparator, IntIterator}
 import it.unimi.dsi.fastutil.longs.{LongIterator, Long2ObjectOpenHashMap}
-import scala.collection.mutable.Builder
 
 object IPMap {
   def newBuilder[T]: IPMapMutable[T] = IPMapMutable()
@@ -108,7 +107,7 @@ object IPMapMutable {
   def apply[T](): IPMapMutable[T] = new IPMapMutable[T]()
 }
 
-final class IPMapMutable[T] extends IPMap[T] with Builder[(IPOrSubnet,T), IPMapImmutable[T]] {
+final class IPMapMutable[T] extends IPMap[T] with IPMapMutableBase[T] {
   private[common] val ipsWithMaskMap: Long2ObjectOpenHashMap[T] = new Long2ObjectOpenHashMap()
   private[common] val maskToCountMap: Int2IntAVLTreeMap = new Int2IntAVLTreeMap(IPMap.leadingBitsFirstComparator)
 
@@ -117,7 +116,9 @@ final class IPMapMutable[T] extends IPMap[T] with Builder[(IPOrSubnet,T), IPMapI
 
   def +=(ip: String, value: T): this.type = +=(IPSubnet.parse(ip), value)
 
-  def +=(ipAndValue: (IPOrSubnet, T)): this.type = +=(ipAndValue._1, ipAndValue._2)
+  // Note: Growable trait changed += to final, and addOne() as implementation method in 2.13,
+  //       implement correct one in IPMapMutableBase.
+  //def +=(ipAndValue: (IPOrSubnet, T)): this.type = +=(ipAndValue._1, ipAndValue._2)
 
   def +=(ip: IPOrSubnet, value: T): this.type = {
     add(ip.start.intValue, ip.mask, value)

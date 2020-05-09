@@ -18,12 +18,11 @@ package fm.common
 import java.lang.{Boolean => JavaBoolean}
 import java.util.concurrent.{ConcurrentHashMap => JavaConcurrentHashMap}
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 
 /**
  * EXPERIMENTAL - A Scala mutable Set based on ConcurrentHashMap
  */
-final class ConcurrentHashSet[A](map: JavaConcurrentHashMap[A, JavaBoolean]) extends mutable.Set[A] {
+final class ConcurrentHashSet[A](map: JavaConcurrentHashMap[A, JavaBoolean]) extends ConcurrentHashSetBase[A] {
   def this(initialCapacity: Int, loadFactor: Float, concurrencyLevel: Int) = this(new JavaConcurrentHashMap[A, JavaBoolean](initialCapacity, loadFactor, concurrencyLevel))
   def this(initialCapacity: Int, loadFactor: Float) = this(initialCapacity, loadFactor, 16)
   def this(initialCapacity: Int) = this(initialCapacity, 0.75f)
@@ -34,11 +33,19 @@ final class ConcurrentHashSet[A](map: JavaConcurrentHashMap[A, JavaBoolean]) ext
   def contains(key: A): Boolean = map.containsKey(key)
   
   def iterator: Iterator[A] = map.keySet().iterator().asScala
-  
-  def +=(elem: A): this.type = { map.put(elem, JavaBoolean.TRUE); this }
-  
-  def -=(elem: A): this.type = { map.remove(elem); this }
-  
+
+  // Note: Growable trait changed += to final, and addOne() as implementation method in 2.13,
+  //       implement correct one in ConcurrentHashSetBase
+  //def +=(elem: A): this.type = { map.put(elem, JavaBoolean.TRUE); this }
+  protected def addOneImpl(elem: A): this.type = { map.put(elem, JavaBoolean.TRUE); this }
+
+  // Note: Shrinkable trait changed += to final, and addOne() as implementation method in 2.13,
+  //       implement correct one in ConcurrentHashSetBase
+  //def -=(elem: A): this.type = { map.remove(elem); this }
+  protected def subtractOneImpl(elem: A): this.type = { map.remove(elem); this }
+
+  override def clear(): Unit = map.clear()
+
   override def empty: ConcurrentHashSet[A] = new ConcurrentHashSet()
   
   override def foreach[U](f: A => U): Unit = {

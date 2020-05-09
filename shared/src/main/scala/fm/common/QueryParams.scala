@@ -15,8 +15,7 @@
  */
 package fm.common
 
-import scala.collection.SeqLike
-import scala.collection.mutable.Builder
+import scala.collection.mutable
 import scala.util.Try
 
 object QueryParams {
@@ -65,7 +64,7 @@ object QueryParams {
   }
   
   def apply(head: (String, String), rest: (String,String)*): QueryParams = apply(head +: rest)
-  
+
   // Note: all creation of QueryParams should go through this to filter out nulls
   def apply(params: Seq[(String, String)]): QueryParams = new QueryParams(withoutNullPairsOrKeys(params))
   
@@ -79,11 +78,11 @@ object QueryParams {
   def newBuilder: QueryParamsBuilder = new QueryParamsBuilder
 }
 
-final class QueryParamsBuilder extends Builder[(String, String), QueryParams] {
-  private[this] val builder = Vector.newBuilder[(String, String)]
-  def +=(param: (String, String)): this.type = { builder += param; this }
-  def result(): QueryParams = QueryParams(builder.result)
-  def clear(): Unit = builder.clear()
+private[common] trait QueryParamsBuilderBase extends mutable.Builder[(String, String), QueryParams] {
+  protected[this] val builder = Vector.newBuilder[(String, String)]
+  //override def +=(param: (String, String)): this.type = { builder += param; this }
+  override def result(): QueryParams = QueryParams(builder.result)
+  override def clear(): Unit = builder.clear()
 }
 
 /**
@@ -94,15 +93,17 @@ final class QueryParamsBuilder extends Builder[(String, String), QueryParams] {
  *   - blank - "?foo="
  *   - non-blank - "?foo=bar"
  */
-final class QueryParams private (params: Seq[(String, String)] = Nil) extends Seq[(String, String)] with SeqLike[(String, String), QueryParams] {
-  
+final class QueryParams private (
+  protected val params: Seq[(String, String)] = Nil
+) extends QueryParamsBase {
+
   /**
-   * Optionally Returns the first non-null value for the given key 
+   * Optionally Returns the first non-null value for the given key
    */
   def getFirst(key: String): Option[String] = nonNullValuesForKey(key).headOption
   
   /**
-   * Optionally Returns the first non-blank value for the given key 
+   * Optionally Returns the first non-blank value for the given key
    */
   def getFirstNonBlank(key: String): Option[String] = nonBlankValuesForKey(key).headOption
   
@@ -125,7 +126,7 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
    * Returns all non-blank values for the given key.  An Empty Seq is returns if the key doesn't exist or there are no non-null values.
    */
   def getNonBlank(key: String): Seq[String] = nonBlankValuesForKey(key)
-
+  
   /**
    * Returns all values for the given key or throws a NoSuchElementException if the key doesn't exists. An Empty Seq is returned
    * if the key exists but has no non-null values.
@@ -173,14 +174,14 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   
   /**
    * Returns true if there is a matching key (which also has a value)
-   * 
+   *
    * NOTE: The value can be blank (e.g. "?foo=" is blank vs "?foo" is null)
    */
   def hasKeyWithValue(key: String): Boolean = keysWithValues.contains(key)
   
   /**
    * Returns true if there is a matching key which has the given value
-   * 
+   *
    * Note: This is an alias for contains() but seems like a more natural name
    *       to use in code.
    */
@@ -218,7 +219,7 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   /**
    * Update multiple key/value pairs
    */
-  def updated(other: QueryParams): QueryParams = updated(other:_*)
+  def updated(other: QueryParams): QueryParams = updated(other.toSeq:_*)
   
   /**
    * Update multiple key/value pairs
@@ -231,7 +232,7 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   
   /**
    * Add a key/value pair
-   * 
+   *
    * @return A new QueryParams instance with the added key/value pair
    */
   def add(key: String, value: String): QueryParams = {
@@ -241,28 +242,28 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   
   /**
    * Add multiple key/value pairs
-   * 
+   *
    * @return A new QueryParams instance with the added key/value pair
    */
   def add(kvPairs: (String, String)*): QueryParams = QueryParams(params ++ kvPairs)
   
   /**
    * Add multiple key/value pairs
-   * 
+   *
    * @return A new QueryParams instance with the added key/value pair
    */
   def add(other: QueryParams): QueryParams = QueryParams(params ++ other)
   
   /**
    * Remove any params with blank values
-   * 
+   *
    * @return A new QueryParams instance without blank values
    */
   def withoutBlankValues(): QueryParams = filter{ case (k, v) => v.isNotNullOrBlank }
   
   /**
    * Remove a key/value pair based on the key
-   * 
+   *
    * @return A new QueryParams instance without the keys
    */
   def remove(keys: String*): QueryParams = filterNot{ case (k, v) => keys.contains(k) }
@@ -304,10 +305,10 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
    * Convert all keys to lower case
    */
   def withLowerKeys: QueryParams = QueryParams(params.map { case (k, v) => (k.toLowerCase, v) })
-
+  
   /** Add a prefix to each key */
   def withPrefixedKeys(prefix: String) = mapKeys{ prefix + _ }
-
+  
   def prettyString: String = {
     "{"+toMap.toSeq.map{ case (key, values) =>
       key+"=["+values.mkString(",")+"]"
@@ -319,7 +320,7 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   
   /**
    * Create a valid query string using the current parameters (everything after the ?).
-   * 
+   *
    * e.g.: foo=bar&hello=world
    */
   def toQueryString(): String = {
@@ -331,14 +332,13 @@ final class QueryParams private (params: Seq[(String, String)] = Nil) extends Se
   def mapKeys(f: String => String): QueryParams = QueryParams( map{ case (key, value) => (f(key), value) } )
   def mapValues(f: String => String): QueryParams = QueryParams( map{ case (key, value) => (key, f(value)) } )
   
-  def filterKeys(f: String => Boolean): QueryParams = QueryParams( filter{ case (key, _) => f(key) } )
-  def filterValues(f: String => Boolean): QueryParams = QueryParams( filter{ case (_, value) => f(value) } )
+  def filterKeys(f: String => Boolean): QueryParams = filter{ case (key, _) => f(key) }
+  def filterValues(f: String => Boolean): QueryParams = filter{ case (_, value) => f(value) }
   
-  //
-  // SeqLike Implementation:
-  //
-  def iterator: Iterator[(String, String)] = params.iterator
-  def apply(idx: Int): (String, String) = params(idx)
-  def length: Int = params.length
-  protected[this] override def newBuilder: Builder[(String, String), QueryParams] = new QueryParamsBuilder
+  override def equals(that: Any): Boolean = {
+    that match {
+      case that: QueryParams => this.params == that.params
+      case _                 => false
+    }
+  }
 }

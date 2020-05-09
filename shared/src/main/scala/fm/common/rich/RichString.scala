@@ -85,22 +85,25 @@ final class RichString(val s: String) extends AnyVal {
    * TODO: is there a better name for this?
    */
   def requireTrailing(trail: String): String = if (s.endsWith(trail)) s else s+trail
+
+  // Note: Breaking change.
+  //   Scala 2.13 introduces .toBooleanOption/.toIntOption/etc but throw NPE on (null: String).toIntOption
+  //   Any code that should use the cached .to*Option methods will need to  be changed.
+  def toBooleanOptionCached: Option[Boolean] = try { OptionCache.valueOf(java.lang.Boolean.valueOf(s)) } catch { case _: NumberFormatException => None }
+  def toByteOptionCached:    Option[Byte]    = try { OptionCache.valueOf(java.lang.Byte.valueOf(s))    } catch { case _: NumberFormatException => None }
+  def toShortOptionCached:   Option[Short]   = try { OptionCache.valueOf(java.lang.Short.valueOf(s))   } catch { case _: NumberFormatException => None }
+  def toIntOptionCached:     Option[Int]     = try { OptionCache.valueOf(java.lang.Integer.valueOf(s)) } catch { case _: NumberFormatException => None }
+  def toLongOptionCached:    Option[Long]    = try { OptionCache.valueOf(java.lang.Long.valueOf(s))    } catch { case _: NumberFormatException => None }
+  def toFloatOptionCached:   Option[Float]   = try { Some(java.lang.Float.valueOf(s))   } catch { case _: NumberFormatException => None }
+  def toDoubleOptionCached:  Option[Double]  = try { Some(java.lang.Double.valueOf(s))  } catch { case _: NumberFormatException => None }
   
-  def toBooleanOption: Option[Boolean] = try { OptionCache.valueOf(java.lang.Boolean.valueOf(s)) } catch { case _: NumberFormatException => None }
-  def toByteOption:    Option[Byte]    = try { OptionCache.valueOf(java.lang.Byte.valueOf(s))    } catch { case _: NumberFormatException => None }
-  def toShortOption:   Option[Short]   = try { OptionCache.valueOf(java.lang.Short.valueOf(s))   } catch { case _: NumberFormatException => None }
-  def toIntOption:     Option[Int]     = try { OptionCache.valueOf(java.lang.Integer.valueOf(s)) } catch { case _: NumberFormatException => None }
-  def toLongOption:    Option[Long]    = try { OptionCache.valueOf(java.lang.Long.valueOf(s))    } catch { case _: NumberFormatException => None }
-  def toFloatOption:   Option[Float]   = try { Some(java.lang.Float.valueOf(s))   } catch { case _: NumberFormatException => None }
-  def toDoubleOption:  Option[Double]  = try { Some(java.lang.Double.valueOf(s))  } catch { case _: NumberFormatException => None }
-  
-  def isBoolean: Boolean = toBooleanOption.isDefined
-  def isByte:    Boolean = toByteOption.isDefined
-  def isShort:   Boolean = toShortOption.isDefined
-  def isInt:     Boolean = toIntOption.isDefined
-  def isLong:    Boolean = toLongOption.isDefined
-  def isFloat:   Boolean = toFloatOption.isDefined
-  def isDouble:  Boolean = toDoubleOption.isDefined
+  def isBoolean: Boolean = toBooleanOptionCached.isDefined
+  def isByte:    Boolean = toByteOptionCached.isDefined
+  def isShort:   Boolean = toShortOptionCached.isDefined
+  def isInt:     Boolean = toIntOptionCached.isDefined
+  def isLong:    Boolean = toLongOptionCached.isDefined
+  def isFloat:   Boolean = toFloatOptionCached.isDefined
+  def isDouble:  Boolean = toDoubleOptionCached.isDefined
   
   def toBigDecimalOption: Option[BigDecimal] = {
     try {

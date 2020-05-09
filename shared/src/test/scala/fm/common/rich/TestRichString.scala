@@ -30,23 +30,23 @@ final class TestRichString extends FunSuite with Matchers {
     "asd".toBlankOption shouldBe Some("asd")
   }
   
-  test("toIntOption") {
-    "123".toIntOption shouldBe Some(123)
-    "-123".toIntOption shouldBe Some(-123)
+  test("toIntOptionCached") {
+    "123".toIntOptionCached shouldBe Some(123)
+    "-123".toIntOptionCached shouldBe Some(-123)
     
-    (null: String).toIntOption shouldBe None
-    "".toIntOption shouldBe None
-    "foo".toIntOption shouldBe None
-    "123.45".toIntOption shouldBe None
-    "1234567890000".toIntOption shouldBe None // Too big for Int
+    (null: String).toIntOptionCached shouldBe None
+    "".toIntOptionCached shouldBe None
+    "foo".toIntOptionCached shouldBe None
+    "123.45".toIntOptionCached shouldBe None
+    "1234567890000".toIntOptionCached shouldBe None // Too big for Int
     
-    "123asd".toIntOption shouldBe None
+    "123asd".toIntOptionCached shouldBe None
   }
   
   test("isInt") {
     "123".isInt shouldBe true
     "-123".isInt shouldBe true
-    
+
     (null: String).isInt shouldBe false
     "".isInt shouldBe false
     "foo".isInt shouldBe false

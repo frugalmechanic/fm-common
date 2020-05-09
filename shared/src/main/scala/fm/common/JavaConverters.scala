@@ -16,7 +16,6 @@
 package fm.common
 
 import scala.collection._
-import scala.collection.convert.{DecorateAsJava, DecorateAsScala}
 
 /**
  * This is the same as scala.collection.JavaConverters with a few additional methods.
@@ -24,74 +23,75 @@ import scala.collection.convert.{DecorateAsJava, DecorateAsScala}
  * Specifically you can now call .asScalaNullToEmpty to have null java collections
  * converted to an empty collection to avoid NullPointerExceptions
  */
-object JavaConverters extends DecorateAsJava with DecorateAsScala {
+object JavaConverters extends JavaConvertersBase {
+
   implicit class RichJavaList[A](val l: java.util.List[A]) extends AnyVal {
     def asScalaNullToEmpty(): mutable.Buffer[A] = {
       if (l == null) mutable.ArrayBuffer.empty
-      else l.asScala
+      else asScala(l)
     }
   }
 
   implicit class RichJavaIterator[A](val i: java.util.Iterator[A]) extends AnyVal {
     def asScalaNullToEmpty(): Iterator[A] = {
       if (i == null) Iterator.empty
-      else i.asScala
+      else asScala(i)
     }
   }
 
   implicit class RichJavaSet[A, B](val s: java.util.Set[A]) extends AnyVal {
     def asScalaNullToEmpty(): mutable.Set[A] = {
       if (s == null) mutable.Set.empty
-      else s.asScala
+      else asScala(s)
     }
   }
 
   implicit class RichJavaCollection[A, B](val c: java.util.Collection[A]) extends AnyVal {
     def asScalaNullToEmpty(): Iterable[A] = {
       if (c == null) Iterable.empty
-      else c.asScala
+      else asScala(c)
     }
   }
 
   implicit class RichJavaDictionary[A, B](val m: java.util.Dictionary[A, B]) extends AnyVal {
     def asScalaNullToEmpty(): mutable.Map[A, B] = {
       if (m == null) mutable.Map.empty
-      else m.asScala
+      else asScala(m)
     }
   }
 
   implicit class RichJavaEnumeration[A, B](val e: java.util.Enumeration[A]) extends AnyVal {
     def asScalaNullToEmpty(): Iterator[A] = {
       if (e == null) Iterator.empty
-      else e.asScala
+      else asScala(e)
     }
   }
 
-  implicit class RichJavaIterable[A, B](val i: java.lang.Iterable[A]) extends AnyVal {
+  implicit class RichJavaIterable[A, B](val it: java.lang.Iterable[A]) extends AnyVal {
     def asScalaNullToEmpty(): Iterable[A] = {
-      if (i == null) Iterable.empty
-      else i.asScala
+      if (it == null) Iterable.empty
+      else asScala(it)
     }
   }
 
   implicit class RichJavaConcurrentMap[A, B](val m: java.util.concurrent.ConcurrentMap[A, B]) extends AnyVal {
     def asScalaNullToEmpty(): collection.concurrent.Map[A, B] = {
       if (m == null) collection.concurrent.TrieMap.empty
-      else m.asScala
+      else asScala(m)
     }
   }
 
   implicit class RichJavaMap[A, B](val m: java.util.Map[A, B]) extends AnyVal {
     def asScalaNullToEmpty(): mutable.Map[A, B] = {
       if (m == null) mutable.Map.empty
-      else m.asScala
+      else asScala(m)
     }
   }
 
   implicit class RichJavaProperties(val p: java.util.Properties) extends AnyVal {
     def asScalaNullToEmpty(): mutable.Map[String, String] = {
       if (p == null) mutable.Map.empty
-      else p.asScala
+      else asScala(p)
     }
   }
 }

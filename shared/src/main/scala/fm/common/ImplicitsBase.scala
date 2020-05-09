@@ -25,7 +25,8 @@ import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
 /**
  * These are the Implicits that are shared between both the JVM and JS Implicits trait/object
  */
-protected trait ImplicitsBase extends OrderingImplicits {
+protected trait ImplicitsBase extends OrderingImplicits with RichCrossImplicitsBase {
+
   implicit def toRichAnyRef[A <: AnyRef](ref: A): RichAnyRef[A] = new RichAnyRef[A](ref)
   implicit def toAnyRefNullChecks[A <: AnyRef](ref: A): AnyRefNullChecks[A] = new AnyRefNullChecks[A](ref)
 
@@ -33,10 +34,7 @@ protected trait ImplicitsBase extends OrderingImplicits {
 
   implicit def toRichCharSequence(s: CharSequence): RichCharSequence = new RichCharSequence(s)
   implicit def toRichString(s: String): RichString = new RichString(s)
-  
-  implicit def toRichTraversableOnce[T](t: scala.collection.TraversableOnce[T]) = new RichTraversableOnce(t)
-  implicit def toRichIndexedSeq[T](t: scala.collection.IndexedSeq[T]) = new RichIndexedSeq(t)
-  
+
   implicit def toRichStringOption(opt: Option[String]): RichStringOption = new RichStringOption(opt)
   implicit def toRichIntOption(opt: Option[Int]): RichIntOption = new RichIntOption(opt)
   implicit def toRichLongOption(opt: Option[Long]): RichLongOption = new RichLongOption(opt)
@@ -45,6 +43,7 @@ protected trait ImplicitsBase extends OrderingImplicits {
 
   implicit def toRichSomeObject(some: Some.type): RichSomeObject = new RichSomeObject(some)
   implicit def toRichOption[T](opt: Option[T]): RichOption[T] = new RichOption[T](opt)
+
   implicit def toRichOptional[T](opt: Optional[T]): RichOptional[T] = new RichOptional[T](opt)
 
   implicit def toTypeSafeEquals[L](left: L): TypeSafeEquals[L] = new TypeSafeEquals(left)
@@ -63,7 +62,6 @@ protected trait ImplicitsBase extends OrderingImplicits {
   implicit def toRichInstant(instant: Instant): RichInstant = new RichInstant(instant)
   implicit def toRichLocalDate(date: LocalDate): RichLocalDate = new RichLocalDate(date)
   
-  implicit def toRichMap[A,B,This <: scala.collection.MapLike[A,B,This] with scala.collection.Map[A,B]](m: scala.collection.MapLike[A,B,This]) = new RichMap(m)
   implicit def toRichConcurrentMap[K,V](m: java.util.concurrent.ConcurrentMap[K,V]): RichConcurrentMap[K,V] = new RichConcurrentMap(m)
   
   implicit def toRichPattern(pattern: java.util.regex.Pattern): RichPattern = new RichPattern(pattern)

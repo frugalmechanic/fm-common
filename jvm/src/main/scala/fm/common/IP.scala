@@ -72,7 +72,7 @@ object IP {
 
   def toInt(ip: String): Int = {
     val fixedIp: String = if (ip.endsWith(".")) ip.substring(0, ip.length - 1) else ip
-    val octets = fixedIp.trim.split('.').map{_.toShortOption.filter{ n: Short => n >= 0 && n <= 255 }.getOrElse{ throw InvalidIPException("Invalid IP Address: "+fixedIp) }.toByte}
+    val octets = fixedIp.trim.split('.').map{_.toShortOptionCached.filter{ n: Short => n >= 0 && n <= 255 }.getOrElse{ throw InvalidIPException("Invalid IP Address: "+fixedIp) }.toByte}
     if (octets.size =!= 4) throw InvalidIPException("Invalid IP Address: "+fixedIp)
     toInt(octets)
   }
