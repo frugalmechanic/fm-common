@@ -26,7 +26,6 @@ import scala.math.{BigDecimal => ScalaBigDecimal, BigInt => ScalaBigInt}
  * These are the Implicits that are shared between both the JVM and JS Implicits trait/object
  */
 protected trait ImplicitsBase extends OrderingImplicits with RichCrossImplicitsBase {
-
   implicit def toRichAnyRef[A <: AnyRef](ref: A): RichAnyRef[A] = new RichAnyRef[A](ref)
   implicit def toAnyRefNullChecks[A <: AnyRef](ref: A): AnyRefNullChecks[A] = new AnyRefNullChecks[A](ref)
 

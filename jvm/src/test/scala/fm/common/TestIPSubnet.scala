@@ -15,9 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestIPSubnet extends FunSuite with Matchers {
+final class TestIPSubnet extends AnyFunSuite with Matchers {
   import IPSubnet._
   
   test("Check Private") {

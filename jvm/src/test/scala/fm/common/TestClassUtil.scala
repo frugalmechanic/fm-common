@@ -16,9 +16,10 @@
 package fm.common
 
 import java.io.File
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestClassUtil extends FunSuite with Matchers {
+final class TestClassUtil extends AnyFunSuite with Matchers {
   import fm.common.test.classutil._
   
   private val testDirPath: String = "fm/common/test/classutil"

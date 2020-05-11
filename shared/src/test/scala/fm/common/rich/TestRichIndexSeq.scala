@@ -15,10 +15,11 @@
  */
 package fm.common.rich
 
-import org.scalatest.{FunSuite,Matchers}
-import fm.common.Implicits._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TestRichIndexSeq extends FunSuite with Matchers {
+class TestRichIndexSeq extends AnyFunSuite with Matchers {
+  import fm.common.Implicits._
   
   test("takeWhile") {
     Vector.empty[Int].countWhile{ _ == 0 } shouldBe 0

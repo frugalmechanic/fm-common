@@ -15,11 +15,12 @@
  */
 package fm.common.rich
 
-import org.scalatest.{FunSuite,Matchers}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import fm.common.Implicits._
 
-class TestRichTraversableOnce extends FunSuite with Matchers with ScalaFutures {
+class TestRichTraversableOnce extends AnyFunSuite with Matchers with ScalaFutures {
   
   test("minOption") {
     Vector.empty[Int].minOption shouldBe None

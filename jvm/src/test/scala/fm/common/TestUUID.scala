@@ -17,9 +17,10 @@ package fm.common
 
 import java.time.Instant
 import java.util.Date
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestUUID extends FunSuite with Matchers {
+final class TestUUID extends AnyFunSuite with Matchers {
   test("UUID.Zero") {
     checkSpecial(UUID(0L, 0L), UUID.Zero, _.isZero)
   }

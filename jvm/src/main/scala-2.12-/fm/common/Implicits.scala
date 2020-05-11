@@ -15,10 +15,6 @@
  */
 package fm.common
 
-import fm.common.rich._
-import org.scalajs.dom.raw._
-import org.scalajs.jquery.JQuery
-
 object Implicits extends Implicits {
   // Duplicated in both the JVM and JS version of Implicits.scala
   implicit class ToImmutableArrayByte   (val col: TraversableOnce[Byte])    extends AnyVal { def toImmutableArray: ImmutableArray[Byte]    = ImmutableArray.copy(col) }
@@ -29,26 +25,10 @@ object Implicits extends Implicits {
   implicit class ToImmutableArrayDouble (val col: TraversableOnce[Double])  extends AnyVal { def toImmutableArray: ImmutableArray[Double]  = ImmutableArray.copy(col) }
   implicit class ToImmutableArrayBoolean(val col: TraversableOnce[Boolean]) extends AnyVal { def toImmutableArray: ImmutableArray[Boolean] = ImmutableArray.copy(col) }
   implicit class ToImmutableArrayChar   (val col: TraversableOnce[Char])    extends AnyVal { def toImmutableArray: ImmutableArray[Char]    = ImmutableArray.copy(col) }
-  
+
   implicit class ToImmutableArrayAnyRef[T <: AnyRef](val col: TraversableOnce[T]) extends AnyVal { def toImmutableArray: ImmutableArray[T] = ImmutableArray.copy[AnyRef](col).asInstanceOf[ImmutableArray[T]] }
 }
 
-trait Implicits extends ImplicitsBase {
-  implicit def toRichJQuery(jquery: JQuery): RichJQuery = new RichJQuery(jquery)
-  
-  implicit def toRichEvent(event: Event): RichEvent = new RichEvent(event)
-  implicit def toRichEventTarget(target: EventTarget): RichEventTarget = new RichEventTarget(target)
-  implicit def toRichEventTargetTraversable(target: Traversable[EventTarget]): RichEventTargetTraversable = new RichEventTargetTraversable(target)
-  implicit def toRichDocument(doc: Document): RichDocument = new RichDocument(doc)
-  implicit def toRichHTMLDocument(doc: HTMLDocument): RichHTMLDocument = new RichHTMLDocument(doc)
-  implicit def toRichNode[T <: Node](node: T): RichNode[T] = new RichNode(node)
-  implicit def toRichNodeTraversable(elems: Traversable[Node]): RichNodeTraversable = new RichNodeTraversable(elems)
-  implicit def toRichElement(elem: Element): RichElement = new RichElement(elem)
-  implicit def toRichElementTraversable(elems: Traversable[Element]): RichElementTraversable = new RichElementTraversable(elems)
-  implicit def toRichHTMLElement(elem: HTMLElement): RichHTMLElement = new RichHTMLElement(elem)
-  implicit def toRichHTMLElementTraversable(elems: Traversable[HTMLElement]): RichHTMLElementTraversable = new RichHTMLElementTraversable(elems)
-  implicit def toRichHTMLImageElement(elem: HTMLImageElement): RichHTMLImageElement = new RichHTMLImageElement(elem)
-  implicit def toRichNodeSelector(selector: NodeSelector): RichNodeSelector = new RichNodeSelector(selector)
-  implicit def toRichDOMList[T](list: DOMList[T]): RichDOMList[T] = new RichDOMList(list)
-  implicit def toRichNodeList(list: NodeList): RichNodeList = new RichNodeList(list)
+trait Implicits extends JVMImplicitsBase {
+
 }

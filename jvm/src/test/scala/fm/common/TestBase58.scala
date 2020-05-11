@@ -16,9 +16,10 @@
 package fm.common
 
 import java.nio.charset.StandardCharsets.UTF_8
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestBase58 extends FunSuite with Matchers {
+final class TestBase58 extends AnyFunSuite with Matchers {
   private implicit def stringToBytes(s: String): Array[Byte] = s.getBytes(UTF_8)
   private implicit def intToByte(i: Int): Byte = i.toByte
 

@@ -15,10 +15,11 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite, Matchers}
 import java.io.{File, InputStream, InputStreamReader}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestInputStreamResource extends FunSuite with Matchers {
+final class TestInputStreamResource extends AnyFunSuite with Matchers {
   test(".tar.gz")    { checkCompression("hello_world.txt.tar.gz", _.gunzip.untar) }
   test(".tgz")       { checkCompression("hello_world.txt.tgz", _.gunzip.untar) }
   test(".tar.bz")    { checkCompression("hello_world.txt.tar.bz", _.bunzip2.untar) }

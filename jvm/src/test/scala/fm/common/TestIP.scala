@@ -15,10 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TestIP extends FunSuite with Matchers {
+class TestIP extends AnyFunSuite with Matchers {
 
   test("get") {
     IP.get("") should equal(None)
@@ -95,7 +95,7 @@ class TestIP extends FunSuite with Matchers {
     check(" 1.2.3.4.,5.6.7.8 ,127.0.0.1, 1.2.3.4", Seq("1.2.3.4", "5.6.7.8", "127.0.0.1", "1.2.3.4"))
   }
 
-  def testIpConversions(ipStr: String, ipLong: Long, ipOctets: Array[Int]) {
+  def testIpConversions(ipStr: String, ipLong: Long, ipOctets: Array[Int]): Unit = {
     test("IP Conversions - "+ipStr) {
       IP.toLong(IP.toInt(ipLong)) should equal(ipLong)
 

@@ -15,10 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestASCIIUtil extends FunSuite with Matchers {
+final class TestASCIIUtil extends AnyFunSuite with Matchers {
 
   private val ascii: String = (0 to 127).map{ _.toChar }.mkString
 

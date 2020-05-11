@@ -15,10 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestIPMap extends FunSuite with Matchers {
+final class TestIPMap extends AnyFunSuite with Matchers {
 
   private def yes[T](map: IPMapMutable[T], ip: String, value: T): Unit = TestHelpers.withCallerInfo{ check(map, ip, Option(value)) }
   private def no[T](map: IPMapMutable[T], ip: String): Unit = TestHelpers.withCallerInfo{ check(map, ip, None) }

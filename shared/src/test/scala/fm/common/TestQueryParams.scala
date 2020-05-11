@@ -15,9 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestQueryParams extends FunSuite with Matchers {
+final class TestQueryParams extends AnyFunSuite with Matchers {
   test("Basic Parsing") {
     ident("foo=bar")
     ident("foo=bar&asd=qwe")
@@ -178,7 +179,7 @@ final class TestQueryParams extends FunSuite with Matchers {
     uri.updateQueryParam("url", " Hello & World! ").toString should equal("http://www.gopjn.com/t/1-1539-47154-1539?url=+Hello+%26+World%21+")
   }
   
-  private def ident(queryString: String) {
+  private def ident(queryString: String): Unit = {
     // Note: QueryParams always encodes spaces as pluses ('+') so in order to match we need to
     //       replace '%20' with '+' in case the original queryString used %20 instead of pluses
     QueryParams(queryString).toString shouldBe queryString.replace("%20","+")

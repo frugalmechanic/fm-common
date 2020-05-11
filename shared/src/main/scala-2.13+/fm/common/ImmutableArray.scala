@@ -15,12 +15,9 @@
  */
 package fm.common
 
-import scala.annotation.unchecked.uncheckedVariance
-import scala.collection.{BuildFrom, Factory, IndexedSeqOps, mutable}
+import scala.collection.{BuildFrom, mutable}
 import scala.reflect.ClassTag
-import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.IndexedSeq
-import scala.collection.mutable.Builder
 
 object ImmutableArray {
   def apply[@specialized A: ClassTag](elems: A*): ImmutableArray[A] = {

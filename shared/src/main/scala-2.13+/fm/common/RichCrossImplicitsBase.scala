@@ -16,7 +16,11 @@
 package fm.common
 
 import fm.common.rich._
-import scala.collection.{IterableOps, MapOps, SeqOps}
+import scala.collection.{IterableOps, MapOps}
+
+object RichCrossImplicitsBase {
+
+}
 
 trait RichCrossImplicitsBase extends Any {
   implicit def toRichIterableOnce[T](t: IterableOnce[T]) = new RichIterableOnce(t)

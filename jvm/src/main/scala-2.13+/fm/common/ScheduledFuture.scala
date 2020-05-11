@@ -50,7 +50,7 @@ final class ScheduledFuture[T](promise: Promise[T], task: ScheduledTask) extends
   // Scala Future implementation
   //
   def isCompleted: Boolean = self.isCompleted
-  def onComplete[U](func: (Try[T]) ⇒ U)(implicit executor: ExecutionContext): Unit = self.onComplete(func)
+  def onComplete[U](func: (Try[T]) => U)(implicit executor: ExecutionContext): Unit = self.onComplete(func)
   def ready(atMost: Duration)(implicit permit: CanAwait): this.type = { self.ready(atMost); this }
   def result(atMost: Duration)(implicit permit: CanAwait): T = self.result(atMost)
   def transform[S](f: Try[T] => Try[S])(implicit executor: ExecutionContext): Future[S] = self.transform(f)

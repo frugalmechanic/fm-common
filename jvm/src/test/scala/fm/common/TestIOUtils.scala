@@ -15,10 +15,11 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite, Matchers}
 import java.io.{BufferedInputStream, File}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestIOUtils extends FunSuite with Matchers {
+final class TestIOUtils extends AnyFunSuite with Matchers {
   // Test detecting charset encoding
   test("detectCharset - UTF-8 with BOM")    { checkDetectCharset("quickbrown-UTF-8-with-BOM.txt", "UTF-8") }
   test("detectCharset - UTF-8 no BOM")      { checkDetectCharset("quickbrown-UTF-8-no-BOM.txt", "UTF-8") }

@@ -15,10 +15,11 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 // Note: Using ≡ and ≠ to avoid conflicts with ScalaTest === method
-final class TestTypeSafeEquals extends FunSuite with Matchers {
+final class TestTypeSafeEquals extends AnyFunSuite with Matchers {
 
   test("Basics") {
     1 ≡ 1 shouldBe true

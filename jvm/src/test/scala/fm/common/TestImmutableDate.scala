@@ -17,9 +17,10 @@ package fm.common
 
 import java.time.Instant
 import java.util.Date
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestImmutableDate extends FunSuite with Matchers {
+final class TestImmutableDate extends AnyFunSuite with Matchers {
 
   private val date: Date = new Date()
   private val immutableDate: ImmutableDate = ImmutableDate(date)

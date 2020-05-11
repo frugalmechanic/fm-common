@@ -16,10 +16,12 @@
 package fm.common.rich
 
 import java.math.BigDecimal
-import org.scalatest.{FunSuite,Matchers}
-import fm.common.Implicits._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TestRichBigDecimal extends FunSuite with Matchers {
+class TestRichBigDecimal extends AnyFunSuite with Matchers {
+  import fm.common.Implicits._
+
   private def bd(s: String): BigDecimal = new BigDecimal(s)
   
   test("isZero") {

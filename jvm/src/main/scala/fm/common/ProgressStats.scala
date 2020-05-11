@@ -99,13 +99,13 @@ final case class ProgressStats(dotPer: Long = 1000L, statsPer: Long = 25000L, lo
     printTime("Total Time", startTimeMillis)
   }
   
-  def printRecordsPerSecondInfo(time: Long, records: Long) {
+  def printRecordsPerSecondInfo(time: Long, records: Long): Unit = {
     val totalTimeMillis: Long = System.currentTimeMillis - time
     val recordsPerSecond: Long = (records.toDouble / totalTimeMillis.toDouble * 1000.toDouble).toLong
     if (!hide) print(" ("+recordsPerSecond+"/s)")
   }
   
-  private def printTime(title: String, time: Long) {
+  private def printTime(title: String, time: Long): Unit = {
     if (hide) return
     val totalTimeSecs: Long = (System.currentTimeMillis - time) / 1000
     val msg: String = title+": "+totalTimeSecs+" seconds ("+((totalTimeSecs/60d*100).toInt/100d)+" minutes) ("+((totalTimeSecs/3600d*100).toInt/100d)+" hours)"

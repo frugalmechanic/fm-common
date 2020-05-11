@@ -15,13 +15,13 @@
  */
 package fm.common
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestOutputStreamResource extends FunSuite with Matchers {
+final class TestOutputStreamResource extends AnyFunSuite with Matchers {
 //  test(".tar.gz") { check("hello_world.txt.tar.gz") }
 //  test(".tgz")    { check("hello_world.txt.tgz") }
 //  test(".tar.bz")    { check("hello_world.txt.tar.bz") }

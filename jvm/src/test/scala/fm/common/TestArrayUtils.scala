@@ -15,9 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestArrayUtils extends FunSuite with Matchers {
+final class TestArrayUtils extends AnyFunSuite with Matchers {
   test("permutations") {
     ArrayUtils.permutations(Array(Array(1,2,3), Array(1,2,3), Array(1,2))) should equal (Array(
       Array(1,1,1),

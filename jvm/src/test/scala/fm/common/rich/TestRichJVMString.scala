@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 package fm.common.rich
-import java.util.Locale
-import org.scalatest.{FunSuite, Matchers}
 
-final class TestRichJVMString extends FunSuite with Matchers {
+import java.util.Locale
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+
+final class TestRichJVMString extends AnyFunSuite with Matchers {
   import fm.common.Implicits._
 
   test("toLocaleOption") {

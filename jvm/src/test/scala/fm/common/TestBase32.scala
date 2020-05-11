@@ -16,9 +16,10 @@
 package fm.common
 
 import java.nio.charset.StandardCharsets.UTF_8
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestBase32 extends FunSuite with Matchers {
+final class TestBase32 extends AnyFunSuite with Matchers {
   private[this] val data: Vector[(String,String)] = Vector(
     "" -> "",
     "Hello World" -> "jbswy3dpeblw64tmmq======",

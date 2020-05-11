@@ -17,9 +17,10 @@ package fm.common
 
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets.UTF_8
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestXMLUtil extends FunSuite with Matchers {
+final class TestXMLUtil extends AnyFunSuite with Matchers {
   
   test("isXml()") {
     def isXML(s: String): Boolean = XMLUtil.isXML(new ByteArrayInputStream(s.getBytes(UTF_8))) 

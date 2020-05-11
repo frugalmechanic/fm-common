@@ -15,9 +15,10 @@
  */
 package fm.common.rich
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestRichString extends FunSuite with Matchers {
+final class TestRichString extends AnyFunSuite with Matchers {
   import fm.common.Implicits._
   
   test("toBlankOption - None") {

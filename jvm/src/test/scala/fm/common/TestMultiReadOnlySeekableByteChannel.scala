@@ -19,9 +19,10 @@ import java.nio.ByteBuffer
 import java.nio.channels.{ClosedChannelException, SeekableByteChannel}
 import java.nio.charset.StandardCharsets
 import org.apache.commons.compress.utils.SeekableInMemoryByteChannel
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestMultiReadOnlySeekableByteChannel extends FunSuite with Matchers {
+final class TestMultiReadOnlySeekableByteChannel extends AnyFunSuite with Matchers {
 
   test("Empty") {
     an [IllegalArgumentException] shouldBe thrownBy { MultiReadOnlySeekableByteChannel.forSeekableByteChannels(Nil) }

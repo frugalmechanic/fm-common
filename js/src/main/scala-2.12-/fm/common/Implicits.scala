@@ -15,17 +15,11 @@
  */
 package fm.common
 
-import fm.common.rich._
-import java.io.{File, InputStream}
-import java.nio.file.Path
-import java.util.Locale
-
-import scala.concurrent.{Await, Future}
-
-import scala.util.Try
+import fm.common.rich.{RichElementTraversable, RichEventTargetTraversable, RichHTMLElementTraversable, RichNodeTraversable}
+import org.scalajs.dom.raw.{Element, EventTarget, HTMLElement, Node}
 
 object Implicits extends Implicits {
-  // Duplicated in both the JVM and JS version of Implicits.scala
+  // Duplicated in both the JVM and JS version of JSImplicits.scala
   implicit class ToImmutableArrayByte   (val col: TraversableOnce[Byte])    extends AnyVal { def toImmutableArray: ImmutableArray[Byte]    = ImmutableArray.copy(col) }
   implicit class ToImmutableArrayShort  (val col: TraversableOnce[Short])   extends AnyVal { def toImmutableArray: ImmutableArray[Short]   = ImmutableArray.copy(col) }
   implicit class ToImmutableArrayInt    (val col: TraversableOnce[Int])     extends AnyVal { def toImmutableArray: ImmutableArray[Int]     = ImmutableArray.copy(col) }
@@ -34,25 +28,13 @@ object Implicits extends Implicits {
   implicit class ToImmutableArrayDouble (val col: TraversableOnce[Double])  extends AnyVal { def toImmutableArray: ImmutableArray[Double]  = ImmutableArray.copy(col) }
   implicit class ToImmutableArrayBoolean(val col: TraversableOnce[Boolean]) extends AnyVal { def toImmutableArray: ImmutableArray[Boolean] = ImmutableArray.copy(col) }
   implicit class ToImmutableArrayChar   (val col: TraversableOnce[Char])    extends AnyVal { def toImmutableArray: ImmutableArray[Char]    = ImmutableArray.copy(col) }
-  
+
   implicit class ToImmutableArrayAnyRef[T <: AnyRef](val col: TraversableOnce[T]) extends AnyVal { def toImmutableArray: ImmutableArray[T] = ImmutableArray.copy[AnyRef](col).asInstanceOf[ImmutableArray[T]] }
 }
 
-trait Implicits extends ImplicitsBase {
-  implicit def toRichTry[T](t: Try[T]): RichTry[T] = new RichTry(t)
-  implicit def toRichFuture[V](f: Future[V]): RichFuture[V] = RichFuture(f)
-  implicit def toRichAwait[V](await: Await.type): RichAwait = new RichAwait(await)
-  
-  implicit def toRichFile(f: File): RichFile = new RichFile(f)
-  implicit def toRichJVMString(s: String): RichJVMString = new RichJVMString(s)
-  implicit def toRichPath(p: Path): RichPath = new RichPath(p)
-  implicit def toRichInputStream(is: InputStream): RichInputStream = new RichInputStream(is)
-  
-  implicit def toRichLocale(locale: Locale): RichLocale = new RichLocale(locale)
-  
-  implicit def toRichURL(url: URL): RichURL = new RichURL(url)
-  
-  implicit def toRichQueryParamsObject(obj: QueryParams.type): RichQueryParams.type = RichQueryParams
-  
-  implicit def toRichImmutableArray[A](arr: ImmutableArray[A]): RichImmutableArray[A] = new RichImmutableArray(arr)
+trait Implicits extends JSImplicitsBase {
+  implicit def toRichEventTargetTraversable(target: Traversable[EventTarget]): RichEventTargetTraversable = new RichEventTargetTraversable(target)
+  implicit def toRichNodeTraversable(elems: Traversable[Node]): RichNodeTraversable = new RichNodeTraversable(elems)
+  implicit def toRichElementTraversable(elems: Traversable[Element]): RichElementTraversable = new RichElementTraversable(elems)
+  implicit def toRichHTMLElementTraversable(elems: Traversable[HTMLElement]): RichHTMLElementTraversable = new RichHTMLElementTraversable(elems)
 }

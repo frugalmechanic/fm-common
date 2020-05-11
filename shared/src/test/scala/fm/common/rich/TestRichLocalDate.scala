@@ -15,11 +15,12 @@
  */
 package fm.common.rich
 
-import org.scalatest.{FunSuite, Matchers}
-import fm.common.Implicits._
 import java.time.LocalDate
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TestRichLocalDate extends FunSuite with Matchers {
+class TestRichLocalDate extends AnyFunSuite with Matchers {
+  import fm.common.Implicits._
 
   test("toYYYYMMDD") {
     checkYYYYMMDD(0, 1, 1, Some("00000101"), Some(101))

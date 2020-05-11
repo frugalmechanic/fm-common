@@ -27,7 +27,7 @@ final class RichMap[A, B, CC[_, _] <: IterableOps[_, Any, _], This <: Map[A, B]]
    */
   @inline def mapValuesStrict[C, That <: Map[A, C]](f: B => C)(implicit bf: BuildFrom[This, (A, C), That]): That = {
     val builder: mutable.Builder[(A, C), That] = bf.newBuilder(self.repr)
-    self.foreach{ case (k: A, v: B) => builder += k -> f(v) }
+    self.foreach{ case (k: A @unchecked, v: B @unchecked) => builder += k -> f(v) }
     builder.result
   }
 

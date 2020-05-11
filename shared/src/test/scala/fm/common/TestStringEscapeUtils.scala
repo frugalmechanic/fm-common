@@ -15,9 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestStringEscapeUtils extends FunSuite with Matchers {
+final class TestStringEscapeUtils extends AnyFunSuite with Matchers {
   
   test("escapeHTML") {
     h("<foo>") shouldBe "&lt;foo&gt;"

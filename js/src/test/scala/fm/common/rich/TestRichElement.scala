@@ -4,10 +4,12 @@ import fm.common.ElementType
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.{Element, HTMLDivElement, HTMLInputElement}
 import fm.common.Implicits.toRichElement
-import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import scala.reflect.ClassTag
 
-final class TestRichElement extends FunSuite with Matchers with BeforeAndAfterAll {
+final class TestRichElement extends AnyFunSuite with Matchers with BeforeAndAfterAll {
 
   override protected def beforeAll(): Unit = {
     document.body.innerHTML =

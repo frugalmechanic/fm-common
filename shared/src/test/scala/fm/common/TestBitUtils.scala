@@ -15,10 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestBitUtils extends FunSuite with Matchers {
+final class TestBitUtils extends AnyFunSuite with Matchers {
 
   private def checkLong(a: Int, b: Int, res: Long): Unit = TestHelpers.withCallerInfo{
     BitUtils.makeLong(a, b) shouldBe res

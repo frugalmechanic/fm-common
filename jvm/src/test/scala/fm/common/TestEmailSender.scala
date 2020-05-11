@@ -1,8 +1,9 @@
 package fm.common
 
-import org.scalatest.{FunSuite,Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TestEmailSender extends FunSuite with Matchers {
+class TestEmailSender extends AnyFunSuite with Matchers {
   test("isValidEmail") {
     import EmailSender._
 

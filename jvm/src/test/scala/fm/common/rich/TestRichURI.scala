@@ -15,13 +15,14 @@
  */
 package fm.common.rich
 
-import org.scalatest.{FunSuite, Matchers}
 import fm.common._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 /**
  * Also see TestRichURL
  */
-final class TestRichURI extends FunSuite with Matchers {
+final class TestRichURI extends AnyFunSuite with Matchers {
   test("Basics") {
     check("http://frugalmechanic.com", scheme = Some("http"), host = Some("frugalmechanic.com"), path = Some(""))
     

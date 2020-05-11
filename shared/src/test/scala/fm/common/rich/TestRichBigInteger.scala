@@ -17,10 +17,12 @@ package fm.common.rich
 
 import java.lang.NumberFormatException
 import java.math.BigInteger
-import org.scalatest.{FunSuite,Matchers}
-import fm.common.Implicits._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TestRichBigInteger extends FunSuite with Matchers {
+class TestRichBigInteger extends AnyFunSuite with Matchers {
+  import fm.common.Implicits._
+
   private def bi(s: String): BigInteger = new BigInteger(s)
 
   test("isZero") {

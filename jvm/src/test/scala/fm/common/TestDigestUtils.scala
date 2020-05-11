@@ -17,9 +17,10 @@ package fm.common
 
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets.UTF_8
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestDigestUtils extends FunSuite with Matchers {
+final class TestDigestUtils extends AnyFunSuite with Matchers {
   test("Basic Checks") {
     check(
       msg = "",

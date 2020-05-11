@@ -17,9 +17,10 @@ package fm.common
 
 import java.io.{ByteArrayInputStream, InputStream, IOException, OutputStream}
 import java.nio.charset.StandardCharsets.UTF_8
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestBase64 extends FunSuite with Matchers {
+final class TestBase64 extends AnyFunSuite with Matchers {
   private[this] val data: Vector[(String,String)] = Vector(
     "" -> "",
     "Hello World" -> "SGVsbG8gV29ybGQ=",

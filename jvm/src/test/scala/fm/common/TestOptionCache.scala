@@ -15,9 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestOptionCache extends FunSuite with Matchers {
+final class TestOptionCache extends AnyFunSuite with Matchers {
   test("Boolean") {
     checkBoolean(true)
     checkBoolean(false)

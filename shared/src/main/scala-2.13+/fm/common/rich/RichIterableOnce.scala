@@ -38,7 +38,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def mkStringOrBlank(start: String, sep: String, end: String): String = {
     var sb: java.lang.StringBuilder = null
     
-    for (x <- self) {
+    for (x <- self.iterator) {
       if (sb == null) {
         sb = new java.lang.StringBuilder()
         sb.append(start)
@@ -102,7 +102,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def countBy[K](f: A => K): Map[K,Int] = {
     var m = immutable.HashMap.empty[K, Int]
     
-    for(value <- self) {
+    for (value <- self.iterator) {
       val key: K = f(value)
       m = m.updated(key, m.getOrElse(key, 0) + 1)
     }
@@ -125,7 +125,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
     var curKey: K = null.asInstanceOf[K]
     var curBuilder: mutable.Builder[A, Vector[A]] = null
     
-    self.foreach { a: A =>
+    self.iterator.foreach { a: A =>
       val key: K = f(a)
       
       if (isFirst) {
@@ -153,10 +153,10 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   /**
    * Like groupBy but only allows a single value per key
    */
-  def uniqueGroupBy[K](f: A ⇒ K): immutable.HashMap[K, A] = {
+  def uniqueGroupBy[K](f: A => K): immutable.HashMap[K, A] = {
     var m = immutable.HashMap.empty[K, A]
     
-    for (x <- self) {
+    for (x <- self.iterator) {
       val key: K = f(x)
       require(!m.contains(key), s"Map already contains key: $key   Existing Value: ${m(key)}  Trying to add value: ${x}")
       m = m.updated(key, x)
@@ -172,7 +172,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def findMapped[B](f: A => Option[B]): Option[B] = {
     self.iterator.foreach{ a: A =>
       val b: Option[B] = f(a)
-      if(b.isDefined) return b
+      if (b.isDefined) return b
     }
     
     None
@@ -209,7 +209,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
    */
   def toHashMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, V] = {
     val b = immutable.HashMap.newBuilder[K, V]
-    for (x <- self)
+    for (x <- self.iterator)
       b += x
 
     b.result
@@ -221,7 +221,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def toUniqueHashMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, V] = {
     var m = immutable.HashMap.empty[K, V]
     
-    for (x <- self) {
+    for (x <- self.iterator) {
       val key: K = x._1
       require(!m.contains(key), s"RichIterableOnce.toUniqueHashMap - Map already contains key: $key   Existing Value: ${m(key)}  Trying to add value: ${x._2}")
       m += x
@@ -268,7 +268,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def toUniqueHashMapWithTransforms[K, V, K2, V2](keyTransform: K => K2, valueTransform: V => V2)(implicit ev: A <:< (K, V)): immutable.HashMap[K2, V2] = {
     var m = immutable.HashMap.empty[K2, V2]
     
-    for (x <- self) {
+    for (x <- self.iterator) {
       val key: K2 = keyTransform(x._1)
       val value: V2 = valueTransform(x._2)
       require(!m.contains(key), s"RichIterableOnce.toUniqueHashMap - Map already contains key: $key   Existing Value: ${m(key)}  Trying to add value: $value")
@@ -293,7 +293,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def toMultiValuedMapUsing[K](toKey: A => K): immutable.HashMap[K, IndexedSeq[A]] = {
     var m = immutable.HashMap.empty[K, Vector[A]]
     
-    for (value <- self) {
+    for (value <- self.iterator) {
       val key: K = toKey(value)
       
       val values: Vector[A] = m.get(key) match {
@@ -313,7 +313,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def toMultiValuedMapUsingKeys[K](toKeys: A => IterableOnce[K]): immutable.HashMap[K, IndexedSeq[A]] = {
     var m = immutable.HashMap.empty[K, Vector[A]]
     
-    for (value <- self; key <- toKeys(value)) {      
+    for (value <- self.iterator; key <- toKeys(value)) {
       val values: Vector[A] = m.get(key) match {
         case Some(existing) => existing :+ value
         case None => Vector(value)
@@ -333,7 +333,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def toMultiValuedMap[K, V](implicit ev: A <:< (K, V)): immutable.HashMap[K, Vector[V]] = {
     var m = immutable.HashMap.empty[K, Vector[V]]
     
-    for (x <- self) {
+    for (x <- self.iterator) {
       val key: K = x._1
       val value: V = x._2
       
@@ -356,7 +356,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
   def toMultiValuedMapWithTransforms[K, V, K2, V2](keyTransform: K => K2, valueTransform: V => V2)(implicit ev: A <:< (K, V)): immutable.HashMap[K2, Vector[V2]] = {
     var m = immutable.HashMap.empty[K2, Vector[V2]]
     
-    for (x <- self) {
+    for (x <- self.iterator) {
       val key: K2 = keyTransform(x._1)
       val value: V2 = valueTransform(x._2)
       
@@ -404,7 +404,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
     case _ =>
       var set = immutable.HashSet.empty[A]
       
-      for (x <- self) {
+      for (x <- self.iterator) {
         require(!set.contains(x), "RichIterableOnce.toUniqueHashSet - HashSet already contains value: "+x)
         set += x
       }
@@ -420,7 +420,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
     case _ =>
       var set = immutable.Set.empty[A]
       
-      for (x <- self) {
+      for (x <- self.iterator) {
         require(!set.contains(x), "RichIterableOnce.toUniqueSet - HashSet already contains value: "+x)
         set += x
       }
@@ -443,7 +443,7 @@ final class RichIterableOnce[A](val self: IterableOnce[A]) extends AnyVal {
     val seen: mutable.HashSet[B] = new mutable.HashSet[B]
     val res = Vector.newBuilder[A]
     
-    self.foreach { v: A =>
+    self.iterator.foreach { v: A =>
       val key: B = f(v)
       if (!seen.contains(key)) {
         res += v

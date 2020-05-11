@@ -15,9 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.{FunSuite,Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestEagerLoad extends FunSuite with Matchers {
+final class TestEagerLoad extends AnyFunSuite with Matchers {
 
   object EagerOuter {
     var value: String = "outer"

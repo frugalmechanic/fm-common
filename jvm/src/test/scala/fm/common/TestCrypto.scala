@@ -16,9 +16,10 @@
 package fm.common
 
 import java.nio.charset.StandardCharsets.UTF_8
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestCrypto extends FunSuite with Matchers {
+final class TestCrypto extends AnyFunSuite with Matchers {
 
   test("PBKDF2") {
     pbkdf2(

@@ -15,10 +15,10 @@
  */
 package fm.common
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TestNormalize extends FunSuite with Matchers {
+class TestNormalize extends AnyFunSuite with Matchers {
   
   test("lowerAlphanumericWithSpaces") {
     def t(pair: (String,String)): Unit = TestHelpers.withCallerInfo {

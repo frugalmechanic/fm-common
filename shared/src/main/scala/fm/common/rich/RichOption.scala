@@ -41,5 +41,8 @@ final class RichOption[A](val self: Option[A]) extends AnyVal {
   /**
    * Implements asJava method similar to collection.JavaConverters._ for scala Option class
    */
-  def asJava: Optional[A] = Optional.ofNullable(self.getOrElse(null).asInstanceOf[A])
+  def asJava: Optional[A] = self match {
+    case Some(v) => Optional.ofNullable[A](v)
+    case None    => Optional.empty[A]
+  }
 }

@@ -17,10 +17,11 @@ package fm.common.rich
 
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.Element
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import scala.scalajs.js.JavaScriptException
 
-final class TestRichNode extends FunSuite with Matchers {
+final class TestRichNode extends AnyFunSuite with Matchers {
   import fm.common.Implicits.toRichNode
 
   private def newListItem(): Element = {

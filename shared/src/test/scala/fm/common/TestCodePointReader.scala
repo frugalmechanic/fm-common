@@ -17,9 +17,10 @@ package fm.common
 
 import java.io.StringReader
 import java.lang.{StringBuilder => JavaStringBuilder}
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-final class TestCodePointReader extends FunSuite with Matchers {
+final class TestCodePointReader extends AnyFunSuite with Matchers {
 
   test("RFC3492 Example A - Arabic (Egyptian)") {
     check("\u0644\u064A\u0647\u0645\u0627\u0628\u062A\u0643\u0644\u0645\u0648\u0634\u0639\u0631\u0628\u064A\u061F")
@@ -302,7 +303,7 @@ final class TestCodePointReader extends FunSuite with Matchers {
 
     if (size ≡ 0) {
       numRead shouldBe 0
-      return
+      return ()
     }
 
     while (numRead >= 0) {
