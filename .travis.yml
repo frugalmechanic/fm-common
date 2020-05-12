@@ -1,8 +1,50 @@
 language: scala
+
 scala:
-  - 2.12.8
-jdk:
-  - oraclejdk8
-  - openjdk11
-install:
+- 2.11.12
+- 2.12.11
+
+env:
+  matrix:
+    - ADOPTOPENJDK=8
+    - ADOPTOPENJDK=11
+    - ADOPTOPENJDK=14
+
+before_install:
+  - nvm install 10
+  - nvm use 10
+  - node --version
   - npm install jsdom # We need JSDOM for some of the Scala.js tests
+  # adding $HOME/.sdkman to cache would create an empty directory, which interferes with the initial installation
+  - "[[ -d $HOME/.sdkman/bin/ ]] || rm -rf $HOME/.sdkman/"
+  - curl -sL https://get.sdkman.io | bash
+  - echo sdkman_auto_answer=true > $HOME/.sdkman/etc/config
+  - source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+before_cache:
+  - find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete
+  - find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete
+  - find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt                              -name "*.lock"               -delete
+
+cache:
+  directories:
+    - $HOME/Library/Caches/Coursier/v1
+    - $HOME/.cache/coursier/v1
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
+    - $HOME/.sdkman
+
+install:
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1) || true
+  - unset JAVA_HOME
+  - java -Xmx32m -version
+  - javac -J-Xmx32m -version
+  - unset _JAVA_OPTIONS
+  # detect sbt version from project/build.properties, otherwise hardcode as export TRAVIS_SBT=1.2.8
+  - export TRAVIS_SBT=$(grep sbt.version= project/build.properties | sed -e 's/sbt.version=//g' ) && echo "sbt $TRAVIS_SBT"
+  - sdk install sbt $TRAVIS_SBT || true
+  # override Travis CI's SBT_OPTS
+  - unset SBT_OPTS
+
+script: sbt -Dfile.encoding=UTF8 ++$TRAVIS_SCALA_VERSION! test
