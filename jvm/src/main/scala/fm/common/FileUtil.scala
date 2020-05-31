@@ -124,7 +124,13 @@ object FileUtil extends Logging {
   
   def fileOrResourceExists(file: String): Boolean = fileExists(file) || resourceExists(file)
   def fileOrResourceExists(file: File): Boolean = fileExists(file) || resourceExists(file)
-  
+
+  def fileOrResourceLastModified(file: String): Long = fileOrResourceLastModified(file.toFile)
+
+  def fileOrResourceLastModified(file: File): Long = {
+    if (file.isFile && file.canRead) file.lastModified() else ClassUtil.classpathLastModified(file)
+  }
+
   def readFile(file: String): String = readFile(file, UTF_8)
   def readFile(file: String, encoding: String): String = readFile(new File(file), encoding)
   def readFile(file: String, encoding: Charset): String = readFile(new File(file), encoding)
