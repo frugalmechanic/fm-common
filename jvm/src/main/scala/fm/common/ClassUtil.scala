@@ -17,7 +17,7 @@ package fm.common
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.{Method, Modifier}
-import java.net.{URLConnection, URLDecoder}
+import java.net.{JarURLConnection, URLConnection, URLDecoder}
 import java.io.{File, InputStream}
 import java.nio.file.Path
 import java.util.jar.{JarEntry, JarFile}
@@ -369,7 +369,12 @@ object ClassUtil extends Logging {
   
   /** Lookup the lastModified timestamp for a resource on the classpath */
   def classpathLastModified(file: File, classLoader: ClassLoader): Long = {
-    withClasspathURLConnection(file, classLoader){ _.getLastModified() }.getOrElse(0L) // This default matches File.lastModified()
+    withClasspathURLConnection(file, classLoader){ conn: URLConnection =>
+      conn match {
+        case j: JarURLConnection if null != j.getJarEntry => j.getJarEntry.getLastModifiedTime.toMillis
+        case _ => conn.getLastModified
+      }
+    }.getOrElse(0L) // This default matches File.lastModified()
   }
     
   /** Lookup the legnth for a resource on the classpath */
