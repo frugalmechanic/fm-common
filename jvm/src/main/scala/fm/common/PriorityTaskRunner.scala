@@ -65,7 +65,7 @@ object PriorityTaskRunner extends Logging {
     // Ideally the "ReentrantLock lock" from PriorityBlockingQueue would be used here but I don't have easy access to it
     override def offer(e: E): Boolean = synchronized {
       if (size() >= queueSize) false
-      else super.add(e)
+      else super.offer(e)
     }
 
     // Note: The BlockingQueue Interface defines this as a blocking method (i.e. wait until space is available) but
