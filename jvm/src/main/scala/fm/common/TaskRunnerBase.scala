@@ -15,10 +15,10 @@
  */
 package fm.common
 
-import java.util.concurrent.{RejectedExecutionException, ThreadFactory, ThreadPoolExecutor, TimeUnit}
+import java.util.concurrent.{ThreadFactory, ThreadPoolExecutor, TimeUnit}
 import java.util.concurrent.atomic.AtomicInteger
 import java.io.Closeable
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.Promise
 import scala.util.control.NonFatal
 
 object TaskRunnerBase extends Logging {
@@ -34,12 +34,18 @@ object TaskRunnerBase extends Logging {
       case ex: Throwable => logger.error(s"Caught Exception in TaskRunner ($name) Shutdown Hook: "+ ex)
     }
   }
-  
+
+  sealed trait RunnableWithPriority {
+    def priority: Long
+  }
+
+  final class ClearingBlockRunnableWithResultAndPriority[T](f: => T, promise: Promise[T], val priority: Long) extends ClearingBlockRunnableWithResult(f, promise) with RunnableWithPriority
+
   /**
    * Once the param f is run the reference to it is automatically cleared so that anything it
    * references can be garbage collected.
    */
-  final class ClearingBlockRunnableWithResult[T](f: => T, promise: Promise[T]) extends Runnable {
+  sealed class ClearingBlockRunnableWithResult[T](f: => T, promise: Promise[T]) extends Runnable {
     // I think it's okay that this is not marked as @volatile since we only care
     // that it eventually gets set to null so it can be garbage collected.
     private[this] var fun: () => T = () => f
@@ -53,12 +59,14 @@ object TaskRunnerBase extends Logging {
       fun = null
     }
   }
-  
+
+  final class ClearingBlockRunnableWithPriority(f: => Unit, val priority: Long) extends ClearingBlockRunnable(f) with RunnableWithPriority
+
   /**
    * Once the param f is run the reference to it is automatically cleared so that anything it
    * references can be garbage collected.
    */
-  final class ClearingBlockRunnable(f: => Unit) extends Runnable {
+  sealed class ClearingBlockRunnable(f: => Unit) extends Runnable {
     // I think it's okay that this is not marked as @volatile since we only care
     // that it eventually gets set to null so it can be garbage collected.
     private[this] var fun: () => Unit = () => f
@@ -101,7 +109,7 @@ object TaskRunnerBase extends Logging {
 }
 
 abstract class TaskRunnerBase(name: String) extends Closeable with Logging {
-  import TaskRunnerBase.{ShutdownHookThread, ClearingBlockRunnableWithResult, ClearingBlockRunnable, TaskRunnerThreadFactory}
+  import TaskRunnerBase.ShutdownHookThread
   
   private[this] val shutdownHookThread: Thread = new ShutdownHookThread(name, this)
   Runtime.getRuntime.addShutdownHook(shutdownHookThread)
@@ -118,35 +126,6 @@ abstract class TaskRunnerBase(name: String) extends Closeable with Logging {
   protected lazy val shutdownWarning: Boolean = {
     logger.warn(s"$name - TaskRunner is shutting down, rejected task submission")
     true
-  }
-
-  /**
-   * Attempt to submit this job to the queue.  Returns true if successful or false if the queue is full
-   */
-  final def tryExecute(f: => Unit): Boolean = try {
-    execute(f)
-    true
-  } catch {
-    case ex: RejectedExecutionException => false
-  }
-  
-  final def execute(f: => Unit): Unit = {
-    executor.execute(new ClearingBlockRunnable(f))
-  }
-
-  /**
-   * Attempt to submit this job to the queue.  Returns Some(...) if successful or None if the queue is full
-   */
-  final def trySubmit[T](f: => T): Option[Future[T]] = try {
-    Some(submit(f))
-  } catch {
-    case ex: RejectedExecutionException => None
-  }
-  
-  final def submit[T](f: => T): Future[T] = {
-    val promise = Promise[T]()
-    executor.submit(new ClearingBlockRunnableWithResult(f, promise))
-    promise.future
   }
   
   final def close(): Unit = {

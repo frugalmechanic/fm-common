@@ -42,7 +42,7 @@ object TaskRunner extends Logging {
   def newBuilder: TaskRunnerBuilder = new TaskRunnerBuilder
 }
 
-final class TaskRunner(val name: String, val coreThreads: Int, val maxThreads: Int, val queueSize: Int, val blockOnFullQueue: Boolean = true) extends TaskRunnerBase(name) {
+final class TaskRunner(val name: String, val coreThreads: Int, val maxThreads: Int, val queueSize: Int, val blockOnFullQueue: Boolean = true) extends TaskRunnerNonPriority(name) {
   
   private[this] val queue: BlockingQueue[Runnable] = {
     if(queueSize > 0) new ArrayBlockingQueue[Runnable](queueSize)

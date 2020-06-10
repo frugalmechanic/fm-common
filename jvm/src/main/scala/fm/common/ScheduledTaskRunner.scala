@@ -50,7 +50,7 @@ object ScheduledTaskRunner {
 @implicitNotFound("""Cannot find an implicit ScheduledTaskRunner. You might pass
 an (implicit st: ScheduledTaskRunner) parameter to your method
 or import fm.common.ScheduledTaskRunner.Implicits.global.""")
-final case class ScheduledTaskRunner(name: String, protected val executor: ScheduledThreadPoolExecutor) extends TaskRunnerBase(name) {
+final case class ScheduledTaskRunner(name: String, protected val executor: ScheduledThreadPoolExecutor) extends TaskRunnerNonPriority(name) {
   import ScheduledTaskRunner.RunnableWrapper
   import TaskRunnerBase.ClearingBlockRunnableWithResult
 
