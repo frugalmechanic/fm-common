@@ -45,7 +45,8 @@ abstract class TaskRunnerNonPriority(name: String) extends TaskRunnerBase(name) 
 
   final def submit[T](f: => T): Future[T] = {
     val promise = Promise[T]()
-    executor.submit(new ClearingBlockRunnableWithResult(f, promise))
+    // Note: We use executor.execute instead of executor.submit since we use our own Future/Promise
+    executor.execute(new ClearingBlockRunnableWithResult(f, promise))
     promise.future
   }
 }

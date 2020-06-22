@@ -39,19 +39,9 @@ object PriorityTaskRunner extends Logging {
     new PriorityTaskRunner(name, _coreThreads, _maxThreads, _queueSize)
   }
 
-  private class RunnableWithPriorityComparator(defaultPriority: Long) extends Comparator[Runnable] {
+  private object RunnableWithPriorityComparator extends Comparator[Runnable] {
     override def compare(a: Runnable, b: Runnable): Int = {
-      val aPriority: Long = a match {
-        case p: RunnableWithPriority => p.priority
-        case _ => defaultPriority
-      }
-
-      val bPriority: Long = a match {
-        case p: RunnableWithPriority => p.priority
-        case _ => defaultPriority
-      }
-
-      java.lang.Long.compare(aPriority, bPriority)
+      java.lang.Long.compare(a.asInstanceOf[RunnableWithPriority].priority, b.asInstanceOf[RunnableWithPriority].priority)
     }
   }
 
@@ -85,7 +75,7 @@ final class PriorityTaskRunner(val name: String, val coreThreads: Int, val maxTh
 
   private[this] val queue: BoundedPriorityQueue[Runnable] = {
     // Any items without a priority will default to Long.MaxValue (i.e. the lowest priority)
-    new BoundedPriorityQueue[Runnable](queueSize, new RunnableWithPriorityComparator(Long.MaxValue))
+    new BoundedPriorityQueue[Runnable](queueSize, RunnableWithPriorityComparator)
   }
 
   private class StandardRejectExecutionHandler() extends RejectedExecutionHandler {
@@ -132,7 +122,8 @@ final class PriorityTaskRunner(val name: String, val coreThreads: Int, val maxTh
 
   final def submit[T](priority: Long)(f: => T): Future[T] = {
     val promise = Promise[T]()
-    executor.submit(new ClearingBlockRunnableWithResultAndPriority(f, promise, priority))
+    // Note: We use executor.execute instead of executor.submit since we use our own Future/Promise
+    executor.execute(new ClearingBlockRunnableWithResultAndPriority(f, promise, priority))
     promise.future
   }
 }
