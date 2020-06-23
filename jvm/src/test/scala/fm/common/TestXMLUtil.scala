@@ -21,8 +21,10 @@ import org.scalatest.{FunSuite, Matchers}
 
 final class TestXMLUtil extends FunSuite with Matchers {
   
-  test("isXml()") {
-    def isXML(s: String): Boolean = XMLUtil.isXML(new ByteArrayInputStream(s.getBytes(UTF_8))) 
+  test("isXml") {
+    def isXML(s: String): Boolean = {
+      XMLUtil.isXML(s) && XMLUtil.isXML(new ByteArrayInputStream(s.getBytes(UTF_8)))
+    }
     
     isXML("foo") shouldBe false
     isXML("foo<hello>") shouldBe false
@@ -30,5 +32,24 @@ final class TestXMLUtil extends FunSuite with Matchers {
     isXML("<hello>") shouldBe true // This looks like XML which is why it's true
     isXML("<!-- foo --><hello>") shouldBe true
     isXML("""<?xml version="1.0" encoding="ISO-8859-1"?><ACES version="2.0">""") shouldBe true
+  }
+
+  test("isValidXML") {
+    def isValidXML(s: String): Boolean = XMLUtil.isValidXML(s)
+
+    isValidXML("foo") shouldBe false
+    isValidXML("foo<hello>") shouldBe false
+
+    isValidXML("<hello>") shouldBe false
+    isValidXML("<hello></foo>") shouldBe false
+    isValidXML("<hello></hello>") shouldBe true
+    isValidXML("  <hello>  </hello>  ") shouldBe true
+    isValidXML("<hello></hello>asd") shouldBe false
+    isValidXML("<hello></hello>  <!-- foo -->  ") shouldBe true
+    isValidXML("<!-- foo --><hello>") shouldBe false
+    isValidXML("<!-- foo --><hello></foo>") shouldBe false
+    isValidXML("<!-- foo --><hello></hello>") shouldBe true
+    isValidXML("""<?xml version="1.0" encoding="ISO-8859-1"?><ACES version="2.0">""") shouldBe false
+    isValidXML("""<?xml version="1.0" encoding="ISO-8859-1"?><ACES version="2.0"><foo></foo></ACES>""") shouldBe true
   }
 }
