@@ -1,7 +1,8 @@
 package fm.common
 
 import com.google.common.io.{BaseEncoding => GuavaBaseEncoding}
-import java.io.{FilterInputStream, IOException, FilterOutputStream}
+import java.io.{FilterInputStream, FilterOutputStream, IOException}
+import java.nio.CharBuffer
 import java.nio.charset.StandardCharsets.UTF_8
 
 /**
@@ -13,7 +14,7 @@ object Base16 extends BaseEncoding {
   private[this] val base16Upper: GuavaBaseEncoding = GuavaBaseEncoding.base16()
   private[this] val base16Lower: GuavaBaseEncoding = GuavaBaseEncoding.base16().lowerCase()
   
-  def decode(data: Array[Char]): Array[Byte] = try { if (isLower(data)) base16Lower.decode(data) else base16Upper.decode(data) } catch exceptionHandler
+  def decode(data: Array[Char]): Array[Byte] = try { if (isLower(data)) base16Lower.decode(CharBuffer.wrap(data)) else base16Upper.decode(CharBuffer.wrap(data)) } catch exceptionHandler
   def decode(data: CharSequence): Array[Byte] = try { if (isLower(data)) base16Lower.decode(data) else base16Upper.decode(data) } catch exceptionHandler
 
   def encode(bytes: Array[Byte]): String = base16Lower.encode(bytes)
@@ -34,7 +35,7 @@ object Base32 extends BaseEncoding {
   private[this] val base32Upper: GuavaBaseEncoding = GuavaBaseEncoding.base32()
   private[this] val base32UpperNoPadding: GuavaBaseEncoding = base32Upper.omitPadding()
   
-  def decode(data: Array[Char]): Array[Byte] = try { if (isLower(data)) base32Lower.decode(data) else base32Upper.decode(data) } catch exceptionHandler
+  def decode(data: Array[Char]): Array[Byte] = try { if (isLower(data)) base32Lower.decode(CharBuffer.wrap(data)) else base32Upper.decode(CharBuffer.wrap(data)) } catch exceptionHandler
   def decode(data: CharSequence): Array[Byte] = try { if (isLower(data)) base32Lower.decode(data) else base32Upper.decode(data) } catch exceptionHandler
 
   def encode(bytes: Array[Byte]): String = base32Lower.encode(bytes)
@@ -61,7 +62,7 @@ object Base32Hex extends BaseEncoding {
   private[this] val base32Upper: GuavaBaseEncoding = GuavaBaseEncoding.base32Hex()
   private[this] val base32UpperNoPadding: GuavaBaseEncoding = base32Upper.omitPadding()
   
-  def decode(data: Array[Char]): Array[Byte] = try { if (isLower(data)) base32Lower.decode(data) else base32Upper.decode(data) } catch exceptionHandler
+  def decode(data: Array[Char]): Array[Byte] = try { if (isLower(data)) base32Lower.decode(CharBuffer.wrap(data)) else base32Upper.decode(CharBuffer.wrap(data)) } catch exceptionHandler
   def decode(data: CharSequence): Array[Byte] = try { if (isLower(data)) base32Lower.decode(data) else base32Upper.decode(data) } catch exceptionHandler
 
   def encode(bytes: Array[Byte]): String = base32Lower.encode(bytes)
@@ -178,7 +179,7 @@ object Base64Strict extends BaseEncoding {
   private[this] val base64: GuavaBaseEncoding = GuavaBaseEncoding.base64()
   private[this] val base64NoPadding: GuavaBaseEncoding = base64.omitPadding()
   
-  def decode(data: Array[Char]): Array[Byte] = try { base64.decode(data) } catch exceptionHandler
+  def decode(data: Array[Char]): Array[Byte] = try { base64.decode(CharBuffer.wrap(data)) } catch exceptionHandler
   def decode(data: CharSequence): Array[Byte] = try { base64.decode(data) } catch exceptionHandler
   
   def encode(bytes: Array[Byte]): String = base64.encode(bytes)
@@ -195,7 +196,7 @@ object Base64URL extends BaseEncoding {
   private[this] val base64Url: GuavaBaseEncoding = GuavaBaseEncoding.base64Url()
   private[this] val base64UrlNoPadding: GuavaBaseEncoding = base64Url.omitPadding()
   
-  def decode(data: Array[Char]): Array[Byte] = try { base64Url.decode(data) } catch exceptionHandler
+  def decode(data: Array[Char]): Array[Byte] = try { base64Url.decode(CharBuffer.wrap(data)) } catch exceptionHandler
   def decode(data: CharSequence): Array[Byte] = try { base64Url.decode(data) } catch exceptionHandler
   
   def encode(bytes: Array[Byte]): String = base64Url.encode(bytes)

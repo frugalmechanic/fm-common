@@ -18,6 +18,7 @@
  */
 package fm.common
 
+import java.nio.CharBuffer
 import java.util.Arrays
 
 /**
@@ -179,7 +180,7 @@ object Base58 extends BaseEncoding {
   }
 
   def decode(input: Array[Char]): Array[Byte] = {
-    decode((input: CharSequence))
+    decode(CharBuffer.wrap(input))
   }
 
   /**
