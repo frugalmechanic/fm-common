@@ -121,6 +121,7 @@ final case class OutputStreamResource(
     else if (lowerFileName.endsWith(".xz"))     xz(resource)
     else if (lowerFileName.endsWith(".zip"))    zip(resource, ".zip")
     else if (lowerFileName.endsWith(".jar"))    jar(resource, ".jar")
+    else if (lowerFileName.endsWith(".zst"))    zstd(resource)
     else resource
   }
   
@@ -128,6 +129,7 @@ final case class OutputStreamResource(
   private def snappy(r: Resource[OutputStream]): Resource[OutputStream] = r.flatMap { Snappy.newOutputStream(_) }
   private def bzip2(r: Resource[OutputStream]):  Resource[OutputStream] = r.flatMap { new BZip2CompressorOutputStream(_) }
   private def xz(r: Resource[OutputStream]):     Resource[OutputStream] = r.flatMap { new XZCompressorOutputStream(_) }
+  private def zstd(r: Resource[OutputStream]):   Resource[OutputStream] = r.flatMap { ZStandard.newOutputStream(_) }
   
   private def zip(r: Resource[OutputStream], extension: String): Resource[OutputStream] = r.flatMap { os: OutputStream =>
     val zos: ZipOutputStream = new ZipOutputStream(os)

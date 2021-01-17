@@ -40,6 +40,7 @@ final class TestOutputStreamResource extends FunSuite with Matchers {
   test(".xz")     { check("hello_world.txt.xz") }
   test(".zip")    { check("hello_world.txt.zip") }
   test(".jar")    { check("hello_world.txt.jar") }
+  test(".zst")    { check("hello_world.txt.zst") }
 
   test("UTF-8-BOM Charset") {
     val bytes: Array[Byte] = writeBytes("foo.txt", UTF_8_BOM)

@@ -36,6 +36,7 @@ final class TestInputStreamResource extends FunSuite with Matchers {
   test(".xz")        { checkCompression("hello_world.txt.xz", _.unxz) }
   test(".zip")       { checkCompression("hello_world.txt.zip", _.unzip) }
   test(".jar")       { checkCompression("hello_world.txt.jar", _.unjar) }
+  test(".zst")       { checkCompression("hello_world.txt.zst", _.unzstd) }
 //  test(".7z")        { checkCompression("hello_world.txt.7z", _.un7zip) }
 
   test(".z7") {

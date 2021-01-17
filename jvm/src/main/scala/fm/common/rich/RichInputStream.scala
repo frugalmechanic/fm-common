@@ -15,7 +15,7 @@
  */
 package fm.common.rich
 
-import fm.common.{IOUtils, Snappy}
+import fm.common.{IOUtils, Snappy, ZStandard}
 import java.io.{BufferedInputStream, File, InputStream}
 import java.util.zip.GZIPInputStream
 import org.apache.commons.compress.archivers.{ArchiveEntry, ArchiveInputStream, ArchiveStreamFactory}
@@ -40,6 +40,7 @@ final class RichInputStream(val is: InputStream) extends AnyVal {
   def unsnappy: InputStream = Snappy.newInputStream(is)
   def bunzip2:  InputStream = new BZip2CompressorInputStream(is)
   def unxz:     InputStream = new XZCompressorInputStream(is)
+  def unzstd:   InputStream = ZStandard.newInputStream(is)
   
   // This appears to be as fast as using ZipInputStream directly
   def unzip: InputStream = unarchive(toBufferedInputStream, ArchiveStreamFactory.ZIP)

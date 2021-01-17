@@ -328,6 +328,7 @@ final case class InputStreamResource(
     else if (lowerFileName.endsWith(".xz"))        unxz(resource)
     else if (lowerFileName.endsWith(".zip"))       unzip(resource)
     else if (lowerFileName.endsWith(".jar"))       unjar(resource)
+    else if (lowerFileName.endsWith(".zst"))       unzstd(resource)
 //    else if (lowerFileName.endsWith(".7z"))        un7zip(resource) // Does not work since you cannot stream .7z files
     else resource
   }
@@ -339,6 +340,7 @@ final case class InputStreamResource(
   private def unzip(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.unzip    }
   private def unjar(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.unjar    }
   private def untar(r: Resource[InputStream]):    Resource[InputStream] = r.flatMap{ _.untar    }
+  private def unzstd(r: Resource[InputStream]):   Resource[InputStream] = r.flatMap{ _.unzstd   }
 //  private def un7zip(r: Resource[InputStream]):   Resource[InputStream] = r.flatMap{ _.un7zip   }
 
   def showArchiveEntries(): Unit = resource.use { is: InputStream =>
