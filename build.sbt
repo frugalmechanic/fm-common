@@ -78,7 +78,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "org.apache.commons" % "commons-lang3" % "3.8.1",
       "org.slf4j" % "slf4j-api" % "1.7.25",
       "org.tukaani" % "xz" % "1.8",  // Used by commons-compress and should be synced up with whatever version commons-compress requires
-      "org.xerial.snappy" % "snappy-java" % "1.1.8.2"
+      "org.xerial.snappy" % "snappy-java" % "1.1.8.4"
     )
   ):_*).
   jsSettings(
