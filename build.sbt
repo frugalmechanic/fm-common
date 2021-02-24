@@ -73,7 +73,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
       "com.sun.mail" % "javax.mail" % "1.5.2" % "provided",
       "com.fasterxml.woodstox" % "woodstox-core" % "5.1.0",
       "commons-io" % "commons-io" % "2.6",
-      "it.unimi.dsi" % "fastutil" % "8.2.2",
+      "it.unimi.dsi" % "fastutil" % "8.5.2",
       "org.apache.commons" % "commons-compress" % "1.18",
       "org.apache.commons" % "commons-lang3" % "3.8.1",
       "org.slf4j" % "slf4j-api" % "1.7.25",
