@@ -67,7 +67,7 @@ lazy val `fm-common-` = crossProject.in(file(".")).
     // Add JVM-specific settings here
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "com.github.luben" % "zstd-jni" % "1.4.8-1",
+      "com.github.luben" % "zstd-jni" % "1.4.8-7",
       "com.google.guava" % "guava" % "28.0-jre",
       "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3",
       "com.sun.mail" % "javax.mail" % "1.5.2" % "provided",
