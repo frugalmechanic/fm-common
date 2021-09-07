@@ -245,7 +245,7 @@ final class TestPunycode extends FunSuite with Matchers {
 
   private def check(original: String, encoded: String): Unit = {
     checkIDN(original, encoded)
-    checkSunPunycode(original, encoded)
+//    checkSunPunycode(original, encoded)
     checkFM(original, encoded)
   }
 
@@ -261,7 +261,7 @@ final class TestPunycode extends FunSuite with Matchers {
   }
 
   private def checkWithoutJVMIDN(original: String, encoded: String): Unit = {
-    checkSunPunycode(original, encoded)
+//    checkSunPunycode(original, encoded)
     checkFM(original, encoded)
   }
 
@@ -284,15 +284,16 @@ final class TestPunycode extends FunSuite with Matchers {
     Punycode.decodePair(pair._1, pair._2) shouldBe originalOrEmptyString
   }
 
-  private def checkSunPunycode(original: String, encoded: String): Unit = {
-    import sun.net.idn.{Punycode => SunPunycode}
-
-    // SunPunycode doesn't handle null input so ignore it
-    if (null == original) return
-
-    SunPunycode.encode(new StringBuffer(original), null).toString shouldBe encoded
-    SunPunycode.decode(new StringBuffer(encoded), null).toString shouldBe original
-  }
+//  private def checkSunPunycode(original: String, encoded: String): Unit = {
+//    // This has been moved to jdk.internal.icu.impl.Punycode in newer JDK versions and causes compile errors
+//    import sun.net.idn.{Punycode => SunPunycode}
+//
+//    // SunPunycode doesn't handle null input so ignore it
+//    if (null == original) return
+//
+//    SunPunycode.encode(new StringBuffer(original), null).toString shouldBe encoded
+//    SunPunycode.decode(new StringBuffer(encoded), null).toString shouldBe original
+//  }
 
   private def checkIDN(original: String, encoded: String): Unit = {
     // IDN doesn't handle null input so ignore it
