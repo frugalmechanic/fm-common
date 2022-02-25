@@ -1,10 +1,6 @@
-addSbtPlugin("com.frugalmechanic" % "fm-sbt-common" % "0.22.0")
-
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.33")
-
-addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.4")
-
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
-
-addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.8")
-
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
+addSbtPlugin("com.github.sbt" % "sbt-release" % "1.1.0")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.21")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.12.0")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.2.0")
+libraryDependencies += "org.scala-js" %% "scalajs-env-jsdom-nodejs" % "1.1.0"
