@@ -93,14 +93,14 @@ lazy val `fm-common-core` = crossProject(JSPlatform, JVMPlatform).in(file("fm-co
     name := "fm-common",
     description := "Common Scala classes that we use at Frugal Mechanic / Eluvio",
   ).jvmSettings(
-    jvmDependenciesSetting(Some("optional")),
+    jvmDependenciesSetting(None),
     // include the macro classes and resources in the main jar
     Compile / packageBin / mappings ++= { `fm-common-core-macros`.jvm / Compile / packageBin / mappings }.value,
     // include the macro sources in the main source jar
     Compile / packageSrc / mappings ++= { `fm-common-core-macros`.jvm / Compile / packageSrc / mappings }.value,
   ).jsSettings(
     jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
-    jsDependenciesSetting(Some("optional")),
+    jsDependenciesSetting(None),
     // include the macro classes and resources in the main jar
     Compile / packageBin / mappings ++= { `fm-common-core-macros`.js / Compile / packageBin / mappings }.value,
     // include the macro sources in the main source jar
